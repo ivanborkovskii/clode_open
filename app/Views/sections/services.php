@@ -54,9 +54,7 @@ use App\Core\View;
                     <div class="services__panel-actions">
                         <a class="link-arrow" href="<?= View::e($item['href']) ?>">
                             Подробнее об услуге
-                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none" aria-hidden="true">
-                                <path d="M10 1l5 5-5 5M15 6H0" stroke="currentColor" stroke-width="1.8"/>
-                            </svg>
+                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
                         </a>
                     </div>
                 </div>

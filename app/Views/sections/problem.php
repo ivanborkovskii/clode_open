@@ -19,6 +19,9 @@ use App\Core\View;
         <div class="problem__grid">
             <?php foreach ($problem['items'] as $item): ?>
                 <article class="problem__item">
+                    <span class="icon-box">
+                        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><use href="#<?= View::e($item['icon']) ?>"/></svg>
+                    </span>
                     <h3><?= View::e($item['title']) ?></h3>
                     <p><?= View::e($item['text']) ?></p>
                 </article>

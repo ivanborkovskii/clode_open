@@ -70,6 +70,9 @@ $title   = ($seo['title'] ?? '') !== ''
 <body>
     <a class="skip-link" href="#main">Перейти к содержимому</a>
 
+    <?php // Спрайт иконок: подключается один раз, дальше только <use href="#i-...">. ?>
+    <?php $view->partial('partials/icons'); ?>
+
     <?php $view->partial('partials/header'); ?>
 
     <main id="main">

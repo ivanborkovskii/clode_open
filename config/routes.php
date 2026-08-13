@@ -16,6 +16,9 @@ $router->get('/', 'HomeController@index');
 
 $router->post('/zayavka', 'LeadController@store');
 
+$router->get('/privacy', 'LegalController@privacy');
+$router->get('/soglasie', 'LegalController@consent');
+
 $router->get('/sitemap.xml', 'SitemapController@index');
 $router->get('/sitemap-pages.xml', 'SitemapController@pages');
 

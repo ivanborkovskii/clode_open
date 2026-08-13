@@ -38,11 +38,12 @@ return [
         'charset'  => 'utf8mb4',
     ],
 
-    // Куда уходят заявки с форм. Пока — в лог-файл.
-    // TODO: заменить на реальную интеграцию (Битрикс24 / amoCRM / почта).
+    // Куда уходят заявки с форм.
+    // Письмо отправляется всегда, копия дублируется в storage/logs/leads.log —
+    // чтобы заявка не потерялась, если почтовый сервер откажет.
     'leads' => [
-        'driver'  => getenv('LEADS_DRIVER') ?: 'log',
-        'mail_to' => getenv('LEADS_MAIL_TO') ?: 'info@iborkovsky.ru',
+        'mail_to'   => getenv('LEADS_MAIL_TO') ?: 'borkovsky.iv@yandex.ru',
+        'mail_from' => getenv('LEADS_MAIL_FROM') ?: 'noreply@iborkovsky.ru',
     ],
 
     // Версия статики для сброса кэша браузера при обновлении CSS/JS.

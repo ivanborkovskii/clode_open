@@ -113,8 +113,9 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                                     <input type="checkbox" name="privacy" value="1" required
                                            <?= isset($values['privacy']) ? 'checked' : '' ?>>
                                     <span>
-                                        <?= View::e($form['privacy']) ?>
-                                        и с <a href="<?= View::e($form['privacy_href']) ?>">политикой конфиденциальности</a>
+                                        <?= View::e($form['privacy']) ?> на условиях
+                                        <a href="<?= View::e($form['consent_href']) ?>" target="_blank" rel="noopener">согласия</a>
+                                        и <a href="<?= View::e($form['privacy_href']) ?>" target="_blank" rel="noopener">политики конфиденциальности</a>
                                     </span>
                                 </label>
                                 <p class="field__error" data-error-for="privacy"><?= View::e($errors['privacy'] ?? '') ?></p>

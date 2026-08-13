@@ -17,9 +17,7 @@ use App\Core\View;
 
         <a class="btn btn--dark" href="<?= View::e($band['cta']['href']) ?>">
             <?= View::e($band['cta']['label']) ?>
-            <svg width="16" height="12" viewBox="0 0 16 12" fill="none" aria-hidden="true">
-                <path d="M10 1l5 5-5 5M15 6H0" stroke="currentColor" stroke-width="1.8"/>
-            </svg>
+            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
         </a>
     </div>
 </section>

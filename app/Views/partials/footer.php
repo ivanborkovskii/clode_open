@@ -66,6 +66,11 @@ $columns = [
                 <span><?= View::e($company['legal_name']) ?></span>
                 <span>ОГРН <?= View::e($company['ogrn']) ?> · ИНН <?= View::e($company['inn']) ?></span>
             </div>
+            <nav class="footer__legal-links" aria-label="Правовые документы">
+                <a href="/privacy">Политика конфиденциальности</a>
+                <a href="/soglasie">Согласие на обработку данных</a>
+            </nav>
+
             <span>© <?= date('Y') ?></span>
         </div>
     </div>

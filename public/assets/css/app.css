@@ -203,6 +203,20 @@ strong { font-weight: 700; }
 .section--tight { padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem); }
 .section--alt { background: var(--paper-alt); }
 
+/* Светлая секция с точечным паттерном. Точки мелкие и бледные —
+   дают фактуру фона, не конкурируя с текстом. */
+.section--pattern {
+  position: relative;
+  background: var(--paper);
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.section--pattern > .container {
+  position: relative;
+  z-index: 1;
+}
+
 .section--dark {
   background: var(--ink-900);
   color: var(--text-invert);
@@ -248,6 +262,24 @@ strong { font-weight: 700; }
   height: 2px;
   background: var(--accent);
   flex: none;
+}
+
+/* Иконка в квадратной подложке. Один класс на все секции —
+   поэтому наборы блоков выглядят как части одной системы. */
+.icon-box {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+}
+
+.section--dark .icon-box {
+  border-color: var(--line-invert);
+  background: rgba(30, 150, 240, 0.1);
 }
 
 .visually-hidden {
@@ -709,8 +741,18 @@ textarea.field__control {
 .footer__legal {
   display: grid;
   gap: var(--s-1);
-  max-width: 34rem;
+  max-width: 26rem;
 }
+
+.footer__legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+  margin-right: auto;
+}
+
+.footer__legal-links a { text-decoration: underline; text-underline-offset: 2px; }
+.footer__legal-links a:hover { color: #fff; }
 
 @media (max-width: 1023px) {
   .footer__top { grid-template-columns: 1fr 1fr; }
@@ -721,4 +763,48 @@ textarea.field__control {
     grid-template-columns: 1fr;
     gap: var(--s-7);
   }
+}
+
+/* --------------------------------------------------------------------------
+   9. Юридические страницы
+   -------------------------------------------------------------------------- */
+
+.legal__head {
+  max-width: 44rem;
+  margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  padding-bottom: var(--s-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.legal__head h1 { font-size: var(--fs-h2); }
+
+/* Ширина колонки под длинный текст: около 75 знаков в строке. */
+.legal__body { max-width: 46rem; }
+
+.legal__section + .legal__section { margin-top: var(--s-8); }
+
+.legal__section h2 {
+  margin-bottom: var(--s-4);
+  font-size: var(--fs-h3);
+}
+
+.legal__section p {
+  margin-bottom: var(--s-4);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.legal__list {
+  display: grid;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+  padding-left: var(--s-5);
+  list-style: decimal;
+}
+
+.legal__list li {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
 }

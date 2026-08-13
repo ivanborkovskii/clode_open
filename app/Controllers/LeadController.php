@@ -58,14 +58,22 @@ final class LeadController extends Controller
     }
 
     /**
-     * Сохранение заявки. Сейчас — строка в лог-файле.
+     * Сохранение заявки: письмо на почту плюс запись в лог.
      *
-     * TODO: подключить реальный приёмник — создание сделки в Битрикс24 / amoCRM
-     * через вебхук или отправку письма. Менять нужно только этот метод.
+     * Лог ведётся всегда — если почтовый сервер откажет, заявка не потеряется.
+     * Для создания сделки сразу в Битрикс24 или amoCRM сюда добавляется
+     * вызов вебхука, остальной код не меняется.
      *
      * @param array<string, string> $data
      */
     private function save(array $data): void
+    {
+        $this->log($data);
+        $this->mail($data);
+    }
+
+    /** @param array<string, string> $data */
+    private function log(array $data): void
     {
         $dir = dirname(__DIR__, 2) . '/storage/logs';
 
@@ -73,12 +81,43 @@ final class LeadController extends Controller
             mkdir($dir, 0775, true);
         }
 
-        $data['time'] = date('c');
-
         file_put_contents(
             $dir . '/leads.log',
-            json_encode($data, JSON_UNESCAPED_UNICODE) . PHP_EOL,
+            json_encode($data + ['time' => date('c')], JSON_UNESCAPED_UNICODE) . PHP_EOL,
             FILE_APPEND | LOCK_EX,
+        );
+    }
+
+    /** @param array<string, string> $data */
+    private function mail(array $data): void
+    {
+        $to      = $this->config['leads']['mail_to'];
+        $from    = $this->config['leads']['mail_from'];
+        $subject = 'Заявка с сайта: ' . $data['name'];
+
+        $body = "Имя: {$data['name']}\n"
+            . "Телефон: {$data['phone']}\n"
+            . 'Почта: ' . ($data['email'] !== '' ? $data['email'] : '—') . "\n"
+            . 'Задача: ' . ($data['message'] !== '' ? $data['message'] : '—') . "\n\n"
+            . 'Отправлено: ' . date('d.m.Y H:i');
+
+        // Тема письма кириллицей требует MIME-кодирования, иначе почтовые
+        // клиенты покажут вместо неё набор символов.
+        $headers = [
+            'From: =?UTF-8?B?' . base64_encode('Сайт iborkovsky.ru') . "?= <{$from}>",
+            'Content-Type: text/plain; charset=UTF-8',
+            'MIME-Version: 1.0',
+        ];
+
+        if ($data['email'] !== '') {
+            $headers[] = 'Reply-To: ' . $data['email'];
+        }
+
+        @mail(
+            $to,
+            '=?UTF-8?B?' . base64_encode($subject) . '?=',
+            $body,
+            implode("\r\n", $headers),
         );
     }
 

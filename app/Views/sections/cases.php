@@ -1,7 +1,7 @@
 <?php
 /**
- * Кейсы. Структура одинаковая: задача → что было → результат.
- * Тексты взяты из описаний проектов заказчика.
+ * Кейсы. Скриншот портала, затем задача → что было → результат.
+ * Тексты и изображения — из материалов заказчика.
  *
  * @var array $cases
  */
@@ -19,6 +19,12 @@ use App\Core\View;
         <div class="cases__grid">
             <?php foreach ($cases['items'] as $case): ?>
                 <article class="case">
+                    <a class="case__shot" href="<?= View::e($case['href']) ?>" tabindex="-1" aria-hidden="true">
+                        <img src="/assets/img/cases/<?= View::e($case['slug']) ?>-1-sm.webp"
+                             alt="<?= View::e($case['alt']) ?>"
+                             width="600" height="338" loading="lazy" decoding="async">
+                    </a>
+
                     <header class="case__head">
                         <div>
                             <h3 class="case__company"><?= View::e($case['company']) ?></h3>
@@ -47,9 +53,7 @@ use App\Core\View;
                     <div class="case__foot">
                         <a class="link-arrow" href="<?= View::e($case['href']) ?>">
                             Разбор кейса
-                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none" aria-hidden="true">
-                                <path d="M10 1l5 5-5 5M15 6H0" stroke="currentColor" stroke-width="1.8"/>
-                            </svg>
+                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
                         </a>
                     </div>
                 </article>

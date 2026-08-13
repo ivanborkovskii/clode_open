@@ -88,60 +88,73 @@
   margin-top: var(--s-7);
 }
 
-/* Схема связей. */
+/* Скриншот портала в рамке браузера.
+   Лёгкий разворот в перспективе даёт объём без 3D-библиотек. */
 .hero__figure {
   position: relative;
   width: 100%;
+  perspective: 1600px;
 }
 
-.scheme { width: 100%; height: auto; }
-
-.scheme__wire {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1.25;
-  opacity: 0.55;
+.browser {
+  margin: 0;
+  background: #10254f;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.65);
+  transform: rotateY(-7deg) rotateX(2deg);
+  transform-origin: left center;
 }
 
-.scheme__node { fill: var(--accent); }
+.browser__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: 10px var(--s-4);
+  background: #0b1c40;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
 
-.scheme__label {
-  fill: #cfd9ec;
-  font-family: var(--font);
-  font-size: 14px;
+.browser__dots {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.browser__dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.browser__url {
+  font-size: var(--fs-xs);
   font-weight: 600;
+  color: var(--text-invert-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.scheme__box {
-  fill: rgba(30, 150, 240, 0.08);
-  stroke: var(--accent);
-  stroke-width: 1.5;
+.browser__shot {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-.scheme__core-label {
-  fill: #fff;
-  font-family: var(--font);
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+.hero__caption {
+  margin-top: var(--s-4);
+  font-size: var(--fs-xs);
+  color: var(--text-invert-muted);
+  text-align: right;
 }
 
-.scheme__core-sub {
-  fill: var(--accent);
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-}
+@media (max-width: 1023px) {
+  .browser { transform: none; }
 
-/* Импульс, идущий по линиям к ядру — единственная анимация первого экрана.
-   Движение задано в SVG через animateMotion, здесь только внешний вид. */
-.scheme__pulse {
-  fill: #fff;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scheme__pulse { display: none; }
+  .hero__caption { text-align: left; }
 }
 
 /* --------------------------------------------------------------------------
@@ -181,6 +194,45 @@
   margin-top: var(--s-2);
   font-size: var(--fs-sm);
   color: var(--text-invert-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Логотипы клиентов
+   -------------------------------------------------------------------------- */
+
+.clients {
+  border-bottom: 1px solid var(--line);
+}
+
+.clients__title {
+  margin-bottom: var(--s-6);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.clients__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+/* Логотипы приглушены до серого и проявляются при наведении:
+   иначе разноцветные знаки спорят с палитрой страницы. */
+.clients__item img {
+  height: 44px;
+  width: auto;
+  filter: grayscale(1);
+  opacity: 0.65;
+  transition: filter var(--transition), opacity var(--transition);
+}
+
+.clients__item:hover img {
+  filter: grayscale(0);
+  opacity: 1;
 }
 
 /* --------------------------------------------------------------------------
@@ -328,30 +380,99 @@
    Решения
    -------------------------------------------------------------------------- */
 
+/* Слева — заголовок и схема, справа — направления в две колонки. */
+.solutions__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: start;
+}
+
+.solutions__aside .section-head__lead { margin-bottom: var(--s-7); }
+
 .solutions__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--s-6);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-7) var(--s-6);
 }
 
 .solutions__col {
   display: flex;
   flex-direction: column;
-  padding-left: var(--s-5);
-  border-left: 2px solid var(--accent);
 }
 
 .solutions__col h3 { margin-bottom: var(--s-5); }
 
-/* Заголовки колонок разной длины: резервируем две строки,
+/* Заголовки разной длины: резервируем две строки,
    чтобы списки под ними начинались на одном уровне. */
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .solutions__col h3 { min-height: 2.5em; }
+}
+
+/* Изометрическая схема трёх слоёв системы. */
+.iso {
+  width: 100%;
+  height: auto;
+  max-width: 520px;
+  margin-top: var(--s-6);
+}
+
+.iso__leader {
+  fill: none;
+  stroke: var(--line-invert);
+  stroke-width: 1;
+}
+
+.iso__axis {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 4;
+  opacity: 0.5;
+}
+
+/* Объём даётся тремя оттенками граней, а не градиентами. */
+.iso__top {
+  fill: #12294f;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1;
+}
+
+.iso__side { stroke: rgba(255, 255, 255, 0.12); stroke-width: 1; }
+.iso__side--left { fill: #081a3c; }
+.iso__side--right { fill: #0c2148; }
+
+.iso__layer--accent .iso__top {
+  fill: #14487f;
+  stroke: var(--accent);
+}
+
+.iso__layer--accent .iso__side--left { fill: #0a2f57; }
+.iso__layer--accent .iso__side--right { fill: #0d3a68; }
+
+.iso__label {
+  fill: #fff;
+  font-family: var(--font);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.iso__text {
+  fill: var(--text-invert-muted);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.iso__spark { fill: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .iso__spark { display: none; }
 }
 
 .solutions__list {
   display: grid;
-  gap: var(--s-4);
+  gap: var(--s-3);
   flex: 1;
 }
 
@@ -359,7 +480,7 @@
   font-size: var(--fs-sm);
   line-height: 1.5;
   color: var(--text-invert-muted);
-  padding-bottom: var(--s-4);
+  padding-bottom: var(--s-3);
   border-bottom: 1px solid var(--line-invert);
 }
 
@@ -520,6 +641,25 @@
   border-color: var(--ink-900);
   transform: translateY(-3px);
 }
+
+/* Скриншот портала вверху карточки. */
+.case__shot {
+  display: block;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-alt);
+}
+
+.case__shot img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform var(--transition);
+}
+
+.case:hover .case__shot img { transform: scale(1.03); }
 
 .case__head {
   display: flex;
@@ -906,12 +1046,18 @@
   .facts__item:nth-child(n + 3) { border-top: 1px solid var(--line-invert); }
 
   .problem__grid,
-  .solutions__grid,
   .process__grid,
   .cases__grid { grid-template-columns: repeat(2, 1fr); }
 
   .expert__layout,
-  .contact__layout { grid-template-columns: 1fr; }
+  .contact__layout,
+  .solutions__layout { grid-template-columns: 1fr; }
+
+  /* Схема уходит под текст и центрируется. */
+  .iso {
+    max-width: 380px;
+    margin: var(--s-6) auto 0;
+  }
 
   /* В одну колонку карточка эксперта растягивается на всю ширину —
      высокое фото заняло бы почти экран. */
@@ -964,6 +1110,10 @@
     grid-template-columns: 1fr;
   }
 
+  .clients__row { gap: var(--s-6) var(--s-7); }
+
+  .clients__item img { height: 34px; }
+
   .process__grid { gap: var(--s-6); }
 
   .facts__grid { grid-template-columns: 1fr 1fr; }
@@ -990,9 +1140,8 @@
 
   /* Схема сжимается вместе с шириной экрана, поэтому подписи внутри неё
      задаём крупнее — иначе на телефоне они нечитаемы. */
-  .scheme__label { font-size: 18px; }
-  .scheme__core-label { font-size: 26px; }
-  .scheme__core-sub { font-size: 13px; }
+  .iso__label { font-size: 20px; }
+  .iso__text { font-size: 14px; }
 
   .cta-band__inner .btn { width: 100%; }
 

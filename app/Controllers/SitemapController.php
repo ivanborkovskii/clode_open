@@ -32,7 +32,11 @@ final class SitemapController extends Controller
     public function pages(): void
     {
         // По мере разработки внутренних страниц список пополняется.
-        $paths = ['/' => '1.0'];
+        $paths = [
+            '/'         => '1.0',
+            '/privacy'  => '0.3',
+            '/soglasie' => '0.3',
+        ];
         $body  = '';
 
         foreach ($paths as $path => $priority) {
