@@ -1,0 +1,56 @@
+<?php
+/**
+ * Карта сайта.
+ *
+ * Сразу сделана как индекс из нескольких файлов: при тысячах SEO-статей
+ * один файл не подойдёт (лимит поисковых систем — 50 000 URL на файл).
+ * Сейчас в индексе один файл со статическими страницами; файлы со статьями
+ * добавятся, когда появится раздел.
+ */
+
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+final class SitemapController extends Controller
+{
+    /** Индекс карт: /sitemap.xml */
+    public function index(): void
+    {
+        $files = ['sitemap-pages.xml'];
+        $body  = '';
+
+        foreach ($files as $file) {
+            $body .= "  <sitemap><loc>{$this->config['base_url']}/{$file}</loc>"
+                . '<lastmod>' . date('Y-m-d') . "</lastmod></sitemap>\n";
+        }
+
+        $this->xml('sitemapindex', $body);
+    }
+
+    /** Статические страницы: /sitemap-pages.xml */
+    public function pages(): void
+    {
+        // По мере разработки внутренних страниц список пополняется.
+        $paths = ['/' => '1.0'];
+        $body  = '';
+
+        foreach ($paths as $path => $priority) {
+            $body .= "  <url><loc>{$this->config['base_url']}{$path}</loc>"
+                . '<lastmod>' . date('Y-m-d') . "</lastmod>"
+                . "<priority>{$priority}</priority></url>\n";
+        }
+
+        $this->xml('urlset', $body);
+    }
+
+    private function xml(string $root, string $body): void
+    {
+        header('Content-Type: application/xml; charset=UTF-8');
+
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+            . "<{$root} xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
+            . $body
+            . "</{$root}>";
+    }
+}

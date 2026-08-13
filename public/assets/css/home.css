@@ -1,0 +1,1015 @@
+/* ==========================================================================
+   ГЛАВНАЯ СТРАНИЦА
+   Стили секций. Компоненты, которые понадобятся и на внутренних страницах
+   (кнопки, формы, шапка, подвал), лежат в app.css.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Первый экран
+   Текст слева, схема справа. Схема объясняет суть услуги без иллюстраций-заглушек.
+   -------------------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  background: var(--ink-900);
+  color: var(--text-invert);
+  overflow: hidden;
+}
+
+/* Тонкая сетка на фоне — задаёт «инженерный» характер, не отвлекая. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-invert) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-invert) 1px, transparent 1px);
+  background-size: 72px 72px;
+  opacity: 0.45;
+  mask-image: radial-gradient(120% 90% at 70% 25%, #000 20%, transparent 75%);
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: center;
+  padding-block: clamp(2.75rem, 1.8rem + 4.5vw, 5.5rem);
+}
+
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hero__eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.hero h1 {
+  max-width: 18ch;
+  color: #fff;
+}
+
+.hero__lead {
+  max-width: 40ch;
+  margin-top: var(--s-5);
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  color: var(--text-invert-muted);
+  text-wrap: pretty;
+}
+
+.hero__note {
+  max-width: 44ch;
+  margin-top: var(--s-4);
+  padding-left: var(--s-4);
+  border-left: 2px solid var(--accent);
+  font-size: var(--fs-sm);
+  color: var(--text-invert-muted);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  margin-top: var(--s-7);
+}
+
+/* Схема связей. */
+.hero__figure {
+  position: relative;
+  width: 100%;
+}
+
+.scheme { width: 100%; height: auto; }
+
+.scheme__wire {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.25;
+  opacity: 0.55;
+}
+
+.scheme__node { fill: var(--accent); }
+
+.scheme__label {
+  fill: #cfd9ec;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.scheme__box {
+  fill: rgba(30, 150, 240, 0.08);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.scheme__core-label {
+  fill: #fff;
+  font-family: var(--font);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.scheme__core-sub {
+  fill: var(--accent);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+/* Импульс, идущий по линиям к ядру — единственная анимация первого экрана.
+   Движение задано в SVG через animateMotion, здесь только внешний вид. */
+.scheme__pulse {
+  fill: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scheme__pulse { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Полоса фактов
+   -------------------------------------------------------------------------- */
+
+.facts {
+  position: relative;
+  background: var(--ink-900);
+  border-top: 1px solid var(--line-invert);
+}
+
+.facts__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.facts__item {
+  padding: var(--s-6) var(--s-5);
+  border-left: 1px solid var(--line-invert);
+}
+
+.facts__item:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.facts__value {
+  font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.facts__label {
+  margin-top: var(--s-2);
+  font-size: var(--fs-sm);
+  color: var(--text-invert-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Проблема
+   Не карточки: колонки с верхней линейкой. Меньше визуального шума.
+   -------------------------------------------------------------------------- */
+
+.problem__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-6);
+}
+
+.problem__item {
+  padding-top: var(--s-5);
+  border-top: 2px solid var(--ink-900);
+}
+
+.problem__item h3 {
+  font-size: var(--fs-h4);
+  margin-bottom: var(--s-3);
+}
+
+.problem__item p {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Услуги
+   Слева — список направлений, справа — раскрытая карточка.
+   На мобильном превращается в аккордеон (та же разметка и тот же скрипт).
+   -------------------------------------------------------------------------- */
+
+.services__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 0 clamp(2rem, 4vw, 4.5rem);
+  align-items: start;
+}
+
+.services__tab {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  padding: var(--s-5) 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.375rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.services__tab:first-of-type { border-top: 1px solid var(--line); }
+
+/* Маркер активного пункта — короткая черта слева. */
+.services__tab::before {
+  content: '';
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  flex: none;
+  transition: width var(--transition);
+}
+
+.services__tab:hover { color: var(--text); }
+
+.services__tab[aria-selected='true'] {
+  color: var(--text);
+}
+
+.services__tab[aria-selected='true']::before { width: 28px; }
+
+.services__panel {
+  grid-column: 2;
+  grid-row: 1 / span 20;
+  padding: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+  background: var(--ink-900);
+  color: var(--text-invert);
+  border-radius: var(--radius);
+}
+
+.services__panel[hidden] { display: none; }
+
+.services__panel h3 { color: #fff; }
+
+.services__panel-text {
+  margin-top: var(--s-4);
+  color: var(--text-invert-muted);
+  text-wrap: pretty;
+}
+
+.services__points {
+  display: grid;
+  gap: var(--s-3);
+  margin-top: var(--s-6);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--line-invert);
+}
+
+.services__points li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s-3);
+  align-items: start;
+  font-size: var(--fs-sm);
+  color: #dbe3f2;
+}
+
+/* Маркер списка — небольшой квадрат, а не иконка. */
+.services__points li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  margin-top: 0.55em;
+  background: var(--accent);
+  flex: none;
+}
+
+.services__note {
+  margin-top: var(--s-5);
+  padding: var(--s-4);
+  background: rgba(30, 150, 240, 0.1);
+  border-left: 2px solid var(--accent);
+  font-size: var(--fs-sm);
+  color: #fff;
+}
+
+.services__panel-actions {
+  margin-top: var(--s-6);
+}
+
+.services__panel .link-arrow { color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   Решения
+   -------------------------------------------------------------------------- */
+
+.solutions__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-6);
+}
+
+.solutions__col {
+  display: flex;
+  flex-direction: column;
+  padding-left: var(--s-5);
+  border-left: 2px solid var(--accent);
+}
+
+.solutions__col h3 { margin-bottom: var(--s-5); }
+
+/* Заголовки колонок разной длины: резервируем две строки,
+   чтобы списки под ними начинались на одном уровне. */
+@media (min-width: 1024px) {
+  .solutions__col h3 { min-height: 2.5em; }
+}
+
+.solutions__list {
+  display: grid;
+  gap: var(--s-4);
+  flex: 1;
+}
+
+.solutions__list li {
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-invert-muted);
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid var(--line-invert);
+}
+
+.solutions__list li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.solutions__col .link-arrow {
+  margin-top: var(--s-5);
+  font-size: var(--fs-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Интеграции
+   -------------------------------------------------------------------------- */
+
+.integrations__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+/* Ячейки разделены линиями сетки, а не отдельными рамками карточек. */
+.integrations__cell {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+  background: var(--paper);
+}
+
+.integrations__cell h3 {
+  font-size: var(--fs-h4);
+  margin-bottom: var(--s-3);
+}
+
+.integrations__cell p {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-top: var(--s-5);
+}
+
+.tag {
+  padding: 6px 10px;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Процесс
+   -------------------------------------------------------------------------- */
+
+.process__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-8) var(--s-6);
+}
+
+.process__step {
+  position: relative;
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+}
+
+.process__num {
+  display: block;
+  margin-bottom: var(--s-3);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.process__step h3 {
+  font-size: var(--fs-h4);
+  margin-bottom: var(--s-3);
+}
+
+.process__step p {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Полоса «от простого к сложному». */
+.approach {
+  margin-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  padding: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  background: var(--ink-900);
+  color: var(--text-invert);
+  border-radius: var(--radius);
+}
+
+.approach__title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--s-5);
+}
+
+.approach__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-5);
+}
+
+.approach__item {
+  display: grid;
+  gap: var(--s-2);
+  padding-left: var(--s-5);
+  border-left: 1px solid var(--line-invert);
+}
+
+.approach__label {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.approach__text {
+  font-size: var(--fs-sm);
+  color: var(--text-invert-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Кейсы
+   -------------------------------------------------------------------------- */
+
+.cases__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-5);
+}
+
+.case {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.case:hover {
+  border-color: var(--ink-900);
+  transform: translateY(-3px);
+}
+
+.case__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.case__company {
+  font-size: var(--fs-h4);
+  font-weight: 800;
+}
+
+.case__industry {
+  margin-top: var(--s-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.case__system {
+  flex: none;
+  padding: 5px 9px;
+  background: var(--ink-900);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.case__body {
+  display: grid;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  flex: 1;
+}
+
+.case__row-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--s-2);
+}
+
+.case__row p {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.case__row--result {
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+
+.case__row--result .case__row-title { color: var(--accent); }
+.case__row--result p { color: var(--text); }
+
+.case__foot {
+  padding: 0 var(--s-5) var(--s-5);
+}
+
+.cases__more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--s-7);
+}
+
+/* --------------------------------------------------------------------------
+   Эксперт
+   -------------------------------------------------------------------------- */
+
+.expert__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: start;
+}
+
+.expert__card {
+  padding: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.expert__name {
+  font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.expert__role {
+  margin-top: var(--s-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.expert__bio {
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Заглушка под фотографию — видно, что здесь нужен реальный файл. */
+.expert__photo-slot {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  margin-bottom: var(--s-5);
+  background: var(--paper-alt);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--s-4);
+}
+
+.expert__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  margin-top: var(--s-5);
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.expert__stat {
+  padding: var(--s-4);
+  background: var(--paper);
+}
+
+.expert__stat b {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.expert__stat span {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.expert__block + .expert__block { margin-top: var(--s-7); }
+
+.expert__block h3 {
+  font-size: var(--fs-h4);
+  margin-bottom: var(--s-4);
+}
+
+.expert__industries {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.expert__industry {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr;
+  gap: var(--s-4);
+  align-items: baseline;
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.expert__industry b {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.expert__principles {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.expert__principles li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s-3);
+  align-items: start;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.expert__principles li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  margin-top: 0.5em;
+  background: var(--accent);
+  flex: none;
+}
+
+/* --------------------------------------------------------------------------
+   Статьи
+   Блок готов к подключению к БД. Пока показывает состояние «раздел пуст».
+   -------------------------------------------------------------------------- */
+
+.articles__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-5);
+  margin-bottom: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+}
+
+.articles__head .section-head { margin-bottom: 0; }
+
+.articles__empty {
+  padding: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  background: var(--paper-alt);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Акцентная полоса призыва к действию
+   -------------------------------------------------------------------------- */
+
+.cta-band {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cta-band__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s-6);
+  align-items: center;
+  padding-block: clamp(2.5rem, 2rem + 2.5vw, 4rem);
+}
+
+.cta-band h2 {
+  max-width: 20ch;
+  font-size: clamp(1.5rem, 1.2rem + 1.6vw, 2.5rem);
+  color: #fff;
+}
+
+.cta-band p {
+  max-width: 52ch;
+  margin-top: var(--s-4);
+  color: rgba(255, 255, 255, 0.92);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Форма заявки
+   -------------------------------------------------------------------------- */
+
+.contact {
+  background: var(--ink-900);
+  color: var(--text-invert);
+}
+
+.contact__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(2rem, 4vw, 5rem);
+  align-items: start;
+}
+
+.contact__lead {
+  margin-top: var(--s-4);
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+  color: var(--text-invert-muted);
+  text-wrap: pretty;
+}
+
+.contact__direct {
+  display: grid;
+  gap: var(--s-4);
+  margin-top: var(--s-7);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--line-invert);
+}
+
+.contact__direct-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.contact__phone {
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.contact__mail {
+  font-size: var(--fs-lead);
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.contact__address {
+  font-size: var(--fs-sm);
+  color: var(--text-invert-muted);
+}
+
+.form-card {
+  padding: clamp(1.5rem, 1.2rem + 2vw, 2.5rem);
+  background: var(--paper);
+  color: var(--text);
+  border-radius: var(--radius);
+}
+
+.form-card h3 { margin-bottom: var(--s-5); }
+
+.form__grid {
+  display: grid;
+  gap: var(--s-5);
+}
+
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-5);
+}
+
+.form__foot {
+  display: grid;
+  gap: var(--s-4);
+  margin-top: var(--s-2);
+}
+
+/* --------------------------------------------------------------------------
+   Адаптив
+   Точки перелома выбраны по содержимому: сначала 4 → 2 колонки,
+   затем всё в одну.
+   -------------------------------------------------------------------------- */
+
+/* Ноутбуки */
+@media (max-width: 1199px) {
+  .integrations__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Планшеты */
+@media (max-width: 1023px) {
+  .hero__inner {
+    grid-template-columns: 1fr;
+    gap: var(--s-8);
+  }
+
+  .hero h1 { max-width: 20ch; }
+
+  .hero__figure {
+    max-width: 560px;
+    margin-inline: auto;
+  }
+
+  .facts__grid { grid-template-columns: repeat(2, 1fr); }
+
+  .facts__item {
+    padding-inline: var(--s-5);
+    border-left: 1px solid var(--line-invert);
+  }
+
+  .facts__item:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .facts__item:nth-child(n + 3) { border-top: 1px solid var(--line-invert); }
+
+  .problem__grid,
+  .solutions__grid,
+  .process__grid,
+  .cases__grid { grid-template-columns: repeat(2, 1fr); }
+
+  .expert__layout,
+  .contact__layout { grid-template-columns: 1fr; }
+
+  /* В одну колонку карточка эксперта растягивается на всю ширину —
+     высокое фото заняло бы почти экран. */
+  .expert__photo-slot { aspect-ratio: 16 / 7; }
+
+  .cta-band__inner { grid-template-columns: 1fr; }
+
+  /* Услуги превращаются в аккордеон: панель идёт сразу за своим пунктом. */
+  .services__layout {
+    display: block;
+  }
+
+  .services__tab {
+    justify-content: space-between;
+    padding: var(--s-4) 0;
+  }
+
+  .services__tab::before { display: none; }
+
+  /* Индикатор раскрытия. */
+  .services__tab::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-right: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    transform: rotate(45deg) translate(-2px, -2px);
+    transition: transform var(--transition);
+    flex: none;
+  }
+
+  .services__tab[aria-selected='true']::after {
+    transform: rotate(-135deg) translate(-4px, -4px);
+  }
+
+  .services__panel {
+    border-radius: 0;
+    margin-bottom: var(--s-2);
+  }
+}
+
+/* Мобильные */
+@media (max-width: 767px) {
+  .problem__grid,
+  .solutions__grid,
+  .process__grid,
+  .cases__grid,
+  .integrations__grid,
+  .approach__row {
+    grid-template-columns: 1fr;
+  }
+
+  .process__grid { gap: var(--s-6); }
+
+  .facts__grid { grid-template-columns: 1fr 1fr; }
+
+  .facts__value { font-size: 1.625rem; }
+
+  .approach__item {
+    padding-left: 0;
+    padding-top: var(--s-4);
+    border-left: 0;
+    border-top: 1px solid var(--line-invert);
+  }
+
+  .approach__item:first-child { padding-top: 0; border-top: 0; }
+
+  .solutions__col { padding-left: var(--s-4); }
+
+  /* Формы: телефон и почта в одну колонку — так удобнее заполнять. */
+  .form__row { grid-template-columns: 1fr; }
+
+  .expert__stats { grid-template-columns: 1fr; }
+
+  .hero__actions .btn { width: 100%; }
+
+  /* Схема сжимается вместе с шириной экрана, поэтому подписи внутри неё
+     задаём крупнее — иначе на телефоне они нечитаемы. */
+  .scheme__label { font-size: 18px; }
+  .scheme__core-label { font-size: 26px; }
+  .scheme__core-sub { font-size: 13px; }
+
+  .cta-band__inner .btn { width: 100%; }
+
+  .articles__head { flex-direction: column; align-items: flex-start; }
+}
+
+/* Узкие экраны */
+@media (max-width: 419px) {
+  .facts__grid { grid-template-columns: 1fr; }
+
+  .facts__item {
+    padding-inline: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line-invert);
+  }
+
+  .facts__item:first-child { border-top: 0; }
+
+  .case__head { flex-direction: column; }
+}
