@@ -217,15 +217,26 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(2rem, 5vw, 4.5rem);
+  gap: clamp(1.5rem, 3.4vw, 3.25rem);
+}
+
+/* Знаки очень разных пропорций: от почти квадратного до вытянутого в 7 раз.
+   Ограничиваем и высоту, и ширину — иначе широкий логотип подавляет соседей. */
+.clients__item {
+  display: grid;
+  place-items: center;
+  height: 48px;
 }
 
 /* Логотипы приведены к одному тёмному тону ещё на этапе подготовки файлов.
    Причина не только в единстве палитры: среди знаков есть свёрстанные под
    тёмный фон, у них светлая часть на белом просто исчезала. */
 .clients__item img {
-  height: 40px;
+  max-height: 48px;
+  max-width: 168px;
   width: auto;
+  height: auto;
+  object-fit: contain;
   opacity: 0.55;
   transition: opacity var(--transition);
 }
@@ -1151,9 +1162,11 @@
     grid-template-columns: 1fr;
   }
 
-  .clients__row { gap: var(--s-6) var(--s-7); }
+  .clients__row { gap: var(--s-5) var(--s-6); }
 
-  .clients__item img { height: 34px; }
+  .clients__item { height: 34px; }
+
+  .clients__item img { max-height: 34px; max-width: 128px; }
 
   .process__grid { gap: var(--s-6); }
 

@@ -41,6 +41,8 @@ return [
             ['slug' => 'neoray',         'name' => 'Neoray'],
             ['slug' => 'mid',            'name' => 'MID'],
             ['slug' => 'arsenalsnab',    'name' => 'АрсеналСнаб'],
+            ['slug' => 'pressmash',      'name' => 'Прессмаш'],
+            ['slug' => 'imfoni',         'name' => 'IMFONI'],
         ],
     ],
 
