@@ -220,20 +220,17 @@
   gap: clamp(2rem, 5vw, 4.5rem);
 }
 
-/* Логотипы приглушены до серого и проявляются при наведении:
-   иначе разноцветные знаки спорят с палитрой страницы. */
+/* Логотипы приведены к одному тёмному тону ещё на этапе подготовки файлов.
+   Причина не только в единстве палитры: среди знаков есть свёрстанные под
+   тёмный фон, у них светлая часть на белом просто исчезала. */
 .clients__item img {
-  height: 44px;
+  height: 40px;
   width: auto;
-  filter: grayscale(1);
-  opacity: 0.65;
-  transition: filter var(--transition), opacity var(--transition);
+  opacity: 0.55;
+  transition: opacity var(--transition);
 }
 
-.clients__item:hover img {
-  filter: grayscale(0);
-  opacity: 1;
-}
+.clients__item:hover img { opacity: 1; }
 
 /* --------------------------------------------------------------------------
    Проблема
