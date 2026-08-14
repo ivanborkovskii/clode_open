@@ -11,8 +11,11 @@ return [
     // Основной домен компании — ivanborkovsky.ru, этот сайт живёт на поддомене.
     'base_url' => rtrim(getenv('APP_URL') ?: 'https://crm.ivanborkovsky.ru', '/'),
 
-    'env'   => getenv('APP_ENV') ?: 'local',
-    'debug' => filter_var(getenv('APP_DEBUG') ?: 'true', FILTER_VALIDATE_BOOL),
+    'env'   => getenv('APP_ENV') ?: 'production',
+    // По умолчанию выключена: если про эту настройку забыть при выкладке,
+    // посетитель не увидит текст ошибки с путями к файлам.
+    // Для локальной разработки поставьте APP_DEBUG=true.
+    'debug' => filter_var(getenv('APP_DEBUG') ?: 'false', FILTER_VALIDATE_BOOL),
 
     // Данные компании. Используются в шапке, подвале, контактах и микроразметке.
     'company' => [

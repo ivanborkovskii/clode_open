@@ -2,10 +2,18 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Переезд на HTTPS. Раскомментируйте после того, как в панели Spaceweb
+    # будет выпущен сертификат — до этого правило уведёт сайт в ошибку.
+    # RewriteCond %{HTTPS} !=on
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Список файлов в каталоге не показываем.
+Options -Indexes
 
 # Кэш статики: файлы отдаются с версией в адресе, поэтому срок можно ставить большой.
 <IfModule mod_expires.c>
@@ -13,6 +21,7 @@
     ExpiresByType text/css "access plus 1 year"
     ExpiresByType application/javascript "access plus 1 year"
     ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType image/webp "access plus 6 months"
     ExpiresByType image/svg+xml "access plus 1 month"
 </IfModule>
 
