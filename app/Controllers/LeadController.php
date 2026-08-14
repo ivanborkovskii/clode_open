@@ -47,49 +47,72 @@ final class LeadController extends Controller
             return;
         }
 
-        $this->save([
+        $saved = $this->save([
             'name'    => $validator->value('name'),
             'phone'   => $validator->value('phone'),
             'email'   => $validator->value('email'),
             'message' => $validator->value('message'),
         ]);
 
+        // Ни в файл, ни письмом заявка не ушла — сказать «принято» нельзя,
+        // иначе человек будет ждать звонка по заявке, которой нигде нет.
+        if (!$saved) {
+            $phone = $this->config['company']['phone'];
+
+            $this->respond($isAjax, 'error', [
+                '_form' => 'Не удалось отправить заявку из-за ошибки на сервере. '
+                    . 'Позвоните, пожалуйста: ' . $phone,
+            ], $_POST);
+
+            return;
+        }
+
         $this->respond($isAjax, 'success', []);
     }
 
     /**
-     * Сохранение заявки: письмо на почту плюс запись в лог.
+     * Сохранение заявки: запись в лог плюс письмо на почту.
      *
-     * Лог ведётся всегда — если почтовый сервер откажет, заявка не потеряется.
+     * Возвращает true, если сработал хотя бы один способ. Если не сработал
+     * ни один, заявку показывать как принятую нельзя — она нигде не осталась.
      * Для создания сделки сразу в Битрикс24 или amoCRM сюда добавляется
      * вызов вебхука, остальной код не меняется.
      *
      * @param array<string, string> $data
      */
-    private function save(array $data): void
+    private function save(array $data): bool
     {
-        $this->log($data);
-        $this->mail($data);
+        $logged = $this->log($data);
+        $mailed = $this->mail($data);
+
+        return $logged || $mailed;
     }
 
-    /** @param array<string, string> $data */
-    private function log(array $data): void
+    /**
+     * Пишет заявку в файл. Возвращает false, если записать не удалось —
+     * чаще всего это отсутствие прав на запись в storage/logs на хостинге.
+     *
+     * @param array<string, string> $data
+     */
+    private function log(array $data): bool
     {
         $dir = dirname(__DIR__, 2) . '/storage/logs';
 
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            return false;
         }
 
-        file_put_contents(
+        $written = @file_put_contents(
             $dir . '/leads.log',
             json_encode($data + ['time' => date('c')], JSON_UNESCAPED_UNICODE) . PHP_EOL,
             FILE_APPEND | LOCK_EX,
         );
+
+        return $written !== false;
     }
 
     /** @param array<string, string> $data */
-    private function mail(array $data): void
+    private function mail(array $data): bool
     {
         $to      = $this->config['leads']['mail_to'];
         $from    = $this->config['leads']['mail_from'];
@@ -113,7 +136,7 @@ final class LeadController extends Controller
             $headers[] = 'Reply-To: ' . $data['email'];
         }
 
-        @mail(
+        return @mail(
             $to,
             '=?UTF-8?B?' . base64_encode($subject) . '?=',
             $body,

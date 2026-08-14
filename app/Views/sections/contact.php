@@ -62,9 +62,14 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                             </label>
                         </div>
 
-                        <?php if (!empty($errors['_form'])): ?>
-                            <p class="form__status form__status--error"><?= View::e($errors['_form']) ?></p>
-                        <?php endif; ?>
+                        <?php
+                        // Элемент выводится всегда, пустым и скрытым: при отправке
+                        // через fetch страница не перезагружается, и скрипту нужно
+                        // куда-то положить сообщение об общей ошибке формы.
+                        ?>
+                        <p class="form__status form__status--error"
+                           data-form-status role="alert"
+                           <?= empty($errors['_form']) ? 'hidden' : '' ?>><?= View::e($errors['_form'] ?? '') ?></p>
 
                         <div class="form__grid">
                             <div class="field">
@@ -109,6 +114,13 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                             </div>
 
                             <div class="form__foot">
+                                <?php
+                                // Галочка снята намеренно: согласие на обработку данных
+                                // должно быть активным действием посетителя. Заранее
+                                // проставленная отметка согласием по 152-ФЗ не считается.
+                                // Отмечаем её только при возврате формы с ошибкой,
+                                // чтобы человек не проставлял её заново.
+                                ?>
                                 <label class="checkbox">
                                     <input type="checkbox" name="privacy" value="1" required
                                            <?= isset($values['privacy']) ? 'checked' : '' ?>>

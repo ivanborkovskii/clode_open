@@ -102,7 +102,16 @@
   var label = form.querySelector('[data-submit-label]');
   var labelText = label ? label.textContent : '';
 
+  var status = form.querySelector('[data-form-status]');
+
   var showErrors = function (errors) {
+    // Общая ошибка формы: устаревшая сессия или сбой сохранения на сервере.
+    // Без этого при отправке через fetch человек не увидел бы ничего.
+    if (status) {
+      status.textContent = errors._form || '';
+      status.hidden = !errors._form;
+    }
+
     form.querySelectorAll('[data-error-for]').forEach(function (node) {
       var field = node.dataset.errorFor;
       var input = form.elements[field];
