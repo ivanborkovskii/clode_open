@@ -42,14 +42,39 @@ use App\Core\View;
                 <div class="expert__block">
                     <h3><?= View::e($expert['industries']['title']) ?></h3>
 
-                    <div class="expert__industries">
-                        <?php foreach ($expert['industries']['items'] as $row): ?>
-                            <div class="expert__industry">
-                                <b><?= (int) $row['count'] ?></b>
-                                <span><?= View::e($row['label']) ?></span>
-                            </div>
+                    <?php
+                    // Диаграмма долей: ширина полосы — доля отрасли в 50 внедрениях.
+                    $total = max(1, (int) $expert['industries']['total']);
+                    ?>
+                    <ul class="bars">
+                        <?php foreach ($expert['industries']['items'] as $row):
+                            $count = (int) $row['count'];
+                            $share = round($count * 100 / $total);
+                            ?>
+                            <li class="bars__row">
+                                <div class="bars__head">
+                                    <span class="bars__label"><?= View::e($row['label']) ?></span>
+                                    <span class="bars__value"><?= $count ?></span>
+                                </div>
+                                <div class="bars__track">
+                                    <div class="bars__fill" style="width: <?= $share ?>%"></div>
+                                </div>
+                            </li>
                         <?php endforeach; ?>
-                    </div>
+                    </ul>
+                </div>
+
+                <div class="expert__block">
+                    <h3><?= View::e($expert['timeline']['title']) ?></h3>
+
+                    <ol class="timeline">
+                        <?php foreach ($expert['timeline']['items'] as $step): ?>
+                            <li class="timeline__step">
+                                <span class="timeline__year"><?= View::e($step['year']) ?></span>
+                                <span class="timeline__text"><?= View::e($step['text']) ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
                 </div>
 
                 <div class="expert__block">

@@ -29,8 +29,18 @@ use App\Core\View;
             <p class="approach__title"><?= View::e($process['approach']['title']) ?></p>
 
             <div class="approach__row">
-                <?php foreach ($process['approach']['items'] as $item): ?>
+                <?php foreach ($process['approach']['items'] as $i => $item): ?>
                     <div class="approach__item">
+                        <?php
+                        // Шкала сложности: закрашено столько делений, какой это шаг.
+                        // Видно, что программирование — крайняя мера, а не первый выбор.
+                        ?>
+                        <span class="approach__scale" aria-hidden="true">
+                            <?php for ($n = 0; $n < 3; $n++): ?>
+                                <i class="<?= $n <= $i ? 'is-on' : '' ?>"></i>
+                            <?php endfor; ?>
+                        </span>
+
                         <span class="approach__label"><?= View::e($item['label']) ?></span>
                         <span class="approach__text"><?= View::e($item['text']) ?></span>
                     </div>

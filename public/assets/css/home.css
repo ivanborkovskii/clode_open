@@ -187,7 +187,7 @@
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
-  color: #fff;
+  color: var(--accent);
 }
 
 .facts__label {
@@ -256,7 +256,7 @@
 
 .problem__item {
   padding-top: var(--s-5);
-  border-top: 2px solid var(--ink-900);
+  border-top: 2px solid var(--accent);
 }
 
 .problem__item h3 {
@@ -564,14 +564,18 @@
   border-top: 1px solid var(--line);
 }
 
+/* Номер шага набран крупно: он же служит визуальным ритмом раздела. */
 .process__num {
   display: block;
   margin-bottom: var(--s-3);
-  font-size: var(--fs-xs);
+  font-size: 2.25rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  line-height: 1;
+  letter-spacing: -0.03em;
   color: var(--accent);
 }
+
+.process__step { border-top-color: var(--accent); }
 
 .process__step h3 {
   font-size: var(--fs-h4);
@@ -614,6 +618,22 @@
   padding-left: var(--s-5);
   border-left: 1px solid var(--line-invert);
 }
+
+/* Шкала сложности: три деления, закрашено по номеру шага. */
+.approach__scale {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--s-3);
+}
+
+.approach__scale i {
+  width: 26px;
+  height: 4px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.approach__scale i.is-on { background: var(--accent); }
 
 .approach__label {
   font-size: 1.125rem;
@@ -692,7 +712,7 @@
 .case__system {
   flex: none;
   padding: 5px 9px;
-  background: var(--ink-900);
+  background: var(--accent);
   border-radius: var(--radius-sm);
   font-size: var(--fs-xs);
   font-weight: 700;
@@ -786,6 +806,99 @@
   margin-bottom: var(--s-5);
   border-radius: var(--radius-sm);
   background: var(--paper-alt);
+}
+
+/* Диаграмма долей: длина полосы — доля отрасли в 50 внедрениях.
+   Считается из тех же чисел, что выведены рядом, поэтому не расходится с текстом. */
+.bars {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.bars__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-2);
+}
+
+.bars__label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.bars__value {
+  flex: none;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.bars__track {
+  height: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.bars__fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+/* Хронология: годы на общей вертикали, между ними — линия. */
+.timeline {
+  display: grid;
+  gap: 0;
+}
+
+.timeline__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--s-4);
+  align-items: baseline;
+  padding: var(--s-4) 0 var(--s-4) var(--s-6);
+}
+
+/* Линия и точка рисуются псевдоэлементами: лишней разметки не требуется. */
+.timeline__step::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+
+.timeline__step:first-child::before { top: 50%; }
+.timeline__step:last-child::before { bottom: 50%; }
+
+.timeline__step::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.timeline__year {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+.timeline__text {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
 
 /* Партнёрские статусы: превью сертификата плюс расшифровка. */
