@@ -296,7 +296,7 @@
 
 .funnel__stage {
   display: grid;
-  grid-template-columns: 2.25rem minmax(0, 1fr) 38%;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 34% 3rem;
   gap: var(--s-4);
   align-items: center;
   padding: var(--s-3) 0;
@@ -317,12 +317,32 @@
   font-weight: 600;
 }
 
+/* Этап с наибольшим падением конверсии — то самое место,
+   ради которого воронку и смотрят. */
+.funnel__drop {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  font-style: normal;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.funnel__value {
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  text-align: right;
+  color: var(--text);
+}
+
 /* Полосы центрируются в своей колонке — из-за этого ряд образует
    симметричный силуэт воронки. */
 .funnel__bar {
   display: flex;
   justify-content: center;
 }
+
+.funnel__stage.is-drop .funnel__bar i { background: var(--accent-deep); }
 
 .funnel__bar i {
   display: block;
@@ -962,32 +982,41 @@
   color: var(--text-muted);
 }
 
-/* Партнёрские статусы: превью сертификата плюс расшифровка. */
+/* Партнёрские статусы. Сертификат показывается крупно — так, чтобы
+   текст на нём читался без открытия в новой вкладке. */
+.certs-block {
+  margin-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+  padding-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+
+.certs-block h3 { margin-bottom: var(--s-6); }
+
 .certs {
   display: grid;
-  gap: var(--s-4);
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.25rem, 2vw, 2rem);
 }
 
 .cert {
   display: grid;
-  grid-template-columns: 132px 1fr;
   gap: var(--s-4);
-  align-items: center;
-  padding-bottom: var(--s-4);
-  border-bottom: 1px solid var(--line);
+  align-content: start;
 }
-
-.cert:last-child { border-bottom: 0; padding-bottom: 0; }
 
 .cert__link {
   display: block;
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  transition: border-color var(--transition);
+  transition: border-color var(--transition), transform var(--transition);
 }
 
-.cert__link:hover { border-color: var(--accent); }
+.cert__link:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
 
 .cert__link img {
   display: block;
@@ -1290,6 +1319,8 @@
      портрет во весь рост занял бы почти экран, поэтому кадр шире. */
   .expert__photo { aspect-ratio: 4 / 3; object-position: center 22%; }
 
+  .certs { grid-template-columns: repeat(2, 1fr); }
+
   .cta-band__inner { grid-template-columns: 1fr; }
 
   /* Услуги превращаются в аккордеон: панель идёт сразу за своим пунктом. */
@@ -1339,15 +1370,25 @@
 
   .clients__row { gap: var(--s-5) var(--s-6); }
 
+  .certs { grid-template-columns: 1fr; }
+
   /* На телефоне название этапа встаёт над полосой: в три колонки
      длинные формулировки переносятся по одному слову. */
   .funnel__stage {
-    grid-template-columns: 2.25rem minmax(0, 1fr);
-    gap: var(--s-3);
+    grid-template-columns: 2.25rem minmax(0, 1fr) 3rem;
+    gap: var(--s-2) var(--s-3);
+  }
+
+  /* Процент встаёт в одну строку с названием, полоса — под ними:
+     иначе число уезжает третьей строкой и теряет связь с этапом. */
+  .funnel__value {
+    grid-column: 3;
+    grid-row: 1;
   }
 
   .funnel__bar {
-    grid-column: 2;
+    grid-column: 2 / -1;
+    grid-row: 2;
     justify-content: flex-start;
   }
 

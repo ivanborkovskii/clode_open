@@ -5,16 +5,33 @@
  * Идёт сразу после блока проблем: там сказано «непонятен статус сделок»,
  * здесь показано, как это выглядит, когда система есть.
  *
- * Ширина полосы сужается от этапа к этапу — это узнаваемая форма воронки.
- * Числа и конверсии не выводим: таких данных нет, а на диаграмме они
- * читались бы как реальная статистика.
+ * Длина полосы равна конверсии этапа, поэтому диаграмма не может
+ * разойтись с подписью — обе берутся из одного числа.
  *
  * @var array $funnel
  */
 
 use App\Core\View;
 
-$total = count($funnel['stages']);
+$stages = $funnel['stages'];
+
+// Самый большой провал между соседними этапами. Считается из данных,
+// а не задаётся руками: поменяются проценты — метка переедет сама.
+$dropIndex = 0;
+$dropSize  = 0;
+
+foreach ($stages as $i => $stage) {
+    if ($i === 0) {
+        continue;
+    }
+
+    $delta = $stages[$i - 1]['value'] - $stage['value'];
+
+    if ($delta > $dropSize) {
+        $dropSize  = $delta;
+        $dropIndex = $i;
+    }
+}
 ?>
 <section class="section funnel-section" id="voronka">
     <div class="container funnel-section__layout">
@@ -26,16 +43,26 @@ $total = count($funnel['stages']);
         </div>
 
         <ol class="funnel">
-            <?php foreach ($funnel['stages'] as $i => $stage):
-                // От 100 % на первом этапе до 44 % на последнем.
-                $width = 100 - $i * (56 / max(1, $total - 1));
+            <?php foreach ($stages as $i => $stage):
+                $isDrop = $dropSize > 0 && $i === $dropIndex;
                 ?>
-                <li class="funnel__stage">
+                <li class="funnel__stage <?= $isDrop ? 'is-drop' : '' ?>">
                     <span class="funnel__num"><?= sprintf('%02d', $i + 1) ?></span>
-                    <span class="funnel__name"><?= View::e($stage) ?></span>
-                    <span class="funnel__bar" aria-hidden="true">
-                        <i style="width: <?= round($width, 1) ?>%"></i>
+
+                    <span class="funnel__name">
+                        <?= View::e($stage['name']) ?>
+                        <?php if ($isDrop): ?>
+                            <em class="funnel__drop">
+                                −<?= $dropSize ?> п.п., <?= View::e($funnel['drop_label']) ?>
+                            </em>
+                        <?php endif; ?>
                     </span>
+
+                    <span class="funnel__bar">
+                        <i style="width: <?= (int) $stage['value'] ?>%"></i>
+                    </span>
+
+                    <span class="funnel__value"><?= (int) $stage['value'] ?>%</span>
                 </li>
             <?php endforeach; ?>
         </ol>

@@ -78,31 +78,6 @@ use App\Core\View;
                 </div>
 
                 <div class="expert__block">
-                    <h3><?= View::e($expert['certificates']['title']) ?></h3>
-
-                    <ul class="certs">
-                        <?php foreach ($expert['certificates']['items'] as $cert): ?>
-                            <li class="cert">
-                                <a class="cert__link"
-                                   href="/assets/img/certificates/<?= View::e($cert['slug']) ?>.webp"
-                                   target="_blank" rel="noopener">
-                                    <img src="/assets/img/certificates/<?= View::e($cert['slug']) ?>-sm.webp"
-                                         alt="<?= View::e($cert['alt']) ?>"
-                                         width="520" height="368" loading="lazy" decoding="async">
-                                </a>
-                                <div class="cert__text">
-                                    <b><?= View::e($cert['name']) ?></b>
-                                    <span><?= View::e($cert['role']) ?></span>
-                                    <?php if ($cert['note'] !== ''): ?>
-                                        <small><?= View::e($cert['note']) ?></small>
-                                    <?php endif; ?>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-
-                <div class="expert__block">
                     <h3><?= View::e($expert['principles']['title']) ?></h3>
 
                     <ul class="expert__principles">
@@ -119,6 +94,40 @@ use App\Core\View;
                     </p>
                 </div>
             </div>
+        </div>
+
+        <?php
+        // Сертификаты вынесены из колонки на всю ширину: в узком столбце
+        // превью было размером с марку и текст на нём не читался.
+        ?>
+        <div class="certs-block">
+            <h3><?= View::e($expert['certificates']['title']) ?></h3>
+
+            <ul class="certs">
+                <?php foreach ($expert['certificates']['items'] as $cert): ?>
+                    <li class="cert">
+                        <a class="cert__link"
+                           href="/assets/img/certificates/<?= View::e($cert['slug']) ?>.webp"
+                           target="_blank" rel="noopener"
+                           title="Открыть в полном размере">
+                            <img src="/assets/img/certificates/<?= View::e($cert['slug']) ?>.webp"
+                                 srcset="/assets/img/certificates/<?= View::e($cert['slug']) ?>-sm.webp 520w,
+                                         /assets/img/certificates/<?= View::e($cert['slug']) ?>.webp 1200w"
+                                 sizes="(max-width: 767px) 92vw, (max-width: 1023px) 46vw, 30vw"
+                                 alt="<?= View::e($cert['alt']) ?>"
+                                 width="1200" height="849" loading="lazy" decoding="async">
+                        </a>
+
+                        <div class="cert__text">
+                            <b><?= View::e($cert['name']) ?></b>
+                            <span><?= View::e($cert['role']) ?></span>
+                            <?php if ($cert['note'] !== ''): ?>
+                                <small><?= View::e($cert['note']) ?></small>
+                            <?php endif; ?>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
         </div>
     </div>
 </section>
