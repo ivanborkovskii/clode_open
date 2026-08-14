@@ -8,7 +8,8 @@ declare(strict_types=1);
 
 return [
     // Базовый URL без завершающего слэша. Используется в canonical, OG и sitemap.
-    'base_url' => rtrim(getenv('APP_URL') ?: 'http://localhost:8000', '/'),
+    // Основной домен компании — ivanborkovsky.ru, этот сайт живёт на поддомене.
+    'base_url' => rtrim(getenv('APP_URL') ?: 'https://crm.ivanborkovsky.ru', '/'),
 
     'env'   => getenv('APP_ENV') ?: 'local',
     'debug' => filter_var(getenv('APP_DEBUG') ?: 'true', FILTER_VALIDATE_BOOL),
@@ -16,13 +17,16 @@ return [
     // Данные компании. Используются в шапке, подвале, контактах и микроразметке.
     'company' => [
         'name'       => 'Иван Борковский',
-        'brand'      => 'iborkovsky.ru',
+        'brand'      => 'crm.ivanborkovsky.ru',
+        'site'       => 'ivanborkovsky.ru',
         'legal_name' => 'ИП Борковский Иван Даниялович',
         'ogrn'       => '323370000019203',
         'inn'        => '370204310532',
         'phone'      => '+7 (915) 179-68-61',
         'phone_href' => '+79151796861',
-        'email'      => 'info@iborkovsky.ru',
+        // TODO: подтвердить адрес почты. В архитектуре был info@iborkovsky.ru,
+        // но такого домена нет — привёл к основному домену компании.
+        'email'      => 'info@ivanborkovsky.ru',
         'address'    => 'г. Иваново, микрорайон Московский, д. 19',
         'locality'   => 'Иваново',
     ],
@@ -43,7 +47,7 @@ return [
     // чтобы заявка не потерялась, если почтовый сервер откажет.
     'leads' => [
         'mail_to'   => getenv('LEADS_MAIL_TO') ?: 'borkovsky.iv@yandex.ru',
-        'mail_from' => getenv('LEADS_MAIL_FROM') ?: 'noreply@iborkovsky.ru',
+        'mail_from' => getenv('LEADS_MAIL_FROM') ?: 'noreply@crm.ivanborkovsky.ru',
     ],
 
     // Версия статики для сброса кэша браузера при обновлении CSS/JS.

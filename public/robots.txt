@@ -3,4 +3,4 @@ Allow: /
 Disallow: /zayavka
 
 # Адрес карты сайта. Заменить домен при выкладке на боевой сервер.
-Sitemap: http://localhost:8000/sitemap.xml
+Sitemap: https://crm.ivanborkovsky.ru/sitemap.xml

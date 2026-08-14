@@ -17,14 +17,12 @@ use App\Core\View;
 
         <div class="expert__layout">
             <div class="expert__card">
-                <?php if (!empty($expert['photo'])): ?>
-                    <img src="<?= View::e($expert['photo']) ?>"
-                         alt="<?= View::e($expert['name']) ?>, <?= View::e($expert['role']) ?>"
-                         width="800" height="600" loading="lazy" decoding="async">
-                <?php else: ?>
-                    <?php // TODO: нужна фотография — заглушка видна намеренно. ?>
-                    <div class="expert__photo-slot">Здесь будет фотография — нужен файл от заказчика</div>
-                <?php endif; ?>
+                <img class="expert__photo"
+                     src="<?= View::e($expert['photo']) ?>"
+                     srcset="<?= View::e($expert['photo_sm']) ?> 400w, <?= View::e($expert['photo']) ?> 720w"
+                     sizes="(max-width: 1023px) 100vw, 420px"
+                     alt="<?= View::e($expert['name']) ?> — <?= View::e($expert['role']) ?>"
+                     width="720" height="960" loading="lazy" decoding="async">
 
                 <p class="expert__name"><?= View::e($expert['name']) ?></p>
                 <p class="expert__role"><?= View::e($expert['role']) ?></p>
@@ -52,6 +50,31 @@ use App\Core\View;
                             </div>
                         <?php endforeach; ?>
                     </div>
+                </div>
+
+                <div class="expert__block">
+                    <h3><?= View::e($expert['certificates']['title']) ?></h3>
+
+                    <ul class="certs">
+                        <?php foreach ($expert['certificates']['items'] as $cert): ?>
+                            <li class="cert">
+                                <a class="cert__link"
+                                   href="/assets/img/certificates/<?= View::e($cert['slug']) ?>.webp"
+                                   target="_blank" rel="noopener">
+                                    <img src="/assets/img/certificates/<?= View::e($cert['slug']) ?>-sm.webp"
+                                         alt="<?= View::e($cert['alt']) ?>"
+                                         width="520" height="368" loading="lazy" decoding="async">
+                                </a>
+                                <div class="cert__text">
+                                    <b><?= View::e($cert['name']) ?></b>
+                                    <span><?= View::e($cert['role']) ?></span>
+                                    <?php if ($cert['note'] !== ''): ?>
+                                        <small><?= View::e($cert['note']) ?></small>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
 
                 <div class="expert__block">

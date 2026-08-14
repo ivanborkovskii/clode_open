@@ -104,7 +104,7 @@ final class LeadController extends Controller
         // Тема письма кириллицей требует MIME-кодирования, иначе почтовые
         // клиенты покажут вместо неё набор символов.
         $headers = [
-            'From: =?UTF-8?B?' . base64_encode('Сайт iborkovsky.ru') . "?= <{$from}>",
+            'From: =?UTF-8?B?' . base64_encode('Сайт crm.ivanborkovsky.ru') . "?= <{$from}>",
             'Content-Type: text/plain; charset=UTF-8',
             'MIME-Version: 1.0',
         ];

@@ -771,19 +771,63 @@
   color: var(--text-muted);
 }
 
-/* Заглушка под фотографию — видно, что здесь нужен реальный файл. */
-.expert__photo-slot {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 4 / 3;
+.expert__photo {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
   margin-bottom: var(--s-5);
-  background: var(--paper-alt);
-  border: 1px dashed var(--line);
   border-radius: var(--radius-sm);
+  background: var(--paper-alt);
+}
+
+/* Партнёрские статусы: превью сертификата плюс расшифровка. */
+.certs {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.cert {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: var(--s-4);
+  align-items: center;
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.cert:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.cert__link {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.cert__link:hover { border-color: var(--accent); }
+
+.cert__link img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cert__text {
+  display: grid;
+  gap: 2px;
+}
+
+.cert__text b { font-size: var(--fs-h4); font-weight: 800; }
+
+.cert__text span {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.cert__text small {
   font-size: var(--fs-xs);
   color: var(--text-muted);
-  text-align: center;
-  padding: var(--s-4);
 }
 
 .expert__stats {
@@ -1059,9 +1103,9 @@
     margin: var(--s-6) auto 0;
   }
 
-  /* В одну колонку карточка эксперта растягивается на всю ширину —
-     высокое фото заняло бы почти экран. */
-  .expert__photo-slot { aspect-ratio: 16 / 7; }
+  /* В одну колонку карточка растягивается на всю ширину:
+     портрет во весь рост занял бы почти экран, поэтому кадр шире. */
+  .expert__photo { aspect-ratio: 4 / 3; object-position: center 22%; }
 
   .cta-band__inner { grid-template-columns: 1fr; }
 
