@@ -16,6 +16,7 @@
 <?php $view->partial('sections/facts',        ['facts' => $page['facts']]); ?>
 <?php $view->partial('sections/clients',      ['clients' => $page['clients']]); ?>
 <?php $view->partial('sections/problem',      ['problem' => $page['problem']]); ?>
+<?php $view->partial('sections/funnel',       ['funnel' => $page['funnel']]); ?>
 <?php $view->partial('sections/services',     ['services' => $page['services']]); ?>
 <?php $view->partial('sections/solutions',    ['solutions' => $page['solutions']]); ?>
 <?php $view->partial('sections/cta-band',     ['band' => $page['cta_band']]); ?>

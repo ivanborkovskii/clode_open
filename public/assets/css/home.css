@@ -271,6 +271,67 @@
 }
 
 /* --------------------------------------------------------------------------
+   Воронка продаж
+   -------------------------------------------------------------------------- */
+
+.funnel-section__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: center;
+}
+
+.funnel-section__note {
+  margin-top: var(--s-5);
+  padding-left: var(--s-4);
+  border-left: 2px solid var(--accent);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.funnel {
+  display: grid;
+  gap: 2px;
+}
+
+.funnel__stage {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 38%;
+  gap: var(--s-4);
+  align-items: center;
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.funnel__stage:last-child { border-bottom: 0; }
+
+.funnel__num {
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.funnel__name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* Полосы центрируются в своей колонке — из-за этого ряд образует
+   симметричный силуэт воронки. */
+.funnel__bar {
+  display: flex;
+  justify-content: center;
+}
+
+.funnel__bar i {
+  display: block;
+  height: 12px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+}
+
+/* --------------------------------------------------------------------------
    Услуги
    Слева — список направлений, справа — раскрытая карточка.
    На мобильном превращается в аккордеон (та же разметка и тот же скрипт).
@@ -1216,7 +1277,8 @@
 
   .expert__layout,
   .contact__layout,
-  .solutions__layout { grid-template-columns: 1fr; }
+  .solutions__layout,
+  .funnel-section__layout { grid-template-columns: 1fr; }
 
   /* Схема уходит под текст и центрируется. */
   .iso {
@@ -1276,6 +1338,18 @@
   }
 
   .clients__row { gap: var(--s-5) var(--s-6); }
+
+  /* На телефоне название этапа встаёт над полосой: в три колонки
+     длинные формулировки переносятся по одному слову. */
+  .funnel__stage {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: var(--s-3);
+  }
+
+  .funnel__bar {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
 
   .clients__item { height: 34px; }
 
