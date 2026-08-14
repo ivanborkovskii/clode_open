@@ -24,9 +24,9 @@ return [
         'inn'        => '370204310532',
         'phone'      => '+7 (915) 179-68-61',
         'phone_href' => '+79151796861',
-        // TODO: подтвердить адрес почты. В архитектуре был info@iborkovsky.ru,
-        // но такого домена нет — привёл к основному домену компании.
-        'email'      => 'info@ivanborkovsky.ru',
+        // Короткий адрес на отдельном домене от Яндекса. Ведёт в тот же ящик,
+        // что и borkovsky.iv@yandex.ru.
+        'email'      => 'info@iborkovsky.ru',
         'address'    => 'г. Иваново, микрорайон Московский, д. 19',
         'locality'   => 'Иваново',
     ],
@@ -46,7 +46,9 @@ return [
     // Письмо отправляется всегда, копия дублируется в storage/logs/leads.log —
     // чтобы заявка не потерялась, если почтовый сервер откажет.
     'leads' => [
-        'mail_to'   => getenv('LEADS_MAIL_TO') ?: 'borkovsky.iv@yandex.ru',
+        // Тот же ящик, что и borkovsky.iv@yandex.ru — заявки и контакты
+        // на сайте ведут в одно место.
+        'mail_to'   => getenv('LEADS_MAIL_TO') ?: 'info@iborkovsky.ru',
         'mail_from' => getenv('LEADS_MAIL_FROM') ?: 'noreply@crm.ivanborkovsky.ru',
     ],
 
