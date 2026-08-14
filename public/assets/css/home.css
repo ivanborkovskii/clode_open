@@ -729,83 +729,79 @@
 
 /* --------------------------------------------------------------------------
    Кейсы
+   Ряды «скриншот + разбор». Картинке отдана большая половина ширины:
+   в узкой карточке интерфейс CRM не читался.
    -------------------------------------------------------------------------- */
 
-.cases__grid {
+.cases {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--s-5);
+  gap: clamp(2rem, 3vw, 3.5rem);
 }
 
 .case {
-  display: flex;
-  flex-direction: column;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  transition: border-color var(--transition), transform var(--transition);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: center;
+  padding-bottom: clamp(2rem, 3vw, 3.5rem);
+  border-bottom: 1px solid var(--line);
 }
 
-.case:hover {
-  border-color: var(--ink-900);
-  transform: translateY(-3px);
-}
+.case:last-child { border-bottom: 0; padding-bottom: 0; }
 
-/* Скриншот портала вверху карточки. */
 .case__shot {
   display: block;
-  overflow: hidden;
-  border-bottom: 1px solid var(--line);
   background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--transition);
 }
+
+.case__shot:hover { border-color: var(--accent); }
 
 .case__shot img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: top center;
-  transition: transform var(--transition);
+  height: auto;
 }
 
-.case:hover .case__shot img { transform: scale(1.03); }
+.case__body {
+  display: grid;
+  gap: var(--s-5);
+  align-content: start;
+}
 
 .case__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--s-4);
-  padding: var(--s-5);
+  padding-bottom: var(--s-4);
   border-bottom: 1px solid var(--line);
 }
 
 .case__company {
-  font-size: var(--fs-h4);
+  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .case__industry {
   margin-top: var(--s-1);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   color: var(--text-muted);
 }
 
 .case__system {
   flex: none;
-  padding: 5px 9px;
+  padding: 6px 10px;
   background: var(--accent);
   border-radius: var(--radius-sm);
   font-size: var(--fs-xs);
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
-}
-
-.case__body {
-  display: grid;
-  gap: var(--s-4);
-  padding: var(--s-5);
-  flex: 1;
 }
 
 .case__row-title {
@@ -817,9 +813,9 @@
   margin-bottom: var(--s-2);
 }
 
-.case__row p {
+.case__row p:not(.case__row-title) {
   font-size: var(--fs-sm);
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--text-muted);
 }
 
@@ -829,16 +825,12 @@
 }
 
 .case__row--result .case__row-title { color: var(--accent); }
-.case__row--result p { color: var(--text); }
-
-.case__foot {
-  padding: 0 var(--s-5) var(--s-5);
-}
+.case__row--result p:not(.case__row-title) { color: var(--text); }
 
 .cases__more {
   display: flex;
   justify-content: center;
-  margin-top: var(--s-7);
+  margin-top: clamp(2rem, 3vw, 3.5rem);
 }
 
 /* --------------------------------------------------------------------------
@@ -1137,6 +1129,35 @@
 
 .articles__head .section-head { margin-bottom: 0; }
 
+/* Карточки статей: раздел ещё пуст, но стили нужны заранее —
+   иначе первая опубликованная статья приедет без вёрстки. */
+.articles__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-5);
+}
+
+.article-card {
+  display: grid;
+  gap: var(--s-3);
+  align-content: start;
+  padding: var(--s-6);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color var(--transition);
+}
+
+.article-card:hover { border-color: var(--ink-900); }
+
+.article-card h3 { font-size: var(--fs-h4); }
+
+.article-card p {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
 .articles__empty {
   padding: clamp(2rem, 1.5rem + 2vw, 3.5rem);
   background: var(--paper-alt);
@@ -1302,7 +1323,10 @@
 
   .problem__grid,
   .process__grid,
-  .cases__grid { grid-template-columns: repeat(2, 1fr); }
+  .articles__grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Ряд разворачивается в колонку: скриншот сверху, разбор под ним. */
+  .case { grid-template-columns: 1fr; }
 
   .expert__layout,
   .contact__layout,
@@ -1362,11 +1386,13 @@
   .problem__grid,
   .solutions__grid,
   .process__grid,
-  .cases__grid,
   .integrations__grid,
+  .articles__grid,
   .approach__row {
     grid-template-columns: 1fr;
   }
+
+  .case__head { flex-direction: column; gap: var(--s-3); }
 
   .clients__row { gap: var(--s-5) var(--s-6); }
 
@@ -1442,5 +1468,4 @@
 
   .facts__item:first-child { border-top: 0; }
 
-  .case__head { flex-direction: column; }
 }

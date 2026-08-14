@@ -30,16 +30,16 @@ $items = $items ?? [];
         <?php if ($items === []): ?>
             <p class="articles__empty"><?= View::e($articles['placeholder']) ?></p>
         <?php else: ?>
-            <div class="cases__grid">
+            <div class="articles__grid">
                 <?php foreach ($items as $item): ?>
-                    <article class="case">
-                        <div class="case__body">
-                            <h3><?= View::e($item['title']) ?></h3>
-                            <p><?= View::e($item['excerpt']) ?></p>
-                        </div>
-                        <div class="case__foot">
-                            <a class="link-arrow" href="/stati/<?= View::e($item['slug']) ?>">Читать</a>
-                        </div>
+                    <article class="article-card">
+                        <h3><?= View::e($item['title']) ?></h3>
+                        <p><?= View::e($item['excerpt']) ?></p>
+
+                        <a class="link-arrow" href="/stati/<?= View::e($item['slug']) ?>">
+                            Читать
+                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                        </a>
                     </article>
                 <?php endforeach; ?>
             </div>
