@@ -1,0 +1,6 @@
+storage/logs/*
+!storage/logs/.gitkeep
+
+.env
+.DS_Store
+node_modules/

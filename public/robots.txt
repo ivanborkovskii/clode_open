@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /zayavka
+
+# Адрес карты сайта. Заменить домен при выкладке на боевой сервер.
+Sitemap: https://crm.ivanborkovsky.ru/sitemap.xml
