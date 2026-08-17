@@ -6,7 +6,8 @@
  * понять «моя это задача или нет». Поэтому строка во всю ширину —
  * слева номер, название и ситуация, справа состав работ.
  *
- * @var array $items Услуги
+ * @var array  $items     Услуги или решения
+ * @var string $linkLabel Подпись ссылки на страницу пункта
  */
 
 use App\Core\View;
@@ -41,7 +42,7 @@ use App\Core\View;
 
                         <?php if ($ready): ?>
                             <a class="link-arrow" href="<?= View::e($item['href']) ?>">
-                                Подробнее об услуге
+                                <?= View::e($linkLabel ?? 'Подробнее об услуге') ?>
                                 <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
                             </a>
                         <?php endif; ?>

@@ -6,7 +6,7 @@
  * Третья строка не украшение — без неё список названий ничего не сообщает
  * человеку, который не знает, зачем ему Sipuni или Roistat.
  *
- * @var array $connect title, lead, groups
+ * @var array $connect label, title, lead, groups
  */
 
 use App\Core\View;
@@ -14,7 +14,7 @@ use App\Core\View;
 <section class="section connect">
     <div class="container">
         <div class="section-head">
-            <p class="label">Интеграции</p>
+            <p class="label"><?= View::e($connect['label'] ?? 'Интеграции') ?></p>
             <h2><?= View::e($connect['title']) ?></h2>
             <p class="section-head__lead"><?= View::e($connect['lead']) ?></p>
         </div>
