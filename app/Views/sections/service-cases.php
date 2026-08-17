@@ -58,6 +58,10 @@ use App\Core\View;
                             <?= View::e($case['result']) ?>
                         </p>
 
+                        <?php if (!empty($case['note'])): ?>
+                            <p class="scase__note"><?= View::e($case['note']) ?></p>
+                        <?php endif; ?>
+
                         <?php if ($view->exists($href)): ?>
                             <a class="link-arrow" href="<?= View::e($href) ?>">
                                 Разбор проекта

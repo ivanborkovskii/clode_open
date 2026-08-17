@@ -3,8 +3,9 @@
  * Страница отдельной услуги.
  *
  * Один шаблон на все пять услуг: отличается только набор текстов.
- * Блоки, которых у услуги нет, пропускаются — например, у сопровождения
- * не будет раздела с кейсами.
+ * Все блоки необязательны и пропускаются, если данных нет: у интеграций
+ * работы не идут по этапам, у сопровождения нет отдельного кейса,
+ * а цена подтверждена только для сопровождения.
  *
  * Порядок: кому это нужно → что и в каком порядке делается →
  * что подключается → доказательство → что дальше → заявка.
@@ -24,7 +25,19 @@
     <?php $view->partial('sections/service-fit', ['fit' => $page['fit']]); ?>
 <?php endif; ?>
 
-<?php $view->partial('sections/service-stages', ['stages' => $page['stages']]); ?>
+<?php if (!empty($page['stages'])): ?>
+    <?php $view->partial('sections/service-stages', ['stages' => $page['stages']]); ?>
+<?php endif; ?>
+
+<?php // «Что входит» — перечень без нумерации: у сопровождения работы
+      // делаются по необходимости, а не одна за другой. ?>
+<?php if (!empty($page['included'])): ?>
+    <?php $view->partial('sections/approach', ['approach' => $page['included']]); ?>
+<?php endif; ?>
+
+<?php if (!empty($page['price'])): ?>
+    <?php $view->partial('sections/service-price', ['price' => $page['price']]); ?>
+<?php endif; ?>
 
 <?php if (!empty($page['connect'])): ?>
     <?php $view->partial('sections/service-connect', ['connect' => $page['connect']]); ?>

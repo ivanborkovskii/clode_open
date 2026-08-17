@@ -3,7 +3,7 @@
  * Принципы работы. Действуют на любой услуге, поэтому вынесены отдельным
  * блоком, а не повторяются в каждой строке перечня.
  *
- * @var array $approach title, lead, items
+ * @var array $approach label, title, lead, items
  */
 
 use App\Core\View;
@@ -11,7 +11,7 @@ use App\Core\View;
 <section class="section section--alt approach-block">
     <div class="container">
         <div class="section-head">
-            <p class="label">Подход</p>
+            <p class="label"><?= View::e($approach['label'] ?? 'Подход') ?></p>
             <h2><?= View::e($approach['title']) ?></h2>
             <p class="section-head__lead"><?= View::e($approach['lead']) ?></p>
         </div>

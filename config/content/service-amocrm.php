@@ -24,6 +24,9 @@ return [
             'shots' => [
                 [
                     'src' => 'amo-voronka',
+                    // Кадр взят отсюда — по нему проверяется,
+                    // что тот же снимок не стоит ниже в кейсах.
+                    'origin' => 'arsenalsnab-5',
                     'w'   => 1200,
                     'h'   => 524,
                     'url' => 'company.amocrm.ru',

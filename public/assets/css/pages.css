@@ -505,6 +505,84 @@
 .footer__soon { color: var(--text-invert-muted); opacity: 0.55; }
 
 /* --------------------------------------------------------------------------
+   Стоимость
+
+   Цифра слева крупно, условия справа. Блок есть только у сопровождения:
+   это единственная услуга с подтверждённой ценой.
+   -------------------------------------------------------------------------- */
+
+.price-block__inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+  padding: clamp(1.5rem, 1.2rem + 2vw, 2.5rem);
+  background: var(--paper-alt);
+  border-left: 3px solid var(--accent);
+}
+
+.price-block__figure { min-width: 12rem; }
+
+.price-block__value {
+  font-size: clamp(2rem, 1.5rem + 2.4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.price-block__unit {
+  margin-top: var(--s-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.price-block__body h2 {
+  margin-bottom: var(--s-5);
+  font-size: var(--fs-h3);
+}
+
+.price-block__list {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.price-block__list li {
+  position: relative;
+  padding-left: var(--s-5);
+  line-height: 1.55;
+}
+
+.price-block__list li::before {
+  content: '';
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 10px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.price-block__note {
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* Примечание к кейсу: в чём была трудность. Отбито от «стало»,
+   потому что это не результат, а обстоятельство работы. */
+.scase__note {
+  padding-left: var(--s-4);
+  border-left: 2px solid var(--line);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
    Адаптив
    -------------------------------------------------------------------------- */
 
@@ -527,6 +605,8 @@
   .fit__layout { grid-template-columns: 1fr; }
   .connect__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .scase__grid { grid-template-columns: 1fr; }
+
+  .price-block__inner { grid-template-columns: 1fr; }
 
   .scase__grid--one .scase { grid-template-columns: 1fr; }
   .scase__grid--one .scase__shot {
