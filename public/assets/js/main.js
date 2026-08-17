@@ -89,6 +89,106 @@
   });
 
   /* ------------------------------------------------------------------
+     Просмотр картинки во весь экран
+
+     Ссылка на картинку с атрибутом data-zoom открывается не переходом
+     на другой адрес, а поверх страницы. Клик по картинке увеличивает её
+     до настоящего размера, повторный клик возвращает обратно.
+
+     Если браузер не умеет модальные окна, обработчик не ставится
+     и ссылка работает как обычная — картинка откроется этой же вкладкой.
+     ------------------------------------------------------------------ */
+
+  var zoomLinks = document.querySelectorAll('[data-zoom]');
+
+  if (zoomLinks.length && typeof HTMLDialogElement !== 'undefined'
+      && HTMLDialogElement.prototype.showModal) {
+    var viewer = document.createElement('dialog');
+    viewer.className = 'viewer';
+    viewer.innerHTML =
+      '<div class="viewer__bar">' +
+        '<span>' +
+          '<span class="viewer__title" data-viewer-title></span> ' +
+          '<span class="viewer__hint">нажмите на картинку, чтобы увеличить</span>' +
+        '</span>' +
+        '<button class="viewer__close" type="button" aria-label="Закрыть">&times;</button>' +
+      '</div>' +
+      '<div class="viewer__scroll" data-viewer-scroll>' +
+        '<img class="viewer__img" alt="" data-viewer-img>' +
+      '</div>';
+
+    document.body.appendChild(viewer);
+
+    var viewerScroll = viewer.querySelector('[data-viewer-scroll]');
+    var viewerImg = viewer.querySelector('[data-viewer-img]');
+    var viewerTitle = viewer.querySelector('[data-viewer-title]');
+
+    var setZoom = function (on, point) {
+      viewer.dataset.zoomed = String(on);
+
+      if (!on) {
+        return;
+      }
+
+      // Прокручиваем к той точке, по которой человек кликнул, —
+      // иначе после увеличения он оказывается в левом верхнем углу.
+      var x = point ? point.x : 0.5;
+      var y = point ? point.y : 0.5;
+
+      viewerScroll.scrollLeft = viewerImg.offsetWidth * x - viewerScroll.clientWidth / 2;
+      viewerScroll.scrollTop = viewerImg.offsetHeight * y - viewerScroll.clientHeight / 2;
+    };
+
+    var closeViewer = function () {
+      viewer.close();
+    };
+
+    zoomLinks.forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+
+        viewerImg.src = link.href;
+        viewerImg.alt = link.dataset.zoom || '';
+        viewerTitle.textContent = link.dataset.zoom || '';
+
+        setZoom(false);
+        viewer.showModal();
+        document.body.dataset.viewerOpen = 'true';
+      });
+    });
+
+    viewerImg.addEventListener('click', function (event) {
+      if (viewer.dataset.zoomed === 'true') {
+        setZoom(false);
+        return;
+      }
+
+      var box = viewerImg.getBoundingClientRect();
+
+      setZoom(true, {
+        x: (event.clientX - box.left) / box.width,
+        y: (event.clientY - box.top) / box.height
+      });
+    });
+
+    viewer.querySelector('.viewer__close').addEventListener('click', closeViewer);
+
+    // Клик мимо картинки закрывает просмотр.
+    viewerScroll.addEventListener('click', function (event) {
+      if (event.target === viewerScroll) {
+        closeViewer();
+      }
+    });
+
+    // Событие close срабатывает и на кнопке, и на клавише Escape,
+    // поэтому снимаем блокировку прокрутки страницы в одном месте.
+    viewer.addEventListener('close', function () {
+      document.body.dataset.viewerOpen = 'false';
+      viewerImg.removeAttribute('src');
+    });
+  }
+
+  /* ------------------------------------------------------------------
      Форма заявки
      ------------------------------------------------------------------ */
 

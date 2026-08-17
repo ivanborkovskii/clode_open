@@ -106,10 +106,16 @@ use App\Core\View;
             <ul class="certs">
                 <?php foreach ($expert['certificates']['items'] as $cert): ?>
                     <li class="cert">
+                        <?php
+                        // Ссылка ведёт прямо на картинку: без JavaScript она
+                        // откроется в этой же вкладке, и работает кнопка «назад».
+                        // Со скриптом клик перехватывается и картинка
+                        // разворачивается поверх страницы.
+                        ?>
                         <a class="cert__link"
-                           href="/assets/img/certificates/<?= View::e($cert['slug']) ?>.webp"
-                           target="_blank" rel="noopener"
-                           title="Открыть в полном размере">
+                           href="/assets/img/certificates/<?= View::e($cert['slug']) ?>-full.webp"
+                           data-zoom="<?= View::e($cert['name']) ?>"
+                           title="Посмотреть в полном размере">
                             <img src="/assets/img/certificates/<?= View::e($cert['slug']) ?>.webp"
                                  srcset="/assets/img/certificates/<?= View::e($cert['slug']) ?>-sm.webp 520w,
                                          /assets/img/certificates/<?= View::e($cert['slug']) ?>.webp 1200w"

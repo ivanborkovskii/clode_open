@@ -807,3 +807,123 @@ textarea.field__control {
   line-height: 1.6;
   color: var(--text-muted);
 }
+
+/* --------------------------------------------------------------------------
+   Просмотр картинки во весь экран
+
+   Открывается поверх страницы, без перехода на другой адрес. Построен
+   на элементе dialog: браузер сам берёт на себя затемнение фона,
+   закрытие по Escape и удержание фокуса внутри окна.
+
+   Раскладка в две полосы — панель и область картинки. Панель не
+   накладывается на картинку: иначе подпись попадает на светлое поле
+   сертификата и становится нечитаемой.
+   -------------------------------------------------------------------------- */
+
+.viewer {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Раскладку включаем только у открытого окна. Свойство display у самого
+   .viewer перебило бы правило браузера, скрывающее закрытый dialog, —
+   невидимое окно осталось бы поверх страницы и перехватывало клики. */
+.viewer[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer::backdrop {
+  background: rgba(7, 23, 57, 0.97);
+}
+
+body[data-viewer-open='true'] { overflow: hidden; }
+
+.viewer__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex: 0 0 auto;
+  padding: var(--s-3) clamp(0.75rem, 2vw, 1.5rem);
+  color: var(--text-invert);
+}
+
+.viewer__title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.viewer__hint {
+  font-size: var(--fs-xs);
+  color: var(--text-invert-muted);
+}
+
+.viewer__close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line-invert);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-invert);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.viewer__close:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Область картинки. При увеличении картинка выходит за её пределы
+   и двигается обычной прокруткой. */
+.viewer__scroll {
+  display: grid;
+  /* Строка задана явно. Без этого её высота считается по содержимому,
+     max-height: 100% у картинки не от чего отсчитывать — и картинка
+     вылезает за нижний край экрана. */
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 2vw, 1.5rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.viewer__img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  cursor: zoom-in;
+}
+
+/* Увеличенное состояние: картинка в настоящем размере, ограничения сняты.
+   Выравнивание переводится к началу — при центрировании браузер срезает
+   верхний и левый края, и до них не добраться прокруткой. */
+.viewer[data-zoomed='true'] .viewer__scroll { place-items: start; }
+
+.viewer[data-zoomed='true'] .viewer__img {
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+}
+
+/* На узком экране подсказку про увеличение убираем: там нет наведения,
+   а место в строке нужнее подписи. */
+@media (max-width: 639px) {
+  .viewer__hint { display: none; }
+}
