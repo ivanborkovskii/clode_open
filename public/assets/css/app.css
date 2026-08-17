@@ -1066,3 +1066,74 @@ body[data-viewer-open='true'] { overflow: hidden; }
 }
 
 .mobile-menu__link[aria-current='page'] { color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   Рамка браузера вокруг скриншота
+
+   Используется и на главной, и на страницах услуг, поэтому лежит
+   в дизайн-системе. Лёгкий разворот в перспективе даёт объём
+   без 3D-библиотек; на узких экранах разворот снимается — там он
+   съедает ширину и мешает читать содержимое снимка.
+   -------------------------------------------------------------------------- */
+
+.browser {
+  margin: 0;
+  background: #10254f;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.65);
+  transform: rotateY(-7deg) rotateX(2deg);
+  transform-origin: left center;
+}
+
+.browser__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: 10px var(--s-4);
+  background: #0b1c40;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.browser__dots {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.browser__dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.browser__url {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-invert-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser__shot {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 1023px) {
+  .browser { transform: none; }
+}
+
+/* Раздел, который ещё не разработан: пункт виден, но не кликается.
+   Приглушён ровно настолько, чтобы отличаться от рабочих пунктов
+   и при этом не выглядеть поломкой. */
+.nav__link--soon,
+.mobile-menu__link--soon {
+  color: var(--text-invert-muted);
+  opacity: 0.45;
+  cursor: default;
+}

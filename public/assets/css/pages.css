@@ -65,6 +65,49 @@
   margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
 }
 
+/* Со снимком экрана раскладка другая: слева весь текст, справа окно.
+   Без снимка второй столбец — это пояснение, и оно прижато к низу. */
+.page-hero--media .page-hero__inner { align-items: center; }
+
+.page-hero--media .page-hero__text-col > * + * { margin-top: var(--s-5); }
+
+.page-hero--media .page-hero__lead { max-width: 34ch; }
+
+.page-hero--media .page-hero__text {
+  max-width: 46ch;
+  padding-top: 0;
+  padding-left: var(--s-4);
+  border-top: 0;
+  border-left: 2px solid var(--accent);
+}
+
+/* Окно со снимком. Разворот в перспективе, который есть на главной,
+   здесь снят: на внутренней странице окно стоит рядом с текстом,
+   и наклон читался бы как случайность. */
+.page-hero .browser { transform: none; }
+
+.page-hero__frames { position: relative; }
+
+/* Пара окон: второе смещено вниз-вправо и перекрывает первое —
+   так сразу видно, что систем две. Отступ снизу равен видимой
+   части второго окна, иначе подпись оказалась бы под ним. */
+.page-hero__frames--pair { padding-bottom: clamp(3rem, 6vw, 5.5rem); }
+
+.page-hero__frames--pair .browser--sub {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 58%;
+  z-index: 1;
+  box-shadow: 0 24px 48px -14px rgba(0, 0, 0, 0.8);
+}
+
+.page-hero__caption {
+  margin-top: var(--s-4);
+  font-size: var(--fs-xs);
+  color: var(--text-invert-muted);
+}
+
 .page-hero h1 { color: var(--text-invert); }
 
 .page-hero__lead {
@@ -451,6 +494,16 @@
 @media (max-width: 1023px) {
   .page-hero__inner { grid-template-columns: 1fr; align-items: start; }
   .page-hero__lead { max-width: 46ch; }
+  .page-hero--media .page-hero__lead { max-width: 46ch; }
+
+  /* Пара окон перестаёт накладываться: на узком экране верхнее окно
+     закрыло бы нижнее почти целиком. */
+  .page-hero__frames--pair { display: grid; gap: var(--s-5); padding-bottom: 0; }
+
+  .page-hero__frames--pair .browser--sub {
+    position: static;
+    width: 100%;
+  }
 
   .srow { grid-template-columns: 1fr; }
 

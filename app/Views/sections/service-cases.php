@@ -18,19 +18,25 @@ use App\Core\View;
 
         <div class="scase__grid">
             <?php foreach ($cases['items'] as $case): ?>
-                <?php $href = '/keysy/' . $case['slug']; ?>
+                <?php
+                $href = '/keysy/' . $case['slug'];
+                // Какой именно снимок показать. По умолчанию первый, но если
+                // он уже стоит в шапке страницы, берётся другой — одна и та же
+                // картинка дважды на странице выглядит небрежно.
+                $shot = '/assets/img/cases/' . $case['slug'] . '-' . ($case['shot'] ?? 1);
+                ?>
 
                 <article class="scase">
                     <img class="scase__shot"
-                         src="/assets/img/cases/<?= View::e($case['slug']) ?>-1.webp"
-                         srcset="/assets/img/cases/<?= View::e($case['slug']) ?>-1-sm.webp 600w,
-                                 /assets/img/cases/<?= View::e($case['slug']) ?>-1.webp 1200w"
+                         src="<?= View::e($shot) ?>.webp"
+                         srcset="<?= View::e($shot) ?>-sm.webp 600w,
+                                 <?= View::e($shot) ?>.webp 1200w"
                          <?php // Ширина блока: до 1024 px — одна колонка, дальше две,
                                // а на широком экране контейнер упирается в 1280 px
                                // и колонка перестаёт расти. Без последнего значения
                                // браузер грузил версию 1200 px в блок шириной 570 px. ?>
                          sizes="(max-width: 1023px) 92vw, (max-width: 1399px) 46vw, 600px"
-                         alt="Рабочий экран Битрикс24 в проекте «<?= View::e($case['company']) ?>»"
+                         alt="<?= View::e($case['alt']) ?>"
                          width="1200" height="673" loading="lazy" decoding="async">
 
                     <div class="scase__body">

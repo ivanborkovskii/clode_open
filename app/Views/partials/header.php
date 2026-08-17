@@ -17,16 +17,16 @@ $isActive = static fn (string $href): bool =>
     $href !== '/' && ($current === $href || str_starts_with($current, $href . '/'));
 
 // Единый источник пунктов меню — используется и в шапке, и в мобильном меню.
-// Пункты неразработанных разделов не выводятся вовсе: в шапке
-// неактивный пункт выглядит как сломанная ссылка.
-$menu = array_values(array_filter([
+// Показываются все разделы архитектуры. У неразработанных ссылки нет:
+// пункт виден, но не кликается — иначе он вёл бы в «страница не найдена».
+$menu = [
     ['label' => 'Услуги',     'href' => '/uslugi'],
     ['label' => 'Решения',    'href' => '/resheniya'],
     ['label' => 'Кейсы',      'href' => '/keysy'],
     ['label' => 'Статьи',     'href' => '/stati'],
     ['label' => 'О компании', 'href' => '/o-kompanii'],
     ['label' => 'Контакты',   'href' => '/kontakty'],
-], static fn (array $item): bool => $view->exists($item['href'])));
+];
 ?>
 <header class="header">
     <div class="container header__inner">
@@ -37,8 +37,12 @@ $menu = array_values(array_filter([
 
         <nav class="nav" aria-label="Основная навигация">
             <?php foreach ($menu as $item): ?>
-                <a class="nav__link" href="<?= View::e($item['href']) ?>"
-                   <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
+                <?php if ($view->exists($item['href'])): ?>
+                    <a class="nav__link" href="<?= View::e($item['href']) ?>"
+                       <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
+                <?php else: ?>
+                    <span class="nav__link nav__link--soon" title="Раздел в разработке"><?= View::e($item['label']) ?></span>
+                <?php endif; ?>
             <?php endforeach; ?>
         </nav>
 
@@ -64,8 +68,12 @@ $menu = array_values(array_filter([
 <div class="mobile-menu" id="mobile-menu" data-open="false">
     <nav aria-label="Мобильная навигация">
         <?php foreach ($menu as $item): ?>
-            <a class="mobile-menu__link" href="<?= View::e($item['href']) ?>"
-               <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
+            <?php if ($view->exists($item['href'])): ?>
+                <a class="mobile-menu__link" href="<?= View::e($item['href']) ?>"
+                   <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
+            <?php else: ?>
+                <span class="mobile-menu__link mobile-menu__link--soon"><?= View::e($item['label']) ?></span>
+            <?php endif; ?>
         <?php endforeach; ?>
     </nav>
 
