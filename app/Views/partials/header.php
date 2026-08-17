@@ -17,14 +17,16 @@ $isActive = static fn (string $href): bool =>
     $href !== '/' && ($current === $href || str_starts_with($current, $href . '/'));
 
 // Единый источник пунктов меню — используется и в шапке, и в мобильном меню.
-$menu = [
+// Пункты неразработанных разделов не выводятся вовсе: в шапке
+// неактивный пункт выглядит как сломанная ссылка.
+$menu = array_values(array_filter([
     ['label' => 'Услуги',     'href' => '/uslugi'],
     ['label' => 'Решения',    'href' => '/resheniya'],
     ['label' => 'Кейсы',      'href' => '/keysy'],
     ['label' => 'Статьи',     'href' => '/stati'],
     ['label' => 'О компании', 'href' => '/o-kompanii'],
     ['label' => 'Контакты',   'href' => '/kontakty'],
-];
+], static fn (array $item): bool => $view->exists($item['href'])));
 ?>
 <header class="header">
     <div class="container header__inner">

@@ -1,0 +1,61 @@
+<?php
+/**
+ * Кейсы по конкретной услуге. Короткая карточка: скриншот, что было
+ * до внедрения и что изменилось. Подробный разбор — в разделе «Кейсы»,
+ * ссылка появляется, когда раздел разработан.
+ *
+ * @var array $cases title, items
+ */
+
+use App\Core\View;
+?>
+<section class="section section--alt service-cases">
+    <div class="container">
+        <div class="section-head">
+            <p class="label">Опыт</p>
+            <h2><?= View::e($cases['title']) ?></h2>
+        </div>
+
+        <div class="scase__grid">
+            <?php foreach ($cases['items'] as $case): ?>
+                <?php $href = '/keysy/' . $case['slug']; ?>
+
+                <article class="scase">
+                    <img class="scase__shot"
+                         src="/assets/img/cases/<?= View::e($case['slug']) ?>-1.webp"
+                         srcset="/assets/img/cases/<?= View::e($case['slug']) ?>-1-sm.webp 600w,
+                                 /assets/img/cases/<?= View::e($case['slug']) ?>-1.webp 1200w"
+                         <?php // Ширина блока: до 1024 px — одна колонка, дальше две,
+                               // а на широком экране контейнер упирается в 1280 px
+                               // и колонка перестаёт расти. Без последнего значения
+                               // браузер грузил версию 1200 px в блок шириной 570 px. ?>
+                         sizes="(max-width: 1023px) 92vw, (max-width: 1399px) 46vw, 600px"
+                         alt="Рабочий экран Битрикс24 в проекте «<?= View::e($case['company']) ?>»"
+                         width="1200" height="673" loading="lazy" decoding="async">
+
+                    <div class="scase__body">
+                        <p class="scase__company"><?= View::e($case['company']) ?></p>
+                        <h3 class="scase__title"><?= View::e($case['title']) ?></h3>
+
+                        <p class="scase__before">
+                            <span>Было</span>
+                            <?= View::e($case['before']) ?>
+                        </p>
+
+                        <p class="scase__result">
+                            <span>Стало</span>
+                            <?= View::e($case['result']) ?>
+                        </p>
+
+                        <?php if ($view->exists($href)): ?>
+                            <a class="link-arrow" href="<?= View::e($href) ?>">
+                                Разбор проекта
+                                <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>

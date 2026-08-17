@@ -13,14 +13,45 @@ final class Router
     /** @var array<string, array<string, string>> метод => путь => 'Контроллер@метод' */
     private array $routes = [];
 
-    public function get(string $path, string $handler): void
+    /** @var array<int, string> Готовые адреса у маршрутов с параметром */
+    private array $declared = [];
+
+    /**
+     * @param array<int, string> $published Для маршрута с параметром — список
+     *        уже разработанных адресов. По нему шаблоны решают, выводить
+     *        ссылку или нет: из шаблона /uslugi/{slug} этого не видно.
+     */
+    public function get(string $path, string $handler, array $published = []): void
     {
         $this->routes['GET'][$this->normalize($path)] = $handler;
+
+        foreach ($published as $declaredPath) {
+            $this->declared[] = $this->normalize($declaredPath);
+        }
     }
 
     public function post(string $path, string $handler): void
     {
         $this->routes['POST'][$this->normalize($path)] = $handler;
+    }
+
+    /**
+     * Адреса всех готовых страниц сайта.
+     *
+     * Нужны шаблонам: пока раздел не разработан, ссылка на него не выводится.
+     * Иначе меню и перечни ведут в «страница не найдена», а поисковик
+     * находит на сайте битые ссылки.
+     *
+     * @return array<int, string>
+     */
+    public function published(): array
+    {
+        $static = array_filter(
+            array_keys($this->routes['GET'] ?? []),
+            static fn (string $path): bool => !str_contains($path, '{'),
+        );
+
+        return array_values(array_unique([...$static, ...$this->declared]));
     }
 
     /**

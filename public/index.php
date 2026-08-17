@@ -26,7 +26,7 @@ header('X-Frame-Options: SAMEORIGIN');
 $router = new Router();
 require $root . '/config/routes.php';
 
-$view  = new View($root . '/app/Views', $config);
+$view  = new View($root . '/app/Views', $config, $router->published());
 $route = $router->match($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'] ?? '/');
 
 if ($route === null) {

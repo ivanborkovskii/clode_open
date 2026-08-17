@@ -70,6 +70,21 @@ abstract class Controller
         return $this->config['base_url'] . ($path === '/' ? '/' : '/' . trim($path, '/'));
     }
 
+    /**
+     * Страница «не найдено». Нужна разделам с адресами по параметру:
+     * несуществующий адрес должен отдавать 404, а не пустую страницу с 200.
+     */
+    protected function notFound(): void
+    {
+        http_response_code(404);
+
+        $this->html($this->view->render('error', [
+            'seo'     => ['title' => 'Страница не найдена', 'noindex' => true],
+            'code'    => 404,
+            'message' => 'Такой страницы нет. Возможно, она ещё не создана или адрес изменился.',
+        ]));
+    }
+
     protected function html(string $body): void
     {
         header('Content-Type: text/html; charset=UTF-8');

@@ -228,6 +228,223 @@
 }
 
 /* --------------------------------------------------------------------------
+   Кому подходит услуга
+   -------------------------------------------------------------------------- */
+
+.fit__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+.fit__title { font-size: var(--fs-h2); }
+
+.fit__list {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.fit__list li {
+  position: relative;
+  padding-left: var(--s-6);
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* Маркер — знак вопроса без символа: короткая вертикальная черта акцентом.
+   Ставить галочки нельзя, это не список преимуществ, а список ситуаций. */
+.fit__list li::before {
+  content: '';
+  position: absolute;
+  top: 0.45em;
+  left: 0;
+  width: 2px;
+  height: 1.1em;
+  background: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Этапы работ
+
+   Дорожка с вертикальной линией: этапы идут строго по порядку, и линия
+   показывает последовательность лучше, чем сетка одинаковых карточек.
+   -------------------------------------------------------------------------- */
+
+.stage-track {
+  display: grid;
+  gap: 0;
+  max-width: 60rem;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding-bottom: clamp(1.75rem, 1.5rem + 1.5vw, 2.75rem);
+}
+
+/* Линия соединяет номера этапов и обрывается на последнем. */
+.stage:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 46px;
+  bottom: 0;
+  left: 22px;
+  width: 1px;
+  background: var(--line);
+}
+
+.stage:last-child { padding-bottom: 0; }
+
+.stage__marker {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.stage__body { padding-top: var(--s-2); }
+
+.stage__title { margin-bottom: var(--s-3); }
+
+.stage__text {
+  max-width: 60ch;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Что подключается
+   -------------------------------------------------------------------------- */
+
+.connect__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 3rem);
+}
+
+.connect__item {
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+}
+
+.connect__item h3 { margin-bottom: var(--s-3); }
+
+.connect__systems {
+  margin-bottom: var(--s-3);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+/* Отделено цветом и размером: перечень названий — факт, строка ниже —
+   объяснение, зачем это нужно. */
+.connect__note {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Кейсы по услуге
+   -------------------------------------------------------------------------- */
+
+.scase__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.scase {
+  display: grid;
+  align-content: start;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.scase__shot {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top center;
+  border-bottom: 1px solid var(--line);
+}
+
+.scase__body {
+  display: grid;
+  gap: var(--s-4);
+  padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+}
+
+.scase__company {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.scase__title { font-size: var(--fs-h3); }
+
+/* «Было» и «Стало» набраны одинаково, отличается только подпись:
+   так видно, что это две стороны одного сравнения. */
+.scase__before,
+.scase__result {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.scase__before span,
+.scase__result span {
+  display: block;
+  margin-bottom: var(--s-1);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.scase__result { padding-top: var(--s-4); border-top: 1px solid var(--line); }
+
+/* --------------------------------------------------------------------------
+   Переход к смежной услуге
+   -------------------------------------------------------------------------- */
+
+.next-step__inner {
+  display: grid;
+  gap: var(--s-4);
+  max-width: 46rem;
+  padding-left: clamp(1.25rem, 2vw, 2rem);
+  border-left: 2px solid var(--accent);
+}
+
+.next-step__inner p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* Неготовый раздел в подвале: название видно, ссылки нет. */
+.footer__soon { color: var(--text-invert-muted); opacity: 0.55; }
+
+/* --------------------------------------------------------------------------
    Адаптив
    -------------------------------------------------------------------------- */
 
@@ -236,6 +453,10 @@
   .page-hero__lead { max-width: 46ch; }
 
   .srow { grid-template-columns: 1fr; }
+
+  .fit__layout { grid-template-columns: 1fr; }
+  .connect__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .scase__grid { grid-template-columns: 1fr; }
 
   /* В одну колонку заголовок и состав работ идут подряд, поэтому
      состав отделяется линией — иначе списки сливаются между собой. */
@@ -248,4 +469,11 @@
 @media (max-width: 767px) {
   .srow__points { grid-template-columns: 1fr; }
   .approach-grid { grid-template-columns: 1fr; }
+  .connect__grid { grid-template-columns: 1fr; }
+
+  /* Номер этапа уезжает над текстом: в две колонки на узком экране
+     на текст остаётся полоса шириной в несколько слов. */
+  .stage { grid-template-columns: 1fr; gap: var(--s-4); }
+  .stage:not(:last-child)::before { display: none; }
+  .stage__body { padding-top: 0; }
 }

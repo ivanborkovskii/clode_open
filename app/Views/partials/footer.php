@@ -54,7 +54,14 @@ $columns = [
                     <div class="footer__title"><?= View::e($title) ?></div>
                     <ul class="footer__list">
                         <?php foreach ($links as $link): ?>
-                            <li><a href="<?= View::e($link['href']) ?>"><?= View::e($link['label']) ?></a></li>
+                            <li>
+                                <?php // Раздел ещё не разработан — показываем название без ссылки. ?>
+                                <?php if ($view->exists($link['href'])): ?>
+                                    <a href="<?= View::e($link['href']) ?>"><?= View::e($link['label']) ?></a>
+                                <?php else: ?>
+                                    <span class="footer__soon"><?= View::e($link['label']) ?></span>
+                                <?php endif; ?>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                 </div>

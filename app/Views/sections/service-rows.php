@@ -19,8 +19,14 @@ use App\Core\View;
                     <div class="srow__head">
                         <p class="srow__num"><?= str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) ?></p>
 
+                        <?php $ready = $view->exists($item['href']); ?>
+
                         <h2 class="srow__title">
-                            <a href="<?= View::e($item['href']) ?>"><?= View::e($item['title']) ?></a>
+                            <?php if ($ready): ?>
+                                <a href="<?= View::e($item['href']) ?>"><?= View::e($item['title']) ?></a>
+                            <?php else: ?>
+                                <?= View::e($item['title']) ?>
+                            <?php endif; ?>
                         </h2>
 
                         <p class="srow__situation"><?= View::e($item['situation']) ?></p>
@@ -33,10 +39,12 @@ use App\Core\View;
                             </p>
                         <?php endif; ?>
 
-                        <a class="link-arrow" href="<?= View::e($item['href']) ?>">
-                            Подробнее об услуге
-                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
-                        </a>
+                        <?php if ($ready): ?>
+                            <a class="link-arrow" href="<?= View::e($item['href']) ?>">
+                                Подробнее об услуге
+                                <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                            </a>
+                        <?php endif; ?>
                     </div>
 
                     <div class="srow__body">

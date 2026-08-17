@@ -13,10 +13,26 @@ namespace App\Core;
 
 final class View
 {
+    /** @param array<int, string> $published Адреса готовых страниц */
     public function __construct(
         private readonly string $viewPath,
         private readonly array $config,
+        private readonly array $published = [],
     ) {
+    }
+
+    /**
+     * Готова ли страница по этому адресу.
+     *
+     * Шаблоны выводят ссылку только на существующие страницы: сайт
+     * выкладывается по разделам, и ссылка на неразработанный раздел
+     * вела бы посетителя в «страница не найдена».
+     */
+    public function exists(string $path): bool
+    {
+        $path = '/' . trim($path, '/');
+
+        return in_array($path === '/' ? '/' : rtrim($path, '/'), $this->published, true);
     }
 
     /**

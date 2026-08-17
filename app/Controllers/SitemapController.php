@@ -38,6 +38,11 @@ final class SitemapController extends Controller
             '/privacy'  => '0.3',
             '/soglasie' => '0.3',
         ];
+        // Страницы услуг берутся из самого контроллера — список в одном месте.
+        foreach (ServiceController::paths() as $path) {
+            $paths[$path] = '0.8';
+        }
+
         $body  = '';
 
         foreach ($paths as $path => $priority) {
