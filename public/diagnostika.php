@@ -34,6 +34,20 @@ foreach (['app', 'config', 'storage'] as $dir) {
         is_dir($path) ? '' : 'Не найдена. Должна лежать рядом с public_html, а не внутри.');
 }
 
+// --- 2a. Какая версия кода лежит на сервере ---------------------------------
+// Отвечает на вопрос «а точно ли новые файлы загрузились».
+$contact = $root . '/app/Views/sections/contact.php';
+$fresh   = is_file($contact) && str_contains((string) @file_get_contents($contact), 'pole_2');
+
+row($rows, 'Версия кода формы', $fresh, $fresh ? 'обновлённая' : 'СТАРАЯ',
+    $fresh ? '' : 'Папка app на сервере от прошлой выгрузки — замените её целиком.');
+
+$appConfig = $root . '/config/app.php';
+$version   = is_file($appConfig) ? (@include $appConfig)['assets_version'] ?? '?' : '?';
+
+row($rows, 'Версия стилей и скриптов', $version !== '?', $version,
+    $version !== '?' ? '' : 'Не удалось прочитать config/app.php.');
+
 // --- 3. Запись в лог заявок -------------------------------------------------
 $logDir = $root . '/storage/logs';
 

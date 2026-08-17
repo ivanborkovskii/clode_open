@@ -28,11 +28,14 @@ final class LeadController extends Controller
 
         $validator = new Validator($_POST);
 
-        // Скрытое поле заполняется только ботами: отвечаем успехом, заявку не создаём.
-        if ($validator->value('company_site') !== '') {
-            $this->respond($isAjax, 'success', []);
-            return;
-        }
+        // Скрытое поле должно оставаться пустым — его заполняют боты.
+        //
+        // Заявку по этому признаку не выбрасываем, а только помечаем.
+        // Раньше сервер молча отвечал «успешно» и не сохранял ничего:
+        // одно ложное срабатывание — и заявка живого человека исчезала
+        // бесследно, причём он видел на экране подтверждение отправки.
+        // Спам разобрать можно, потерянного клиента — нет.
+        $suspicious = $validator->value('pole_2') !== '';
 
         $validator
             ->required('name', 'Укажите, как к вам обращаться')
@@ -53,7 +56,7 @@ final class LeadController extends Controller
             'phone'   => $validator->value('phone'),
             'email'   => $validator->value('email'),
             'message' => $validator->value('message'),
-        ]);
+        ], $suspicious);
 
         // Ни в файл, ни письмом заявка не ушла — сказать «принято» нельзя,
         // иначе человек будет ждать звонка по заявке, которой нигде нет.
@@ -81,10 +84,10 @@ final class LeadController extends Controller
      *
      * @param array<string, string> $data
      */
-    private function save(array $data): bool
+    private function save(array $data, bool $suspicious = false): bool
     {
-        $logged = $this->log($data);
-        $mailed = $this->mail($data);
+        $logged = $this->log($data, $suspicious);
+        $mailed = $this->mail($data, $suspicious);
 
         return $logged || $mailed;
     }
@@ -95,7 +98,7 @@ final class LeadController extends Controller
      *
      * @param array<string, string> $data
      */
-    private function log(array $data): bool
+    private function log(array $data, bool $suspicious = false): bool
     {
         $dir = dirname(__DIR__, 2) . '/storage/logs';
 
@@ -103,9 +106,15 @@ final class LeadController extends Controller
             return false;
         }
 
+        $entry = $data + ['time' => date('c')];
+
+        if ($suspicious) {
+            $entry['spam'] = true;
+        }
+
         $written = @file_put_contents(
             $dir . '/leads.log',
-            json_encode($data + ['time' => date('c')], JSON_UNESCAPED_UNICODE) . PHP_EOL,
+            json_encode($entry, JSON_UNESCAPED_UNICODE) . PHP_EOL,
             FILE_APPEND | LOCK_EX,
         );
 
@@ -113,11 +122,14 @@ final class LeadController extends Controller
     }
 
     /** @param array<string, string> $data */
-    private function mail(array $data): bool
+    private function mail(array $data, bool $suspicious = false): bool
     {
         $to      = $this->config['leads']['mail_to'];
         $from    = $this->config['leads']['mail_from'];
-        $subject = 'Заявка с сайта: ' . $data['name'];
+        // Пометка в теме, а не отказ от письма: если сработало ложно,
+        // заявка всё равно дойдёт, просто будет видно, что к ней есть вопросы.
+        $subject = ($suspicious ? 'Возможно спам. ' : '')
+            . 'Заявка с сайта: ' . $data['name'];
 
         $body = "Имя: {$data['name']}\n"
             . "Телефон: {$data['phone']}\n"

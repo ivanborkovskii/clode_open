@@ -159,6 +159,15 @@
     showErrors({});
     setLoading(true);
 
+    // Чистим ловушку для ботов перед отправкой: если автозаполнение
+    // браузера всё-таки добралось до неё, заявка живого человека
+    // не должна из-за этого попасть под подозрение.
+    var trap = form.querySelector('[data-trap]');
+
+    if (trap) {
+      trap.value = '';
+    }
+
     fetch(form.action, {
       method: 'POST',
       body: new FormData(form),

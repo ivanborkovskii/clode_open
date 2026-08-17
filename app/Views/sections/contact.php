@@ -61,10 +61,18 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                     <form class="form" action="/zayavka" method="post" data-form>
                         <input type="hidden" name="_token" value="<?= View::e(Csrf::token()) ?>">
 
-                        <?php // Ловушка для ботов: людям поле не видно. ?>
+                        <?php
+                        // Ловушка для ботов: людям поле не видно, бот его заполняет.
+                        //
+                        // Название поля намеренно бессмысленное. Раньше здесь был
+                        // «Сайт компании» с именем company_site — автозаполнение
+                        // браузера узнавало его и подставляло значение, из-за чего
+                        // настоящие заявки принимались за спам.
+                        ?>
                         <div class="honeypot" aria-hidden="true">
-                            <label>Сайт компании
-                                <input type="text" name="company_site" tabindex="-1" autocomplete="off">
+                            <label>Оставьте это поле пустым
+                                <input type="text" name="pole_2" tabindex="-1"
+                                       autocomplete="off" data-trap>
                             </label>
                         </div>
 
