@@ -13,7 +13,7 @@ final class Csrf
 
     public static function token(): string
     {
-        self::ensureSession();
+        Session::start();
 
         if (empty($_SESSION[self::KEY])) {
             $_SESSION[self::KEY] = bin2hex(random_bytes(32));
@@ -24,20 +24,10 @@ final class Csrf
 
     public static function check(?string $token): bool
     {
-        self::ensureSession();
+        Session::start();
 
         $expected = $_SESSION[self::KEY] ?? '';
 
         return $expected !== '' && is_string($token) && hash_equals($expected, $token);
-    }
-
-    private static function ensureSession(): void
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start([
-                'cookie_httponly' => true,
-                'cookie_samesite' => 'Lax',
-            ]);
-        }
     }
 }

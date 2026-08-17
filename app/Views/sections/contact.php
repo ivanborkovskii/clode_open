@@ -52,7 +52,13 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                 <?php else: ?>
                     <h3>Оставить заявку</h3>
 
-                    <form class="form" action="/zayavka" method="post" novalidate data-form>
+                    <?php
+                    // Атрибута novalidate здесь намеренно нет: браузер сам не даёт
+                    // отправить форму без имени, телефона и согласия на обработку
+                    // данных. Это работает, даже если скрипт не загрузился, —
+                    // проверка на сервере остаётся второй линией.
+                    ?>
+                    <form class="form" action="/zayavka" method="post" data-form>
                         <input type="hidden" name="_token" value="<?= View::e(Csrf::token()) ?>">
 
                         <?php // Ловушка для ботов: людям поле не видно. ?>

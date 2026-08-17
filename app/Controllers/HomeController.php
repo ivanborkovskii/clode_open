@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Session;
+
 final class HomeController extends Controller
 {
     public function index(): void
@@ -28,16 +30,32 @@ final class HomeController extends Controller
      */
     private function formFlash(): array
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
-        }
+        Session::start();
 
         $flash = $_SESSION['form_flash'] ?? [];
         unset($_SESSION['form_flash']);
 
+        // Если сессия на хостинге не сохранилась, флеш придёт пустым.
+        // Тогда результат берём из метки в адресе, которую поставил
+        // контроллер заявок, — иначе человек увидит пустую форму
+        // и решит, что заявка отправлена.
+        $marker = $_GET['zayavka'] ?? '';
+        $status = $flash['status'] ?? match ($marker) {
+            'ok'    => 'success',
+            'error' => 'error',
+            default => '',
+        };
+
+        $errors = $flash['errors'] ?? [];
+
+        if ($status === 'error' && $errors === []) {
+            $errors['_form'] = 'Заявку отправить не удалось. Заполните поля ещё раз '
+                . 'или позвоните: ' . $this->config['company']['phone'];
+        }
+
         return [
-            'status' => $flash['status'] ?? '',
-            'errors' => $flash['errors'] ?? [],
+            'status' => $status,
+            'errors' => $errors,
             'values' => $flash['values'] ?? [],
         ];
     }

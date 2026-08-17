@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Csrf;
+use App\Core\Session;
 use App\Core\Validator;
 
 final class LeadController extends Controller
@@ -155,9 +156,7 @@ final class LeadController extends Controller
             return;
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
-        }
+        Session::start();
 
         // При успехе значения не возвращаем — форма должна очиститься.
         $_SESSION['form_flash'] = [
@@ -166,6 +165,9 @@ final class LeadController extends Controller
             'values' => $status === 'success' ? [] : array_map('strval', array_diff_key($values, ['_token' => ''])),
         ];
 
-        $this->redirect('/#zayavka', 303);
+        // Метка в адресе дублирует результат на случай, если сессия на хостинге
+        // не сохраняется. Без неё страница после отправки просто перезагрузилась
+        // бы с пустой формой, и человек решил бы, что заявка ушла.
+        $this->redirect('/?zayavka=' . ($status === 'success' ? 'ok' : 'error') . '#zayavka', 303);
     }
 }

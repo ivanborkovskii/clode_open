@@ -98,6 +98,12 @@
     return;
   }
 
+  // В разметке у полей стоят required, и без скрипта форму проверяет сам
+  // браузер — так согласие на обработку данных нельзя обойти, даже если
+  // скрипт не загрузился. Когда скрипт работает, встроенную проверку
+  // выключаем: ошибки показываются в оформлении сайта, ответом сервера.
+  form.noValidate = true;
+
   var button = form.querySelector('[data-submit]');
   var label = form.querySelector('[data-submit-label]');
   var labelText = label ? label.textContent : '';
