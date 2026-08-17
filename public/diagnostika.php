@@ -143,6 +143,8 @@ $failed = array_filter($rows, static fn (array $r): bool => !$r['ok']);
   .val { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px;
          word-break: break-all; }
   .hint { color: #c02626; font-size: 13px; margin-top: 4px; }
+  /* У пройденных проверок пояснение — просто уточнение, а не ошибка. */
+  .hint--ok { color: #63636b; }
   form { margin-top: 24px; padding: 16px; background: #fff;
          border: 1px solid #e0e0e6; border-radius: 4px; }
   button { padding: 9px 16px; border: 0; border-radius: 3px; background: #1e96f0;
@@ -173,7 +175,7 @@ $failed = array_filter($rows, static fn (array $r): bool => !$r['ok']);
         <td>
           <span class="val"><?= htmlspecialchars($r['value']) ?></span>
           <?php if ($r['hint'] !== ''): ?>
-            <div class="hint"><?= htmlspecialchars($r['hint']) ?></div>
+            <div class="hint <?= $r['ok'] ? 'hint--ok' : '' ?>"><?= htmlspecialchars($r['hint']) ?></div>
           <?php endif; ?>
         </td>
       </tr>
