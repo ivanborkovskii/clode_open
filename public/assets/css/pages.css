@@ -1,0 +1,251 @@
+/* ==========================================================================
+   ВНУТРЕННИЕ СТРАНИЦЫ
+   Шапка раздела, хлебные крошки, перечень услуг, блок принципов.
+   Подключается поверх app.css на страницах разделов.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Хлебные крошки
+   -------------------------------------------------------------------------- */
+
+.crumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.crumbs__item + .crumbs__item::before {
+  content: '/';
+  margin-right: var(--s-3);
+  color: var(--line);
+}
+
+.crumbs__item a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--line);
+  transition: color var(--transition);
+}
+
+.crumbs__item a:hover { color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   Шапка внутренней страницы
+
+   Тёмная — она берёт на себя роль первого экрана и отделяет шапку сайта
+   от содержимого. Высота задана содержимым, а не экраном: заставка
+   во весь экран на внутренней странице только отодвигает ответ вниз.
+   -------------------------------------------------------------------------- */
+
+.page-hero {
+  padding-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  padding-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  background: var(--ink-900);
+  color: var(--text-invert);
+  /* Та же точечная фактура, что и на светлых секциях главной,
+     чтобы страницы читались как один сайт. */
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.page-hero .crumbs__item { color: var(--text-invert-muted); }
+.page-hero .crumbs__item a { color: var(--text-invert-muted); text-decoration-color: var(--line-invert); }
+.page-hero .crumbs__item a:hover { color: #fff; }
+.page-hero .crumbs__item + .crumbs__item::before { color: var(--line-invert); }
+
+.page-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: end;
+  margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+}
+
+.page-hero h1 { color: var(--text-invert); }
+
+.page-hero__lead {
+  max-width: 30ch;
+  margin-top: var(--s-5);
+  font-size: var(--fs-lead);
+  line-height: 1.45;
+  color: var(--text-invert-muted);
+  text-wrap: pretty;
+}
+
+/* Второй столбец — пояснение. Отделено линией сверху, а не рамкой:
+   рамка сделала бы из него карточку, которой он не является. */
+.page-hero__text {
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line-invert);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--text-invert-muted);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Перечень услуг
+
+   Строка во всю ширину: слева — что это за услуга и кому она,
+   справа — состав работ. Разделены линиями, а не карточками:
+   пять одинаковых карточек читаются как список, который можно пролистать
+   не читая, а строки заставляют пройти по каждой.
+   -------------------------------------------------------------------------- */
+
+.srow-list {
+  display: grid;
+  gap: 0;
+  counter-reset: none;
+}
+
+.srow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(1.5rem, 4vw, 4.5rem);
+  padding-block: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
+  border-top: 1px solid var(--line);
+}
+
+.srow:first-child { border-top: 0; padding-top: 0; }
+.srow:last-child { padding-bottom: 0; }
+
+.srow__head {
+  display: grid;
+  gap: var(--s-4);
+  align-content: start;
+}
+
+.srow__num {
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.srow__title {
+  font-size: clamp(1.375rem, 1.15rem + 1.1vw, 2rem);
+  line-height: 1.15;
+}
+
+.srow__title a {
+  transition: color var(--transition);
+}
+
+.srow__title a:hover { color: var(--accent); }
+
+.srow__situation {
+  max-width: 44ch;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* Цена показывается только там, где она подтверждена. Остальные услуги
+   считаются по объёму работ, и придумывать «от» для них нельзя. */
+.srow__price {
+  display: grid;
+  gap: var(--s-1);
+  padding: var(--s-4) var(--s-5);
+  background: var(--paper-alt);
+  border-left: 2px solid var(--accent);
+}
+
+.srow__price b {
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.srow__price span {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.srow__price small {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.srow__label {
+  margin-bottom: var(--s-4);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.srow__points {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3) var(--s-6);
+}
+
+.srow__points li {
+  position: relative;
+  padding-left: var(--s-5);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+/* Маркер — короткая черта, а не точка или галочка: галочки в списке работ
+   читаются как обещание результата, а это перечень действий. */
+.srow__points li::before {
+  content: '';
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 10px;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Принципы работы
+   -------------------------------------------------------------------------- */
+
+.approach-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem) clamp(2rem, 4vw, 4.5rem);
+}
+
+.approach-item {
+  padding-top: var(--s-5);
+  border-top: 2px solid var(--ink-900);
+}
+
+.approach-item h3 { margin-bottom: var(--s-3); }
+
+.approach-item p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Адаптив
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .page-hero__inner { grid-template-columns: 1fr; align-items: start; }
+  .page-hero__lead { max-width: 46ch; }
+
+  .srow { grid-template-columns: 1fr; }
+
+  /* В одну колонку заголовок и состав работ идут подряд, поэтому
+     состав отделяется линией — иначе списки сливаются между собой. */
+  .srow__body {
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 767px) {
+  .srow__points { grid-template-columns: 1fr; }
+  .approach-grid { grid-template-columns: 1fr; }
+}

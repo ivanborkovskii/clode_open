@@ -14,6 +14,8 @@ use App\Core\Router;
 
 $router->get('/', 'HomeController@index');
 
+$router->get('/uslugi', 'ServiceController@index');
+
 $router->post('/zayavka', 'LeadController@store');
 
 $router->get('/privacy', 'LegalController@privacy');
@@ -25,7 +27,6 @@ $router->get('/sitemap-pages.xml', 'SitemapController@pages');
 /*
  * Следующие этапы (не разрабатываются без отдельной задачи):
  *
- * $router->get('/uslugi', 'ServiceController@index');
  * $router->get('/uslugi/{slug}', 'ServiceController@show');
  * $router->get('/resheniya', 'SolutionController@index');
  * $router->get('/resheniya/{slug}', 'SolutionController@show');

@@ -34,6 +34,7 @@ final class SitemapController extends Controller
         // По мере разработки внутренних страниц список пополняется.
         $paths = [
             '/'         => '1.0',
+            '/uslugi'   => '0.9',
             '/privacy'  => '0.3',
             '/soglasie' => '0.3',
         ];

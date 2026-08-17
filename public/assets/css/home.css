@@ -1168,121 +1168,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Акцентная полоса призыва к действию
-   -------------------------------------------------------------------------- */
-
-.cta-band {
-  background: var(--accent);
-  color: #fff;
-}
-
-.cta-band__inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--s-6);
-  align-items: center;
-  padding-block: clamp(2.5rem, 2rem + 2.5vw, 4rem);
-}
-
-.cta-band h2 {
-  max-width: 20ch;
-  font-size: clamp(1.5rem, 1.2rem + 1.6vw, 2.5rem);
-  color: #fff;
-}
-
-.cta-band p {
-  max-width: 52ch;
-  margin-top: var(--s-4);
-  color: rgba(255, 255, 255, 0.92);
-  text-wrap: pretty;
-}
-
-/* --------------------------------------------------------------------------
-   Форма заявки
-   -------------------------------------------------------------------------- */
-
-.contact {
-  background: var(--ink-900);
-  color: var(--text-invert);
-}
-
-.contact__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: clamp(2rem, 4vw, 5rem);
-  align-items: start;
-}
-
-.contact__lead {
-  margin-top: var(--s-4);
-  font-size: var(--fs-lead);
-  line-height: 1.5;
-  color: var(--text-invert-muted);
-  text-wrap: pretty;
-}
-
-.contact__direct {
-  display: grid;
-  gap: var(--s-4);
-  margin-top: var(--s-7);
-  padding-top: var(--s-6);
-  border-top: 1px solid var(--line-invert);
-}
-
-.contact__direct-title {
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.contact__phone {
-  font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #fff;
-}
-
-.contact__mail {
-  font-size: var(--fs-lead);
-  color: #fff;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.contact__address {
-  font-size: var(--fs-sm);
-  color: var(--text-invert-muted);
-}
-
-.form-card {
-  padding: clamp(1.5rem, 1.2rem + 2vw, 2.5rem);
-  background: var(--paper);
-  color: var(--text);
-  border-radius: var(--radius);
-}
-
-.form-card h3 { margin-bottom: var(--s-5); }
-
-.form__grid {
-  display: grid;
-  gap: var(--s-5);
-}
-
-.form__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--s-5);
-}
-
-.form__foot {
-  display: grid;
-  gap: var(--s-4);
-  margin-top: var(--s-2);
-}
-
-/* --------------------------------------------------------------------------
    Адаптив
    Точки перелома выбраны по содержимому: сначала 4 → 2 колонки,
    затем всё в одну.
@@ -1329,7 +1214,6 @@
   .case { grid-template-columns: 1fr; }
 
   .expert__layout,
-  .contact__layout,
   .solutions__layout,
   .funnel-section__layout { grid-template-columns: 1fr; }
 
@@ -1344,8 +1228,6 @@
   .expert__photo { aspect-ratio: 4 / 3; object-position: center 22%; }
 
   .certs { grid-template-columns: repeat(2, 1fr); }
-
-  .cta-band__inner { grid-template-columns: 1fr; }
 
   /* Услуги превращаются в аккордеон: панель идёт сразу за своим пунктом. */
   .services__layout {
@@ -1439,9 +1321,6 @@
 
   .solutions__col { padding-left: var(--s-4); }
 
-  /* Формы: телефон и почта в одну колонку — так удобнее заполнять. */
-  .form__row { grid-template-columns: 1fr; }
-
   .expert__stats { grid-template-columns: 1fr; }
 
   .hero__actions .btn { width: 100%; }
@@ -1450,8 +1329,6 @@
      задаём крупнее — иначе на телефоне они нечитаемы. */
   .iso__label { font-size: 20px; }
   .iso__text { font-size: 14px; }
-
-  .cta-band__inner .btn { width: 100%; }
 
   .articles__head { flex-direction: column; align-items: flex-start; }
 }

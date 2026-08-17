@@ -62,6 +62,14 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                         <input type="hidden" name="_token" value="<?= View::e(Csrf::token()) ?>">
 
                         <?php
+                        // Адрес страницы, с которой отправлена заявка. Без него
+                        // отправка без JavaScript всегда возвращала бы на главную,
+                        // хотя форма есть и на внутренних страницах.
+                        ?>
+                        <input type="hidden" name="_back"
+                               value="<?= View::e(strtok($_SERVER['REQUEST_URI'] ?? '/', '?')) ?>">
+
+                        <?php
                         // Ловушка для ботов: людям поле не видно, бот его заполняет.
                         //
                         // Название поля намеренно бессмысленное. Раньше здесь был

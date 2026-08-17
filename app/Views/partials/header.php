@@ -9,6 +9,13 @@ use App\Core\View;
 
 $company = $config['company'];
 
+// Текущий адрес без параметров — по нему подсвечивается активный раздел.
+// Подраздел тоже подсвечивает свой пункт: /uslugi/integracii → «Услуги».
+$current = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+
+$isActive = static fn (string $href): bool =>
+    $href !== '/' && ($current === $href || str_starts_with($current, $href . '/'));
+
 // Единый источник пунктов меню — используется и в шапке, и в мобильном меню.
 $menu = [
     ['label' => 'Услуги',     'href' => '/uslugi'],
@@ -28,7 +35,8 @@ $menu = [
 
         <nav class="nav" aria-label="Основная навигация">
             <?php foreach ($menu as $item): ?>
-                <a class="nav__link" href="<?= View::e($item['href']) ?>"><?= View::e($item['label']) ?></a>
+                <a class="nav__link" href="<?= View::e($item['href']) ?>"
+                   <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
             <?php endforeach; ?>
         </nav>
 
@@ -54,7 +62,8 @@ $menu = [
 <div class="mobile-menu" id="mobile-menu" data-open="false">
     <nav aria-label="Мобильная навигация">
         <?php foreach ($menu as $item): ?>
-            <a class="mobile-menu__link" href="<?= View::e($item['href']) ?>"><?= View::e($item['label']) ?></a>
+            <a class="mobile-menu__link" href="<?= View::e($item['href']) ?>"
+               <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
         <?php endforeach; ?>
     </nav>
 
