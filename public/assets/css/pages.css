@@ -409,6 +409,23 @@
   gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 
+/* Единственный кейс разворачивается в строку во всю ширину. */
+.scase__grid--one { grid-template-columns: 1fr; }
+
+.scase__grid--one .scase {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.scase__grid--one .scase__shot {
+  height: 100%;
+  border-bottom: 0;
+  border-right: 1px solid var(--line);
+  /* Кадр обрезается по высоте, поэтому держим левый край: там названия
+     этапов воронки, ради которых снимок и показан. */
+  object-position: left top;
+}
+
 .scase {
   display: grid;
   align-content: start;
@@ -510,6 +527,13 @@
   .fit__layout { grid-template-columns: 1fr; }
   .connect__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .scase__grid { grid-template-columns: 1fr; }
+
+  .scase__grid--one .scase { grid-template-columns: 1fr; }
+  .scase__grid--one .scase__shot {
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
 
   /* В одну колонку заголовок и состав работ идут подряд, поэтому
      состав отделяется линией — иначе списки сливаются между собой. */

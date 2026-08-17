@@ -16,7 +16,10 @@ use App\Core\View;
             <h2><?= View::e($cases['title']) ?></h2>
         </div>
 
-        <div class="scase__grid">
+        <?php // Один кейс в сетке из двух колонок занимал бы половину ширины
+              // и выглядел бы недоделанным. Поэтому раскладка другая:
+              // снимок слева, разбор справа. ?>
+        <div class="scase__grid<?= count($cases['items']) === 1 ? ' scase__grid--one' : '' ?>">
             <?php foreach ($cases['items'] as $case): ?>
                 <?php
                 $href = '/keysy/' . $case['slug'];
@@ -35,7 +38,9 @@ use App\Core\View;
                                // а на широком экране контейнер упирается в 1280 px
                                // и колонка перестаёт расти. Без последнего значения
                                // браузер грузил версию 1200 px в блок шириной 570 px. ?>
-                         sizes="(max-width: 1023px) 92vw, (max-width: 1399px) 46vw, 600px"
+                         sizes="<?= count($cases['items']) === 1
+                             ? '(max-width: 1023px) 92vw, 600px'
+                             : '(max-width: 1023px) 92vw, (max-width: 1399px) 46vw, 600px' ?>"
                          alt="<?= View::e($case['alt']) ?>"
                          width="1200" height="673" loading="lazy" decoding="async">
 
