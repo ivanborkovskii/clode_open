@@ -40,8 +40,13 @@ final class SitemapController extends Controller
         ];
         // Адреса разделов берутся из самих контроллеров — список в одном месте.
         $paths['/resheniya'] = '0.9';
+        $paths['/keysy']     = '0.9';
 
-        foreach ([...ServiceController::paths(), ...SolutionController::paths()] as $path) {
+        foreach ([
+            ...ServiceController::paths(),
+            ...SolutionController::paths(),
+            ...CaseController::paths(),
+        ] as $path) {
             $paths[$path] = '0.8';
         }
 

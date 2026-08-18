@@ -8,6 +8,7 @@
 
 declare(strict_types=1);
 
+use App\Controllers\CaseController;
 use App\Controllers\ServiceController;
 use App\Controllers\SolutionController;
 use App\Core\Router;
@@ -22,6 +23,9 @@ $router->get('/uslugi/{slug}', 'ServiceController@show', ServiceController::path
 $router->get('/resheniya', 'SolutionController@index');
 $router->get('/resheniya/{slug}', 'SolutionController@show', SolutionController::paths());
 
+$router->get('/keysy', 'CaseController@index');
+$router->get('/keysy/{slug}', 'CaseController@show', CaseController::paths());
+
 $router->post('/zayavka', 'LeadController@store');
 
 $router->get('/privacy', 'LegalController@privacy');
@@ -33,8 +37,6 @@ $router->get('/sitemap-pages.xml', 'SitemapController@pages');
 /*
  * Следующие этапы (не разрабатываются без отдельной задачи):
  *
- * $router->get('/keysy', 'CaseController@index');
- * $router->get('/keysy/{slug}', 'CaseController@show');
  * $router->get('/stati', 'ArticleController@index');
  * $router->get('/stati/{slug}', 'ArticleController@show');
  * $router->get('/o-kompanii', 'PageController@about');

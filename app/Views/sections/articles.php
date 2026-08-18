@@ -22,9 +22,12 @@ $items = $items ?? [];
                 <p class="section-head__lead"><?= View::e($articles['lead']) ?></p>
             </div>
 
+            <?php // Раздел статей ещё не разработан — кнопки нет. ?>
+            <?php if ($view->exists($articles['link']['href'])): ?>
             <a class="btn btn--outline" href="<?= View::e($articles['link']['href']) ?>">
                 <?= View::e($articles['link']['label']) ?>
             </a>
+            <?php endif; ?>
         </div>
 
         <?php if ($items === []): ?>
@@ -36,10 +39,12 @@ $items = $items ?? [];
                         <h3><?= View::e($item['title']) ?></h3>
                         <p><?= View::e($item['excerpt']) ?></p>
 
-                        <a class="link-arrow" href="/stati/<?= View::e($item['slug']) ?>">
-                            Читать
-                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
-                        </a>
+                        <?php if ($view->exists('/stati/' . $item['slug'])): ?>
+                            <a class="link-arrow" href="/stati/<?= View::e($item['slug']) ?>">
+                                Читать
+                                <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                            </a>
+                        <?php endif; ?>
                     </article>
                 <?php endforeach; ?>
             </div>

@@ -1137,3 +1137,121 @@ body[data-viewer-open='true'] { overflow: hidden; }
   opacity: 0.45;
   cursor: default;
 }
+
+/* --------------------------------------------------------------------------
+   Кейс рядом
+
+   Скриншот и рядом разбор: задача → что было → результат. Используется
+   и на главной, и в разделе кейсов, поэтому лежит в дизайн-системе.
+   Раскладка рядами, а не тремя колонками: скриншоты CRM плотные,
+   в узкой карточке они превращаются в цветной шум.
+   -------------------------------------------------------------------------- */
+
+.cases {
+  display: grid;
+  gap: clamp(2rem, 3vw, 3.5rem);
+}
+
+.case {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: center;
+  padding-bottom: clamp(2rem, 3vw, 3.5rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.case:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.case__shot {
+  display: block;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.case__shot:hover { border-color: var(--accent); }
+
+.case__shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.case__body {
+  display: grid;
+  gap: var(--s-5);
+  align-content: start;
+}
+
+.case__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.case__company {
+  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.case__industry {
+  margin-top: var(--s-1);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.case__system {
+  flex: none;
+  padding: 6px 10px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.case__row-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--s-2);
+}
+
+.case__row p:not(.case__row-title) {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.case__row--result {
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+
+.case__row--result .case__row-title { color: var(--accent); }
+.case__row--result p:not(.case__row-title) { color: var(--text); }
+
+.cases__more {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(2rem, 3vw, 3.5rem);
+}
+
+@media (max-width: 1023px) {
+  /* Ряд разворачивается в колонку: скриншот сверху, разбор под ним. */
+  .case { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+  .case__head { flex-direction: column; gap: var(--s-3); }
+}

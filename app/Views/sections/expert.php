@@ -86,12 +86,15 @@ use App\Core\View;
                         <?php endforeach; ?>
                     </ul>
 
-                    <p style="margin-top: var(--s-6);">
-                        <a class="link-arrow" href="<?= View::e($expert['link']['href']) ?>">
-                            <?= View::e($expert['link']['label']) ?>
-                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
-                        </a>
-                    </p>
+                    <?php // Раздел «О компании» ещё не разработан — ссылки нет. ?>
+                    <?php if ($view->exists($expert['link']['href'])): ?>
+                        <p style="margin-top: var(--s-6);">
+                            <a class="link-arrow" href="<?= View::e($expert['link']['href']) ?>">
+                                <?= View::e($expert['link']['label']) ?>
+                                <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                            </a>
+                        </p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

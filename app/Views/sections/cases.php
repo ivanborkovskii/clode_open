@@ -13,23 +13,32 @@ use App\Core\View;
 ?>
 <section class="section" id="keysy">
     <div class="container">
+        <?php if (!empty($cases['title'])): ?>
         <div class="section-head">
             <p class="label">Кейсы</p>
             <h2><?= View::e($cases['title']) ?></h2>
             <p class="section-head__lead"><?= View::e($cases['lead']) ?></p>
         </div>
+        <?php endif; ?>
 
         <div class="cases">
             <?php foreach ($cases['items'] as $case): ?>
+                <?php // Разбор кейса может быть ещё не готов — тогда ссылки нет. ?>
+                <?php $ready = $view->exists($case['href']); ?>
+
                 <article class="case">
+                    <?php if ($ready): ?>
                     <a class="case__shot" href="<?= View::e($case['href']) ?>" tabindex="-1" aria-hidden="true">
+                    <?php else: ?>
+                    <div class="case__shot">
+                    <?php endif; ?>
                         <img src="/assets/img/cases/<?= View::e($case['slug']) ?>-1.webp"
                              srcset="/assets/img/cases/<?= View::e($case['slug']) ?>-1-sm.webp 600w,
                                      /assets/img/cases/<?= View::e($case['slug']) ?>-1.webp 1200w"
                              sizes="(max-width: 1023px) 92vw, 52vw"
                              alt="<?= View::e($case['alt']) ?>"
                              width="1200" height="675" loading="lazy" decoding="async">
-                    </a>
+                    <?= $ready ? '</a>' : '</div>' ?>
 
                     <div class="case__body">
                         <header class="case__head">
@@ -55,19 +64,23 @@ use App\Core\View;
                             <p><?= View::e($case['result']) ?></p>
                         </div>
 
-                        <a class="link-arrow" href="<?= View::e($case['href']) ?>">
-                            Разбор кейса
-                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
-                        </a>
+                        <?php if ($ready): ?>
+                            <a class="link-arrow" href="<?= View::e($case['href']) ?>">
+                                Разбор кейса
+                                <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </article>
             <?php endforeach; ?>
         </div>
 
-        <div class="cases__more">
-            <a class="btn btn--outline" href="<?= View::e($cases['link']['href']) ?>">
-                <?= View::e($cases['link']['label']) ?>
-            </a>
-        </div>
+        <?php if (!empty($cases['link']) && $view->exists($cases['link']['href'])): ?>
+            <div class="cases__more">
+                <a class="btn btn--outline" href="<?= View::e($cases['link']['href']) ?>">
+                    <?= View::e($cases['link']['label']) ?>
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
 </section>

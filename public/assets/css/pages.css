@@ -583,6 +583,121 @@
 }
 
 /* --------------------------------------------------------------------------
+   Факты кейса
+   -------------------------------------------------------------------------- */
+
+.case-facts__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.55fr) minmax(0, 1.45fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+.case-facts__label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.case-facts__value {
+  margin-bottom: var(--s-5);
+  font-size: var(--fs-h4);
+  font-weight: 700;
+}
+
+.case-facts__value:last-child { margin-bottom: 0; }
+
+.case-facts__main {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.case-facts__block h2 {
+  margin-bottom: var(--s-3);
+  font-size: var(--fs-h3);
+}
+
+.case-facts__block p {
+  max-width: 62ch;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* Пояснение, почему так вышло: набрано иначе, потому что это рассуждение,
+   а не факт из карточки проекта. */
+.case-facts__why {
+  max-width: 62ch;
+  padding-left: var(--s-4);
+  border-left: 2px solid var(--accent);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Результат проекта
+   -------------------------------------------------------------------------- */
+
+.case-result__inner { max-width: 56rem; }
+
+.case-result__text {
+  margin-top: var(--s-5);
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  color: var(--text-invert);
+  text-wrap: pretty;
+}
+
+.case-result__note {
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line-invert);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-invert-muted);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Галерея экранов
+
+   Снимки CRM плотные, поэтому в сетке они только показывают, что есть.
+   Читать их предполагается в просмотрщике — по клику.
+   -------------------------------------------------------------------------- */
+
+.shots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.shots__item {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: zoom-in;
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.shots__item:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.shots__item img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top left;
+}
+
+/* --------------------------------------------------------------------------
    Адаптив
    -------------------------------------------------------------------------- */
 
@@ -606,6 +721,9 @@
   .connect__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .scase__grid { grid-template-columns: 1fr; }
 
+  .case-facts__grid { grid-template-columns: 1fr; }
+  .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
   .price-block__inner { grid-template-columns: 1fr; }
 
   .scase__grid--one .scase { grid-template-columns: 1fr; }
@@ -627,6 +745,7 @@
   .srow__points { grid-template-columns: 1fr; }
   .approach-grid { grid-template-columns: 1fr; }
   .connect__grid { grid-template-columns: 1fr; }
+  .shots { grid-template-columns: 1fr; }
 
   /* Номер этапа уезжает над текстом: в две колонки на узком экране
      на текст остаётся полоса шириной в несколько слов. */
