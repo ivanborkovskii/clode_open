@@ -26,6 +26,9 @@ $router->get('/resheniya/{slug}', 'SolutionController@show', SolutionController:
 $router->get('/keysy', 'CaseController@index');
 $router->get('/keysy/{slug}', 'CaseController@show', CaseController::paths());
 
+$router->get('/o-kompanii', 'PageController@about');
+$router->get('/kontakty', 'PageController@contacts');
+
 $router->post('/zayavka', 'LeadController@store');
 
 $router->get('/privacy', 'LegalController@privacy');
@@ -39,6 +42,4 @@ $router->get('/sitemap-pages.xml', 'SitemapController@pages');
  *
  * $router->get('/stati', 'ArticleController@index');
  * $router->get('/stati/{slug}', 'ArticleController@show');
- * $router->get('/o-kompanii', 'PageController@about');
- * $router->get('/kontakty', 'PageController@contacts');
  */

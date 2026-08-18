@@ -35,6 +35,8 @@ final class SitemapController extends Controller
         $paths = [
             '/'         => '1.0',
             '/uslugi'   => '0.9',
+            '/o-kompanii' => '0.7',
+            '/kontakty'   => '0.7',
             '/privacy'  => '0.3',
             '/soglasie' => '0.3',
         ];

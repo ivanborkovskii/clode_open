@@ -29,6 +29,9 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                 <h2><?= View::e($form['title']) ?></h2>
                 <p class="contact__lead"><?= View::e($form['lead']) ?></p>
 
+                <?php // На странице «Контакты» те же телефон и почта уже показаны
+                      // выше отдельным блоком — второй раз их выводить незачем. ?>
+                <?php if (empty($form['hide_direct'])): ?>
                 <div class="contact__direct">
                     <p class="contact__direct-title">Можно связаться напрямую</p>
                     <a class="contact__phone" href="tel:<?= View::e($company['phone_href']) ?>">
@@ -41,6 +44,7 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                         <?= View::e($company['address']) ?>
                     </address>
                 </div>
+                <?php endif; ?>
             </div>
 
             <div class="form-card">

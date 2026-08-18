@@ -87,7 +87,7 @@ use App\Core\View;
                     </ul>
 
                     <?php // Раздел «О компании» ещё не разработан — ссылки нет. ?>
-                    <?php if ($view->exists($expert['link']['href'])): ?>
+                    <?php if (!empty($expert['link']) && $view->exists($expert['link']['href'])): ?>
                         <p style="margin-top: var(--s-6);">
                             <a class="link-arrow" href="<?= View::e($expert['link']['href']) ?>">
                                 <?= View::e($expert['link']['label']) ?>

@@ -698,6 +698,103 @@
 }
 
 /* --------------------------------------------------------------------------
+   Способы связи
+   -------------------------------------------------------------------------- */
+
+.ways__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.ways__item {
+  padding-top: var(--s-5);
+  border-top: 2px solid var(--ink-900);
+}
+
+.ways__item h3 { margin-bottom: var(--s-3); }
+
+/* Само значение — телефон или почта — крупнее заголовка: за ним
+   на эту страницу и приходят. */
+.ways__value {
+  display: block;
+  margin-bottom: var(--s-4);
+  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-style: normal;
+  color: var(--accent);
+  transition: color var(--transition);
+}
+
+.ways__value:hover { color: var(--accent-hover); }
+
+.ways__value--plain {
+  font-size: var(--fs-lead);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ways__note {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Реквизиты
+   -------------------------------------------------------------------------- */
+
+.requisites__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+}
+
+.requisites__lead {
+  margin-top: var(--s-4);
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.requisites__list {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* Строка «название — значение». Таблицей это не набрано намеренно:
+   на телефоне таблица из двух колонок ломается, а список — нет. */
+.requisites__row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+  gap: var(--s-4);
+  padding-block: var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.requisites__row dt {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.requisites__row dd {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.requisites__note {
+  margin-top: var(--s-5);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
    Адаптив
    -------------------------------------------------------------------------- */
 
@@ -722,6 +819,7 @@
   .scase__grid { grid-template-columns: 1fr; }
 
   .case-facts__grid { grid-template-columns: 1fr; }
+  .requisites__layout { grid-template-columns: 1fr; }
   .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .price-block__inner { grid-template-columns: 1fr; }
@@ -746,6 +844,11 @@
   .approach-grid { grid-template-columns: 1fr; }
   .connect__grid { grid-template-columns: 1fr; }
   .shots { grid-template-columns: 1fr; }
+  .ways__grid { grid-template-columns: 1fr; }
+
+  /* Название и значение реквизита встают друг под друга: в две колонки
+     длинное наименование ИП переносится по одному слову. */
+  .requisites__row { grid-template-columns: 1fr; gap: var(--s-1); }
 
   /* Номер этапа уезжает над текстом: в две колонки на узком экране
      на текст остаётся полоса шириной в несколько слов. */
