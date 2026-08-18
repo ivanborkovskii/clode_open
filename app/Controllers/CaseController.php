@@ -45,7 +45,7 @@ final class CaseController extends Controller
         ],
         'arsenalsnab' => [
             'content'     => 'case-arsenalsnab',
-            'crumb'       => 'Строительный инструмент',
+            'crumb'       => 'Арсенал Снаб',
             'title'       => 'Кейс: четыре воронки в amoCRM для торговли инструментом',
             'description' => 'Была одна воронка и amoCRM без каналов связи. Разобрали '
                 . 'процессы, собрали четыре воронки под разные типы клиентов, '
