@@ -3,6 +3,10 @@ storage/logs/*
 storage/sessions/*
 !storage/sessions/.gitkeep
 
+# Картинки статей загружаются через админку и живут только на сервере:
+# в репозитории им делать нечего, а .htaccess из этого каталога — нужен.
+public/assets/img/stati/*/
+
 .env
 .DS_Store
 node_modules/
