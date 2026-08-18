@@ -705,6 +705,74 @@ textarea.field__control {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* --------------------------------------------------------------------------
+   Кнопка «Наверх»
+   Появляется после прокрутки на два экрана: раньше она только закрывала бы
+   содержимое, ради которого человек и пришёл.
+   -------------------------------------------------------------------------- */
+
+.to-top {
+  position: fixed;
+  /* Ниже шапки и мобильного меню: перекрывать навигацию кнопка не должна. */
+  z-index: 90;
+  right: clamp(1rem, 2vw, 2.5rem);
+  bottom: clamp(1rem, 2vw, 2.5rem);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0.6rem 0.9rem;
+  background: var(--ink-900);
+  /* Рамка заметно светлее обычной: кнопка попадает и на тёмные секции,
+     где тёмный фон кнопки сливается с фоном страницы. */
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: var(--radius);
+  color: var(--text-invert);
+  font-size: var(--fs-sm);
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 12px 28px -8px rgba(7, 23, 57, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity var(--transition), transform var(--transition),
+    visibility var(--transition), background var(--transition);
+}
+
+.to-top.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.to-top:hover { background: var(--ink-700); }
+
+.to-top:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Пока открыто меню или просмотр картинки, кнопка не нужна:
+   прокручивать в этот момент нечего. */
+body[data-menu-open='true'] .to-top,
+body[data-viewer-open='true'] .to-top {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (max-width: 767px) {
+  /* На телефоне остаётся только стрелка: подпись съедала бы половину
+     нижнего края экрана. Название кнопки для чтения с экрана берётся
+     из aria-label и не зависит от того, видна подпись или нет. */
+  .to-top {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+  }
+
+  .to-top span { display: none; }
+}
+
+/* --------------------------------------------------------------------------
    8. Подвал
    -------------------------------------------------------------------------- */
 

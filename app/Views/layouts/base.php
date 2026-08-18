@@ -125,6 +125,24 @@ $title   = ($seo['title'] ?? '') !== ''
 
     <?php $view->partial('partials/footer'); ?>
 
+    <?php
+    // Кнопка «Наверх». Это обычная ссылка на начало документа: она работает
+    // и без JavaScript, а скрипт только показывает её после прокрутки —
+    // на первом экране она не нужна и закрывала бы содержимое.
+    //
+    // Стоит в конце страницы намеренно: при переходе с клавиатуры она
+    // оказывается последней, а не влезает в середину навигации.
+    ?>
+    <a class="to-top" href="#top" aria-label="Наверх" data-to-top>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-up"/></svg>
+        <span>Наверх</span>
+    </a>
+
+    <?php // Без скрипта показать кнопку по прокрутке нечем — показываем всегда. ?>
+    <noscript>
+        <style>.to-top { opacity: 1; visibility: visible; transform: none; }</style>
+    </noscript>
+
     <script src="<?= View::e($view->asset('js/main.js')) ?>" defer></script>
 
     <?php // Скрипты раздела: подключаются только там, где нужны. ?>

@@ -45,4 +45,30 @@ if ($route === null) {
 $class = 'App\\Controllers\\' . $route['controller'];
 
 $controller = new $class($view, $config);
-$controller->{$route['action']}(...$route['params']);
+
+try {
+    $controller->{$route['action']}(...$route['params']);
+} catch (PDOException) {
+    // База нужна только разделу «Статьи». Если она недоступна, страница
+    // должна честно ответить «временно недоступно», а не отдать пустой
+    // документ с кодом 200: такую страницу поисковик проиндексирует
+    // как пустую, а посетитель решит, что сайт сломан насовсем.
+    http_response_code(503);
+    header('Retry-After: 600');
+
+    if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch') {
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['status' => 'error'], JSON_UNESCAPED_UNICODE);
+
+        return;
+    }
+
+    header('Content-Type: text/html; charset=UTF-8');
+
+    echo $view->render('error', [
+        'seo'     => ['title' => 'Раздел временно недоступен', 'noindex' => true],
+        'code'    => 503,
+        'message' => 'Статьи сейчас недоступны из-за сбоя базы данных. '
+            . 'Остальные разделы сайта работают.',
+    ]);
+}
