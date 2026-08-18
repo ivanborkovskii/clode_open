@@ -43,6 +43,22 @@ final class CaseController extends Controller
                 . 'продаж, WhatsApp через Wazzup, телефония Mango и передача заявок '
                 . 'с двух сайтов на Django через веб-хуки.',
         ],
+        'arsenalsnab' => [
+            'content'     => 'case-arsenalsnab',
+            'crumb'       => 'Строительный инструмент',
+            'title'       => 'Кейс: четыре воронки в amoCRM для торговли инструментом',
+            'description' => 'Была одна воронка и amoCRM без каналов связи. Разобрали '
+                . 'процессы, собрали четыре воронки под разные типы клиентов, '
+                . 'подключили IP-телефонию и WhatsApp внутри системы.',
+        ],
+        'obrazovatelnyy-centr' => [
+            'content'     => 'case-obrazovatelnyy-centr',
+            'crumb'       => 'Образовательный центр',
+            'title'       => 'Кейс: образовательный центр в amoCRM с мессенджерами',
+            'description' => 'Заявки велись непонятно где, переписки и звонки '
+                . 'не учитывались. Настроили воронку, подключили заявки с Tilda, '
+                . 'WhatsApp, Telegram и телефонию Новофон с записью разговоров.',
+        ],
     ];
 
     public function index(): void
