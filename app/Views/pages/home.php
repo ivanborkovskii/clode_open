@@ -24,5 +24,5 @@
 <?php $view->partial('sections/process',      ['process' => $page['process']]); ?>
 <?php $view->partial('sections/cases',        ['cases' => $page['cases']]); ?>
 <?php $view->partial('sections/expert',       ['expert' => $page['expert']]); ?>
-<?php $view->partial('sections/articles',     ['articles' => $page['articles']]); ?>
+<?php $view->partial('sections/articles',     ['articles' => $page['articles'], 'items' => $articles]); ?>
 <?php $view->partial('sections/contact',      ['form' => $page['form'], 'state' => $form]); ?>

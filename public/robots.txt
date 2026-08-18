@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /zayavka
+Disallow: /admin
+Disallow: /api/
 
 # Адрес карты сайта. Заменить домен при выкладке на боевой сервер.
 Sitemap: https://crm.ivanborkovsky.ru/sitemap.xml

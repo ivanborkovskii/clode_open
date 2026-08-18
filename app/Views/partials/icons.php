@@ -73,5 +73,13 @@
         <g id="i-arrow" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M14 5l7 7-7 7M21 12H3"/>
         </g>
+
+        <?php
+        // Звезда для оценки статьи. Заливка задаётся в CSS: пустая звезда —
+        // это та же фигура с fill: none и обводкой.
+        ?>
+        <g id="i-star" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+            <path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/>
+        </g>
     </defs>
 </svg>

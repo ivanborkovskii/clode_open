@@ -1003,6 +1003,15 @@
 
 .article-card h3 { font-size: var(--fs-h4); }
 
+.article-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
 .article-card p {
   font-size: var(--fs-sm);
   line-height: 1.6;

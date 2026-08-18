@@ -1,0 +1,16 @@
+# Каталог с загруженными картинками. Ничего исполняемого здесь быть не должно:
+# запрет на выполнение скриптов — вторая линия защиты после того, как
+# картинка при загрузке пересобирается заново средствами GD.
+#
+# Директив php_flag здесь намеренно нет: на хостингах с PHP в режиме FPM
+# или CGI они не поддерживаются и вызывают ошибку 500 на весь каталог.
+
+<FilesMatch "\.(php|php\d|phtml|phar|cgi|pl|py|sh)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

@@ -36,17 +36,20 @@ final class View
     }
 
     /**
-     * Рендерит страницу внутри общего макета.
+     * Рендерит страницу внутри макета.
+     *
+     * Макет можно заменить: у админки он свой — без шапки, подвала
+     * и микроразметки сайта.
      *
      * @param array<string, mixed> $data
      */
-    public function render(string $page, array $data = []): string
+    public function render(string $page, array $data = [], string $layout = 'layouts/base'): string
     {
         $data['config'] = $this->config;
 
         $content = $this->capture("pages/{$page}", $data);
 
-        return $this->capture('layouts/base', $data + ['content' => $content]);
+        return $this->capture($layout, $data + ['content' => $content]);
     }
 
     /**

@@ -1,0 +1,476 @@
+/* ==========================================================================
+   АДМИНКА РАЗДЕЛА «СТАТЬИ»
+   Отдельные стили: сюда не заходят посетители, поэтому здесь нет
+   ни оформления сайта, ни его шрифта — только читаемость и плотность.
+   ========================================================================== */
+
+:root {
+  --a-ink: #0f172a;
+  --a-muted: #64748b;
+  --a-line: #dde3ec;
+  --a-bg: #f5f7fb;
+  --a-paper: #ffffff;
+  --a-accent: #1e96f0;
+  --a-accent-deep: #0a429d;
+  --a-danger: #d33a3a;
+  --a-ok: #197b4a;
+  --a-warn: #a16207;
+  --a-radius: 4px;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--a-bg);
+  color: var(--a-ink);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+h1 { margin: 0; font-size: 1.5rem; }
+h2 { font-size: 1.2rem; }
+
+/* --------------------------------------------------------------------------
+   Верхняя панель
+   -------------------------------------------------------------------------- */
+
+.abar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  padding: 12px 24px;
+  background: var(--a-ink);
+  color: #fff;
+}
+
+.abar a {
+  color: #cbd5e1;
+  text-decoration: none;
+}
+
+.abar a:hover { color: #fff; }
+
+.abar__logo {
+  font-weight: 700;
+  color: #fff !important;
+}
+
+.abar__nav,
+.abar__side {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.abar__side { margin-left: auto; }
+
+.abar__badge {
+  display: inline-block;
+  min-width: 20px;
+  padding: 1px 6px;
+  background: var(--a-accent);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Каркас страниц
+   -------------------------------------------------------------------------- */
+
+.awrap { padding: 24px; }
+
+.apage {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.apage--narrow { max-width: 860px; }
+
+.acard-narrow {
+  max-width: 460px;
+  margin: 48px auto;
+  padding: 32px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+}
+
+.ahead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ah2 { margin: 32px 0 12px; }
+
+.amuted { color: var(--a-muted); }
+.asmall { font-size: 13px; }
+.anowrap { white-space: nowrap; }
+
+.aalert {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  background: #e7f6ec;
+  border-left: 3px solid var(--a-ok);
+  border-radius: var(--a-radius);
+}
+
+.aalert--error {
+  background: #fdecec;
+  border-left-color: var(--a-danger);
+}
+
+.apre {
+  padding: 12px;
+  overflow-x: auto;
+  background: #f1f5f9;
+  border-radius: var(--a-radius);
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   Формы
+   -------------------------------------------------------------------------- */
+
+.aform {
+  display: grid;
+  gap: 16px;
+}
+
+.aform--wide { display: block; }
+
+.afield {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.afield > span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.afield small { color: var(--a-muted); font-size: 12px; }
+
+.aerror {
+  color: var(--a-danger);
+  font-size: 13px;
+  font-style: normal;
+}
+
+input[type='text'],
+input[type='search'],
+input[type='password'],
+input[type='number'],
+input[type='date'],
+input[type='file'],
+select,
+textarea {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+  color: inherit;
+  font: inherit;
+}
+
+textarea { resize: vertical; }
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--a-accent);
+  box-shadow: 0 0 0 3px rgba(30, 150, 240, 0.16);
+}
+
+.anum { max-width: 90px; }
+
+/* Поле адреса с постоянной приставкой: видно, каким получится URL. */
+.aprefix {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 10px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+  color: var(--a-muted);
+}
+
+.aprefix input {
+  border: 0;
+  border-radius: 0;
+  padding-left: 0;
+}
+
+.aprefix input:focus { box-shadow: none; }
+
+.acheck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.acheck input { margin: 0; }
+
+.abtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.abtn:hover { border-color: var(--a-accent); color: var(--a-accent-deep); }
+
+.abtn--primary {
+  background: var(--a-accent);
+  border-color: var(--a-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.abtn--primary:hover { background: var(--a-accent-deep); border-color: var(--a-accent-deep); color: #fff; }
+
+.abtn--ghost { background: transparent; }
+.abtn--small { padding: 6px 12px; font-size: 13px; }
+.abtn--block { width: 100%; }
+
+.alink {
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--a-accent-deep);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.alink:hover { text-decoration: underline; }
+.alink--danger { color: var(--a-danger); }
+
+.ainline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.asearch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.asearch-row input { max-width: 420px; }
+
+/* --------------------------------------------------------------------------
+   Таблица
+   -------------------------------------------------------------------------- */
+
+.atable {
+  width: 100%;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+.atable th,
+.atable td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--a-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.atable th {
+  background: #eef2f8;
+  font-size: 13px;
+}
+
+.atable tr:last-child td { border-bottom: 0; }
+
+.atag {
+  display: inline-block;
+  padding: 1px 8px;
+  background: #eef2f8;
+  border-radius: 10px;
+  color: var(--a-muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.atag--ok { background: #e7f6ec; color: var(--a-ok); }
+.atag--warn { background: #fdf3e2; color: var(--a-warn); }
+
+/* --------------------------------------------------------------------------
+   Редактор статьи
+   -------------------------------------------------------------------------- */
+
+.agrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.acol {
+  display: grid;
+  gap: 16px;
+}
+
+.abox {
+  padding: 16px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+}
+
+.abox__title {
+  margin: 0 0 12px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.abox .afield { margin-bottom: 12px; }
+
+.acover {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 12px;
+  border-radius: var(--a-radius);
+}
+
+.atoolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.atoolbar button {
+  padding: 5px 10px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.atoolbar button:hover { border-color: var(--a-accent); color: var(--a-accent-deep); }
+
+/* Моноширинный шрифт: в тексте статьи видна разметка, и её проще
+   читать, когда теги не сливаются с текстом. */
+.abody {
+  min-height: 480px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Комментарии
+   -------------------------------------------------------------------------- */
+
+.atabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.atab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.atab--on {
+  background: var(--a-ink);
+  border-color: var(--a-ink);
+  color: #fff;
+}
+
+.acomments {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.acomment {
+  padding: 16px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+}
+
+.acomment__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.acomment__body {
+  margin: 0 0 8px;
+  white-space: pre-line;
+}
+
+/* --------------------------------------------------------------------------
+   Узкие экраны. Админкой пользуются с компьютера, но открыть статью
+   с телефона всё равно должно быть можно.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .agrid { grid-template-columns: 1fr; }
+  .awrap { padding: 16px; }
+  .abar { padding: 12px 16px; }
+  .abar__side { margin-left: 0; }
+
+  .atable,
+  .atable tbody,
+  .atable tr,
+  .atable td { display: block; width: 100%; }
+
+  .atable thead { display: none; }
+
+  .atable tr {
+    border-bottom: 1px solid var(--a-line);
+    padding: 8px 0;
+  }
+
+  .atable td { border-bottom: 0; padding: 4px 14px; }
+}

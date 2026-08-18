@@ -4,20 +4,22 @@
  *
  * Сразу сделана как индекс из нескольких файлов: при тысячах SEO-статей
  * один файл не подойдёт (лимит поисковых систем — 50 000 URL на файл).
- * Сейчас в индексе один файл со статическими страницами; файлы со статьями
- * добавятся, когда появится раздел.
+ * Сейчас в индексе два файла: постоянные страницы и статьи.
  */
 
 declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\ArticleRepository;
+use App\Models\TaxonomyRepository;
+
 final class SitemapController extends Controller
 {
     /** Индекс карт: /sitemap.xml */
     public function index(): void
     {
-        $files = ['sitemap-pages.xml'];
+        $files = ['sitemap-pages.xml', 'sitemap-articles.xml'];
         $body  = '';
 
         foreach ($files as $file) {
@@ -43,6 +45,7 @@ final class SitemapController extends Controller
         // Адреса разделов берутся из самих контроллеров — список в одном месте.
         $paths['/resheniya'] = '0.9';
         $paths['/keysy']     = '0.9';
+        $paths['/stati']     = '0.9';
 
         foreach ([
             ...ServiceController::paths(),
@@ -58,6 +61,37 @@ final class SitemapController extends Controller
             $body .= "  <url><loc>{$this->config['base_url']}{$path}</loc>"
                 . '<lastmod>' . date('Y-m-d') . "</lastmod>"
                 . "<priority>{$priority}</priority></url>\n";
+        }
+
+        $this->xml('urlset', $body);
+    }
+
+    /**
+     * Статьи и страницы категорий: /sitemap-articles.xml
+     *
+     * Даты берутся из базы — поисковик видит, что статья менялась,
+     * и приходит перечитать её.
+     */
+    public function articles(): void
+    {
+        $body = '';
+
+        foreach ((new TaxonomyRepository($this->db()))->categories() as $category) {
+            if ((int) $category['articles'] === 0) {
+                continue;
+            }
+
+            $body .= "  <url><loc>{$this->config['base_url']}/stati/kategoriya/{$category['slug']}</loc>"
+                . '<lastmod>' . date('Y-m-d') . '</lastmod>'
+                . "<priority>0.7</priority></url>\n";
+        }
+
+        foreach ((new ArticleRepository($this->db()))->published() as $article) {
+            $modified = substr((string) $article['updated_at'], 0, 10);
+
+            $body .= "  <url><loc>{$this->config['base_url']}/stati/{$article['slug']}</loc>"
+                . "<lastmod>{$modified}</lastmod>"
+                . "<priority>0.6</priority></url>\n";
         }
 
         $this->xml('urlset', $body);

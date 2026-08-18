@@ -62,7 +62,14 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                     // данных. Это работает, даже если скрипт не загрузился, —
                     // проверка на сервере остаётся второй линией.
                     ?>
-                    <form class="form" action="/zayavka" method="post" data-form>
+                    <?php
+                    // Текст ответа после отправки берёт скрипт: со скриптом
+                    // страница не перезагружается, и он подставляет ровно то,
+                    // что показал бы сервер.
+                    ?>
+                    <form class="form" action="/zayavka" method="post" data-form
+                          data-success-title="<?= View::e($form['success']['title']) ?>"
+                          data-success-text="<?= View::e($form['success']['text']) ?>">
                         <input type="hidden" name="_token" value="<?= View::e(Csrf::token()) ?>">
 
                         <?php

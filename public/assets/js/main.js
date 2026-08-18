@@ -1,7 +1,7 @@
 /**
  * Скрипты сайта.
  *
- * Три поведения: мобильное меню, переключение услуг и отправка формы.
+ * Мобильное меню, переключение услуг, просмотр картинок и отправка форм.
  * Всё содержимое доступно и без JavaScript — скрипт только улучшает работу.
  */
 
@@ -192,116 +192,126 @@
      Форма заявки
      ------------------------------------------------------------------ */
 
-  var form = document.querySelector('[data-form]');
+  // На странице статьи форм две — комментарий и заявка. Поэтому каждая
+  // настраивается отдельно: раньше скрипт брал только первую на странице,
+  // и вторая отправлялась перезагрузкой.
+  document.querySelectorAll('[data-form]').forEach(initForm);
 
-  if (!form) {
-    return;
-  }
+  function initForm(form) {
+    // В разметке у полей стоят required, и без скрипта форму проверяет сам
+    // браузер — так согласие на обработку данных нельзя обойти, даже если
+    // скрипт не загрузился. Когда скрипт работает, встроенную проверку
+    // выключаем: ошибки показываются в оформлении сайта, ответом сервера.
+    form.noValidate = true;
 
-  // В разметке у полей стоят required, и без скрипта форму проверяет сам
-  // браузер — так согласие на обработку данных нельзя обойти, даже если
-  // скрипт не загрузился. Когда скрипт работает, встроенную проверку
-  // выключаем: ошибки показываются в оформлении сайта, ответом сервера.
-  form.noValidate = true;
+    var button = form.querySelector('[data-submit]');
+    var label = form.querySelector('[data-submit-label]');
+    var labelText = label ? label.textContent : '';
 
-  var button = form.querySelector('[data-submit]');
-  var label = form.querySelector('[data-submit-label]');
-  var labelText = label ? label.textContent : '';
+    var status = form.querySelector('[data-form-status]');
 
-  var status = form.querySelector('[data-form-status]');
-
-  var showErrors = function (errors) {
-    // Общая ошибка формы: устаревшая сессия или сбой сохранения на сервере.
-    // Без этого при отправке через fetch человек не увидел бы ничего.
-    if (status) {
-      status.textContent = errors._form || '';
-      status.hidden = !errors._form;
-    }
-
-    form.querySelectorAll('[data-error-for]').forEach(function (node) {
-      var field = node.dataset.errorFor;
-      var input = form.elements[field];
-
-      node.textContent = errors[field] || '';
-
-      if (input) {
-        if (errors[field]) {
-          input.setAttribute('aria-invalid', 'true');
-        } else {
-          input.removeAttribute('aria-invalid');
-        }
+    var showErrors = function (errors) {
+      // Общая ошибка формы: устаревшая сессия или сбой сохранения на сервере.
+      // Без этого при отправке через fetch человек не увидел бы ничего.
+      if (status) {
+        status.textContent = errors._form || '';
+        status.hidden = !errors._form;
       }
+
+      form.querySelectorAll('[data-error-for]').forEach(function (node) {
+        var field = node.dataset.errorFor;
+        var input = form.elements[field];
+
+        node.textContent = errors[field] || '';
+
+        if (input) {
+          if (errors[field]) {
+            input.setAttribute('aria-invalid', 'true');
+          } else {
+            input.removeAttribute('aria-invalid');
+          }
+        }
+      });
+
+      // Фокус на первое поле с ошибкой — не приходится искать её глазами.
+      var first = form.querySelector('[aria-invalid="true"]');
+
+      if (first) {
+        first.focus({ preventScroll: false });
+      }
+    };
+
+    var setLoading = function (loading) {
+      if (!button) {
+        return;
+      }
+
+      button.setAttribute('aria-busy', String(loading));
+
+      if (label) {
+        label.textContent = loading ? 'Отправляем…' : labelText;
+      }
+    };
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      showErrors({});
+      setLoading(true);
+
+      // Чистим ловушку для ботов перед отправкой: если автозаполнение
+      // браузера всё-таки добралось до неё, заявка живого человека
+      // не должна из-за этого попасть под подозрение.
+      var trap = form.querySelector('[data-trap]');
+
+      if (trap) {
+        trap.value = '';
+      }
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'fetch' }
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            return { ok: response.ok, data: data };
+          });
+        })
+        .then(function (result) {
+          if (result.ok && result.data.status === 'success') {
+            replaceWithSuccess();
+            return;
+          }
+
+          setLoading(false);
+          showErrors(result.data.errors || {});
+        })
+        .catch(function () {
+          // Сеть недоступна — отправляем формой, чтобы заявка не потерялась.
+          setLoading(false);
+          form.submit();
+        });
     });
 
-    // Фокус на первое поле с ошибкой — не приходится искать её глазами.
-    var first = form.querySelector('[aria-invalid="true"]');
+    // Текст ответа приходит из разметки формы: у заявки и у комментария
+    // он разный, а держать его в скрипте значит хранить одни и те же
+    // слова в двух местах.
+    function replaceWithSuccess() {
+      var success = document.createElement('div');
+      var title = document.createElement('h3');
+      var text = document.createElement('p');
 
-    if (first) {
-      first.focus({ preventScroll: false });
+      success.className = 'form__success';
+      success.setAttribute('role', 'status');
+
+      title.textContent = form.dataset.successTitle || 'Отправлено';
+      text.textContent = form.dataset.successText || '';
+
+      success.appendChild(title);
+      success.appendChild(text);
+
+      form.replaceWith(success);
     }
-  };
-
-  var setLoading = function (loading) {
-    if (!button) {
-      return;
-    }
-
-    button.setAttribute('aria-busy', String(loading));
-
-    if (label) {
-      label.textContent = loading ? 'Отправляем…' : labelText;
-    }
-  };
-
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-
-    showErrors({});
-    setLoading(true);
-
-    // Чистим ловушку для ботов перед отправкой: если автозаполнение
-    // браузера всё-таки добралось до неё, заявка живого человека
-    // не должна из-за этого попасть под подозрение.
-    var trap = form.querySelector('[data-trap]');
-
-    if (trap) {
-      trap.value = '';
-    }
-
-    fetch(form.action, {
-      method: 'POST',
-      body: new FormData(form),
-      headers: { 'X-Requested-With': 'fetch' }
-    })
-      .then(function (response) {
-        return response.json().then(function (data) {
-          return { ok: response.ok, data: data };
-        });
-      })
-      .then(function (result) {
-        if (result.ok && result.data.status === 'success') {
-          replaceWithSuccess();
-          return;
-        }
-
-        setLoading(false);
-        showErrors(result.data.errors || {});
-      })
-      .catch(function () {
-        // Сеть недоступна — отправляем формой, чтобы заявка не потерялась.
-        setLoading(false);
-        form.submit();
-      });
-  });
-
-  function replaceWithSuccess() {
-    var success = document.createElement('div');
-    success.className = 'form__success';
-    success.setAttribute('role', 'status');
-    success.innerHTML =
-      '<h3>Заявка отправлена</h3>' +
-      '<p>Свяжемся с вами в рабочее время. Если вопрос срочный — можно позвонить напрямую.</p>';
-
-    form.replaceWith(success);
   }
 })();

@@ -1,14 +1,16 @@
 <?php
 /**
- * Блок статей.
+ * Блок статей на главной: три свежие публикации.
  *
- * Раздел будет наполняться из БД (сотни и тысячи материалов).
- * Пока показываем состояние «пусто» — вымышленные заголовки не выводим.
+ * Статьи приходят из базы. Если их ещё нет — или база недоступна, —
+ * блок показывает состояние «пусто»: вымышленных заголовков здесь
+ * не бывает.
  *
- * @var array $articles
- * @var array $items Список статей; пока всегда пустой.
+ * @var array $articles Тексты блока
+ * @var array $items    Три последние статьи из базы
  */
 
+use App\Core\Text;
 use App\Core\View;
 
 $items = $items ?? [];
@@ -22,7 +24,6 @@ $items = $items ?? [];
                 <p class="section-head__lead"><?= View::e($articles['lead']) ?></p>
             </div>
 
-            <?php // Раздел статей ещё не разработан — кнопки нет. ?>
             <?php if ($view->exists($articles['link']['href'])): ?>
             <a class="btn btn--outline" href="<?= View::e($articles['link']['href']) ?>">
                 <?= View::e($articles['link']['label']) ?>
@@ -35,16 +36,25 @@ $items = $items ?? [];
         <?php else: ?>
             <div class="articles__grid">
                 <?php foreach ($items as $item): ?>
+                    <?php
+                    // Адрес статьи проверять через $view->exists() не нужно:
+                    // она пришла из базы, значит страница существует.
+                    ?>
                     <article class="article-card">
-                        <h3><?= View::e($item['title']) ?></h3>
-                        <p><?= View::e($item['excerpt']) ?></p>
+                        <p class="article-card__meta">
+                            <time datetime="<?= View::e($item['published_at']) ?>">
+                                <?= View::e(Text::date((string) $item['published_at'])) ?>
+                            </time>
+                            <span><?= View::e($item['category_name']) ?></span>
+                        </p>
 
-                        <?php if ($view->exists('/stati/' . $item['slug'])): ?>
-                            <a class="link-arrow" href="/stati/<?= View::e($item['slug']) ?>">
-                                Читать
-                                <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
-                            </a>
-                        <?php endif; ?>
+                        <h3><?= View::e($item['title']) ?></h3>
+                        <p><?= View::e(Text::excerpt((string) $item['excerpt'], 160)) ?></p>
+
+                        <a class="link-arrow" href="/stati/<?= View::e($item['slug']) ?>">
+                            Читать
+                            <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                        </a>
                     </article>
                 <?php endforeach; ?>
             </div>

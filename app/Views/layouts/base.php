@@ -30,12 +30,16 @@ $title   = ($seo['title'] ?? '') !== ''
     <meta name="robots" content="noindex, nofollow">
     <?php endif; ?>
 
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<?= View::e($seo['og_type'] ?? 'website') ?>">
     <meta property="og:locale" content="ru_RU">
     <meta property="og:title" content="<?= View::e($title) ?>">
     <meta property="og:description" content="<?= View::e($seo['description'] ?? '') ?>">
     <?php if (!empty($seo['canonical'])): ?>
     <meta property="og:url" content="<?= View::e($seo['canonical']) ?>">
+    <?php endif; ?>
+    <?php // Картинка для ссылки в мессенджерах и соцсетях — обложка статьи. ?>
+    <?php if (!empty($seo['og_image'])): ?>
+    <meta property="og:image" content="<?= View::e($seo['og_image']) ?>">
     <?php endif; ?>
 
     <meta name="theme-color" content="#071739">
@@ -96,6 +100,16 @@ $title   = ($seo['title'] ?? '') !== ''
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
     </script>
     <?php endif; ?>
+
+    <?php
+    // Дополнительная микроразметка страницы — например, разметка статьи.
+    // Передаётся страницей списком, чтобы макет ничего не знал о разделах.
+    ?>
+    <?php foreach ($seo['jsonld'] ?? [] as $schema): ?>
+    <script type="application/ld+json">
+    <?= json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
+    </script>
+    <?php endforeach; ?>
 </head>
 <body>
     <a class="skip-link" href="#main">Перейти к содержимому</a>
@@ -112,5 +126,10 @@ $title   = ($seo['title'] ?? '') !== ''
     <?php $view->partial('partials/footer'); ?>
 
     <script src="<?= View::e($view->asset('js/main.js')) ?>" defer></script>
+
+    <?php // Скрипты раздела: подключаются только там, где нужны. ?>
+    <?php foreach ($scripts ?? [] as $script): ?>
+    <script src="<?= View::e($view->asset($script)) ?>" defer></script>
+    <?php endforeach; ?>
 </body>
 </html>

@@ -196,6 +196,12 @@ strong { font-weight: 700; }
   padding-inline: var(--gutter);
 }
 
+/* Узкая колонка для сплошного текста: строка длиннее примерно 75 знаков
+   читается заметно хуже, а статьи — это как раз сплошной текст. */
+.container--narrow {
+  max-width: 52rem;
+}
+
 .section {
   padding-block: var(--section-y);
 }
@@ -230,6 +236,12 @@ strong { font-weight: 700; }
 .section-head {
   max-width: 46rem;
   margin-bottom: clamp(2rem, 1.2rem + 3vw, 3.5rem);
+}
+
+/* Заголовок по центру: для блоков-подборок, где нет длинного лида. */
+.section-head--center {
+  max-width: none;
+  text-align: center;
 }
 
 .section-head__lead {
@@ -563,6 +575,10 @@ body[data-menu-open='true'] { overflow: hidden; }
 .field {
   display: grid;
   gap: var(--s-2);
+  /* Строки не растягиваются по высоте поля. Иначе в ряду из двух полей,
+     где у одного есть пояснение под ним, второе поле вытягивалось бы
+     на высоту этого пояснения. */
+  align-content: start;
 }
 
 .field__label {
@@ -611,6 +627,13 @@ textarea.field__control {
 }
 
 .field__error:empty { display: none; }
+
+/* Пояснение под полем: зачем оно нужно и что будет со значением. */
+.field__note {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
 
 /* Чекбокс согласия. Площадь нажатия — вся строка. */
 .checkbox {
