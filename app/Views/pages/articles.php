@@ -24,6 +24,7 @@
     'list'       => $list,
     'pagination' => $pagination,
     'texts'      => $page['texts'],
+    'filtered'   => $page['reset'] !== '',
 ]); ?>
 
 <?php $view->partial('sections/contact', ['form' => $page['form'], 'state' => $form]); ?>

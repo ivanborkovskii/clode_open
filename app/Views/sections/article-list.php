@@ -10,6 +10,8 @@
  * @var array $list       items, total, page, pages
  * @var array $pagination
  * @var array $texts
+ * @var bool  $filtered   Применён ли отбор: от этого зависит текст
+ *                        при пустом списке
  */
 
 use App\Core\Text;
@@ -18,7 +20,9 @@ use App\Core\View;
 <section class="section section--tight">
     <div class="container">
         <?php if ($list['items'] === []): ?>
-            <p class="articles__empty"><?= View::e($texts['list']['empty']) ?></p>
+            <p class="articles__empty">
+                <?= View::e($filtered ? $texts['list']['nothing'] : $texts['list']['empty']) ?>
+            </p>
         <?php else: ?>
             <div class="articles">
                 <?php foreach ($list['items'] as $article): ?>
