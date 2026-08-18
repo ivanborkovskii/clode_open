@@ -43,6 +43,9 @@ final class Text
     public static function plain(string $html): string
     {
         $text = preg_replace('#<(script|style)\b.*?</\1>#is', ' ', $html) ?? $html;
+        // Теги заменяем пробелом, а не убираем: иначе конец абзаца
+        // склеивается с началом следующего — «продажи.Что дальше».
+        $text = preg_replace('/<[^>]*>/', ' ', $text) ?? $text;
         $text = strip_tags($text);
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $text = preg_replace('/\s+/u', ' ', $text) ?? $text;
@@ -90,6 +93,51 @@ final class Text
         $html = preg_replace('/(href|src)\s*=\s*("|\')\s*javascript:[^"\']*(\2)/i', '$1=$2#$2', $html) ?? $html;
 
         return $html;
+    }
+
+    /**
+     * Кусок текста вокруг первого найденного слова — для подсказок поиска.
+     *
+     * Нужен, когда слово встретилось только в тексте статьи: показывать
+     * анонс, в котором искомого слова нет, значит оставить человека
+     * гадать, почему статья попала в список.
+     *
+     * @param array<int, string> $words
+     */
+    public static function snippet(string $text, array $words, int $radius = 70): string
+    {
+        $at = false;
+
+        foreach ($words as $word) {
+            $found = mb_stripos($text, $word);
+
+            if ($found !== false && ($at === false || $found < $at)) {
+                $at = $found;
+            }
+        }
+
+        if ($at === false) {
+            return self::excerpt($text, $radius * 2);
+        }
+
+        $from   = max(0, $at - $radius);
+        $length = $radius * 2 + mb_strlen($words[0] ?? '');
+        $piece  = mb_substr($text, $from, $length);
+
+        // Обрезаем по границам слов: обрывок «…лку. Что происходит»
+        // читается как ошибка вёрстки.
+        if ($from > 0) {
+            $space = mb_strpos($piece, ' ');
+            $piece = $space === false ? $piece : mb_substr($piece, $space + 1);
+        }
+
+        if ($from + $length < mb_strlen($text)) {
+            $space = mb_strrpos($piece, ' ');
+            $piece = $space === false ? $piece : mb_substr($piece, 0, $space);
+        }
+
+        return ($from > 0 ? '…' : '') . trim($piece)
+            . ($from + $length < mb_strlen($text) ? '…' : '');
     }
 
     /**

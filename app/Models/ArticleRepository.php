@@ -211,8 +211,10 @@ final class ArticleRepository extends Repository
         $params = [];
         $where  = $this->where(['q' => $query], $params);
 
+        // search_text нужен, чтобы показать кусок текста вокруг найденного
+        // слова, если в заголовке и анонсе его нет.
         return $this->all(
-            "SELECT a.slug, a.title, a.excerpt, c.name AS category_name
+            "SELECT a.slug, a.title, a.excerpt, a.search_text, c.name AS category_name
                FROM articles a
                JOIN categories c ON c.id = a.category_id
               WHERE {$where}

@@ -146,12 +146,29 @@ final class ArticleController extends Controller
         $query = trim((string) ($_GET['q'] ?? ''));
         $items = [];
 
-        if (ArticleRepository::words($query) !== []) {
+        $words = ArticleRepository::words($query);
+
+        if ($words !== []) {
             foreach ((new ArticleRepository($this->db()))->suggest($query) as $row) {
+                // Если слово есть в заголовке или анонсе — показываем анонс.
+                // Если только в тексте — показываем кусок текста вокруг него,
+                // иначе непонятно, почему статья попала в подсказки.
+                $shown = $row['title'] . ' ' . $row['excerpt'];
+                $found = false;
+
+                foreach ($words as $word) {
+                    if (mb_stripos($shown, $word) !== false) {
+                        $found = true;
+                        break;
+                    }
+                }
+
                 $items[] = [
                     'title'    => $row['title'],
                     'href'     => '/stati/' . $row['slug'],
-                    'excerpt'  => Text::excerpt((string) $row['excerpt'], 120),
+                    'excerpt'  => $found
+                        ? Text::excerpt((string) $row['excerpt'], 140)
+                        : Text::snippet((string) $row['search_text'], $words),
                     'category' => $row['category_name'],
                 ];
             }
