@@ -61,6 +61,39 @@ foreach (glob($root . '/config/content/*.php') as $file) {
         }
     }
 
+    // Галерея кейса должна показывать все существующие снимки проекта
+    // и в порядке их номеров. Если добавить файл и забыть про текст,
+    // снимок просто не появится на сайте — это ловится здесь.
+    if (!empty($page['gallery']['shots'])) {
+        $slug = str_replace(['case-', '.php'], '', $name);
+
+        $files = glob($root . "/public/assets/img/cases/{$slug}-[0-9].webp");
+        $onDisk = array_map(
+            static fn (string $f): int => (int) preg_replace('~.*-(\d+)\.webp$~', '$1', $f),
+            $files,
+        );
+        sort($onDisk);
+
+        $listed = array_map(static fn (array $s): int => (int) $s['n'], $page['gallery']['shots']);
+
+        if ($listed !== $onDisk) {
+            $errors[] = "{$name}: в галерее кадры [" . implode(', ', $listed)
+                . '], а в папке лежат [' . implode(', ', $onDisk) . ']';
+        }
+
+        foreach ($page['gallery']['shots'] as $shot) {
+            if (empty($shot['alt'])) {
+                $errors[] = "{$name}: у кадра {$shot['n']} в галерее нет описания alt";
+            }
+
+            foreach (['', '-sm'] as $suffix) {
+                if (!is_file($root . "/public/assets/img/cases/{$slug}-{$shot['n']}{$suffix}.webp")) {
+                    $errors[] = "{$name}: нет файла {$slug}-{$shot['n']}{$suffix}.webp";
+                }
+            }
+        }
+    }
+
     // Кейсы: тот же кадр не должен стоять и в шапке, и ниже.
     foreach ($page['cases']['items'] ?? [] as $case) {
         $shot = $case['slug'] . '-' . ($case['shot'] ?? 1);
