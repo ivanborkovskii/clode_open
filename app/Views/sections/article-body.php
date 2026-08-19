@@ -16,7 +16,12 @@ use App\Core\View;
 ?>
 <section class="section section--tight">
     <div class="container container--narrow">
-        <div class="prose">
+        <?php
+        // data-zoom-area: картинки внутри текста открываются просмотрщиком
+        // по клику, как снимки в кейсах и сертификаты. Разметку статьи
+        // при этом менять не нужно — обработчик один на всю область.
+        ?>
+        <div class="prose" data-zoom-area>
             <?= Text::safeHtml((string) $article['body']) ?>
         </div>
 

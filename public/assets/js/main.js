@@ -122,13 +122,18 @@
      на другой адрес, а поверх страницы. Клик по картинке увеличивает её
      до настоящего размера, повторный клик возвращает обратно.
 
+     Так же открываются картинки внутри области data-zoom-area — это текст
+     статьи. Там картинки вставлены автором обычными тегами, без ссылок,
+     и оборачивать каждую в ссылку значило бы менять текст статьи.
+
      Если браузер не умеет модальные окна, обработчик не ставится
      и ссылка работает как обычная — картинка откроется этой же вкладкой.
      ------------------------------------------------------------------ */
 
   var zoomLinks = document.querySelectorAll('[data-zoom]');
+  var zoomArea = document.querySelector('[data-zoom-area]');
 
-  if (zoomLinks.length && typeof HTMLDialogElement !== 'undefined'
+  if ((zoomLinks.length || zoomArea) && typeof HTMLDialogElement !== 'undefined'
       && HTMLDialogElement.prototype.showModal) {
     var viewer = document.createElement('dialog');
     viewer.className = 'viewer';
@@ -170,19 +175,55 @@
       viewer.close();
     };
 
+    var openViewer = function (src, title) {
+      viewerImg.src = src;
+      viewerImg.alt = title;
+      viewerTitle.textContent = title;
+
+      setZoom(false);
+      viewer.showModal();
+      document.body.dataset.viewerOpen = 'true';
+    };
+
     zoomLinks.forEach(function (link) {
       link.addEventListener('click', function (event) {
         event.preventDefault();
-
-        viewerImg.src = link.href;
-        viewerImg.alt = link.dataset.zoom || '';
-        viewerTitle.textContent = link.dataset.zoom || '';
-
-        setZoom(false);
-        viewer.showModal();
-        document.body.dataset.viewerOpen = 'true';
+        openViewer(link.href, link.dataset.zoom || '');
       });
     });
+
+    if (zoomArea) {
+      // Картинки текста статьи. Обработчик один на всю область: сколько
+      // их в статье и какие — заранее неизвестно.
+      zoomArea.querySelectorAll('img').forEach(function (image) {
+        // С клавиатуры картинка тоже должна открываться, а обычный <img>
+        // фокус не принимает.
+        image.tabIndex = 0;
+        image.title = 'Нажмите, чтобы увеличить';
+      });
+
+      zoomArea.addEventListener('click', function (event) {
+        var image = event.target.closest('img');
+
+        // Картинка внутри ссылки ведёт по этой ссылке — так задумал автор.
+        if (!image || image.closest('a')) {
+          return;
+        }
+
+        openViewer(image.currentSrc || image.src, image.alt || '');
+      });
+
+      zoomArea.addEventListener('keydown', function (event) {
+        var image = event.target.closest('img');
+
+        if (!image || image.closest('a') || (event.key !== 'Enter' && event.key !== ' ')) {
+          return;
+        }
+
+        event.preventDefault();
+        openViewer(image.currentSrc || image.src, image.alt || '');
+      });
+    }
 
     viewerImg.addEventListener('click', function (event) {
       if (viewer.dataset.zoomed === 'true') {

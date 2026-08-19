@@ -44,6 +44,15 @@ $title   = ($seo['title'] ?? '') !== ''
 
     <meta name="theme-color" content="#071739">
 
+    <?php // Подтверждение прав в Вебмастере и Search Console — если оно
+          // сделано мета-тегом. Значения задаются в config/app.php. ?>
+    <?php if (!empty($config['verification']['yandex'])): ?>
+    <meta name="yandex-verification" content="<?= View::e($config['verification']['yandex']) ?>">
+    <?php endif; ?>
+    <?php if (!empty($config['verification']['google'])): ?>
+    <meta name="google-site-verification" content="<?= View::e($config['verification']['google']) ?>">
+    <?php endif; ?>
+
     <!-- Шрифт грузится с этого же домена, поэтому предзагрузка даёт заметный выигрыш. -->
     <link rel="preload" href="/assets/fonts/manrope-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 
@@ -149,5 +158,12 @@ $title   = ($seo['title'] ?? '') !== ''
     <?php foreach ($scripts ?? [] as $script): ?>
     <script src="<?= View::e($view->asset($script)) ?>" defer></script>
     <?php endforeach; ?>
+
+    <?php
+    // Счётчики посещаемости — в самом конце страницы, после всего
+    // остального: так они не задерживают показ содержимого.
+    // Что именно туда вставлено, макет не знает и знать не должен.
+    ?>
+    <?php $view->partial('partials/counters'); ?>
 </body>
 </html>
