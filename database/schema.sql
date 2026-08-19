@@ -57,6 +57,10 @@ CREATE TABLE IF NOT EXISTS articles (
     status       ENUM('draft','published') NOT NULL DEFAULT 'draft',
     meta_title       VARCHAR(250) NOT NULL DEFAULT '',
     meta_description VARCHAR(400) NOT NULL DEFAULT '',
+    -- Тема статьи так, как она звучит в форме заявки под ней:
+    -- «по интеграции Битрикс24 и Телеграм». Пусто — подставится
+    -- автоматически из заголовка.
+    form_topic       VARCHAR(200) NOT NULL DEFAULT '',
     created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),

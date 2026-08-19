@@ -41,4 +41,5 @@
 
 <?php $view->partial('sections/article-related', ['related' => $related, 'texts' => $texts]); ?>
 
-<?php $view->partial('sections/contact', ['form' => $texts['form'], 'state' => $form]); ?>
+<?php // Тексты формы приходят готовыми: в них уже названа тема статьи. ?>
+<?php $view->partial('sections/contact', ['form' => $leadForm, 'state' => $form]); ?>

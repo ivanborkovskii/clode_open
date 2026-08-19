@@ -12,9 +12,11 @@
  * @var array $tags
  * @var array $errors
  * @var array $values  Введённое в прошлый раз, если сохранение не прошло
+ * @var array $topicWords Слова, по которым тема заявки составляется сама
  */
 
 use App\Core\Csrf;
+use App\Core\Text;
 use App\Core\View;
 
 $isNew = $article === null;
@@ -233,6 +235,32 @@ unset($_SESSION['admin_flash']);
                         <input type="number" name="reading_time" min="0" max="120"
                                value="<?= View::e($val('reading_time', '0')) ?>">
                         <small>Ноль — посчитается по объёму текста.</small>
+                    </label>
+                </div>
+
+                <div class="abox">
+                    <p class="abox__title">Форма заявки под статьёй</p>
+
+                    <?php
+                    // Подсказка показывает, что подставится само, если поле
+                    // оставить пустым: автору обычно достаточно посмотреть
+                    // и согласиться.
+                    $suggested = Text::topic($val('title'), $topicWords);
+                    ?>
+                    <label class="afield">
+                        <span>Тема заявки</span>
+                        <input type="text" name="form_topic" value="<?= View::e($val('form_topic')) ?>"
+                               placeholder="<?= View::e($suggested !== ''
+                                   ? $suggested
+                                   : 'например: по интеграции Битрикс24 и Телеграм') ?>">
+                        <small>
+                            Подставится в заголовки: «Разберём вашу задачу …»
+                            и «Оставить заявку …». Пишется в том виде, в каком
+                            встанет в строку — с предлогом.
+                            <?= $suggested !== ''
+                                ? 'Оставите пустым — возьмётся «' . View::e($suggested) . '».'
+                                : 'Оставите пустым — форма покажет обычный заголовок.' ?>
+                        </small>
                     </label>
                 </div>
 

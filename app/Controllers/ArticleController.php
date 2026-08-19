@@ -135,6 +135,8 @@ final class ArticleController extends Controller
             'replyTo'  => $this->replyTarget($comments, $id),
             'related'  => $articles->related($article),
             'texts'    => $content,
+            // Форма под статьёй говорит о теме этой статьи, а не вообще.
+            'leadForm' => $this->articleForm($article, $content['form']),
             'state'    => $this->commentFlash(),
             'form'     => $this->formFlash(),
         ]));
@@ -184,6 +186,38 @@ final class ArticleController extends Controller
         header('Cache-Control: no-store');
 
         $this->json(['q' => $query, 'items' => $items]);
+    }
+
+    /**
+     * Тексты формы заявки под статьёй.
+     *
+     * Заголовки называют тему статьи: «Разберём вашу задачу по интеграции
+     * Битрикс24 и Телеграм». Тема берётся из поля статьи, а если оно
+     * не заполнено — составляется из заголовка. Не получилось и это —
+     * остаются обычные тексты, те же, что на остальных страницах сайта:
+     * лучше общий заголовок, чем нескладный.
+     *
+     * @param  array<string, mixed> $article
+     * @param  array<string, mixed> $form
+     * @return array<string, mixed>
+     */
+    private function articleForm(array $article, array $form): array
+    {
+        $topic = trim((string) ($article['form_topic'] ?? ''));
+
+        if ($topic === '') {
+            $topic = Text::topic((string) $article['title'], $form['topic_words'] ?? []);
+        }
+
+        if ($topic === '') {
+            return $form;
+        }
+
+        return [
+            'title'      => sprintf($form['title_topic'], $topic),
+            'card_title' => sprintf($form['card_title_topic'], $topic),
+            'lead'       => sprintf($form['lead_topic'], $topic),
+        ] + $form;
     }
 
     /**

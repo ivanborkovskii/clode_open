@@ -301,6 +301,9 @@ final class AdminController extends Controller
             'article'    => $article,
             'categories' => $taxonomy->categories(),
             'tags'       => $taxonomy->tags(),
+            // По этому списку редактор показывает, какая тема подставится
+            // в форму заявки, если поле оставить пустым.
+            'topicWords' => $this->content('articles')['form']['topic_words'],
             'errors'     => $_SESSION['admin_errors'] ?? [],
             'values'     => $_SESSION['admin_values'] ?? [],
         ]);
@@ -401,6 +404,7 @@ final class AdminController extends Controller
             'status'       => ($_POST['status'] ?? '') === 'published' ? 'published' : 'draft',
             'meta_title'       => trim((string) ($_POST['meta_title'] ?? '')),
             'meta_description' => trim((string) ($_POST['meta_description'] ?? '')),
+            'form_topic'       => mb_substr(trim((string) ($_POST['form_topic'] ?? '')), 0, 200),
         ];
 
         $tagIds = (new TaxonomyRepository($this->db()))->tagIds(

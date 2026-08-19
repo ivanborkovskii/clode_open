@@ -289,6 +289,7 @@ final class ArticleRepository extends Repository
             'slug', 'category_id', 'title', 'excerpt', 'body', 'search_text',
             'cover', 'cover_alt', 'cover_width', 'cover_height', 'author',
             'reading_time', 'published_at', 'status', 'meta_title', 'meta_description',
+            'form_topic',
         ];
 
         $this->db->beginTransaction();
