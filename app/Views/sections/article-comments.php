@@ -28,18 +28,6 @@ $success = ($state['status'] ?? '') === 'success';
 $replyTo = $replyTo ?? null;
 
 $old = static fn (string $field): string => View::e($values[$field] ?? '');
-
-/**
- * Одна запись разговора. Ответы отличаются только отступом и пометкой
- * автора, поэтому разметка у них общая.
- */
-$render = static function (array $comment, bool $isReply) use ($labels, $view): void {
-    $view->partial('sections/comment', [
-        'comment' => $comment,
-        'isReply' => $isReply,
-        'labels'  => $labels,
-    ]);
-};
 ?>
 <section class="section section--alt" id="kommentarii">
     <div class="container container--narrow">
@@ -152,19 +140,14 @@ $render = static function (array $comment, bool $isReply) use ($labels, $view): 
         <?php if ($comments === []): ?>
             <p class="comments__empty"><?= View::e($labels['empty']) ?></p>
         <?php else: ?>
+            <?php // Ответы шаблон выводит сам, вкладывая их друг в друга. ?>
             <ol class="comments">
                 <?php foreach ($comments as $comment): ?>
-                    <?php $render($comment, false); ?>
-
-                    <?php if ($comment['replies'] !== []): ?>
-                        <li class="comments__branch">
-                            <ol class="comments comments--replies">
-                                <?php foreach ($comment['replies'] as $reply): ?>
-                                    <?php $render($reply, true); ?>
-                                <?php endforeach; ?>
-                            </ol>
-                        </li>
-                    <?php endif; ?>
+                    <?php $view->partial('sections/comment', [
+                        'comment' => $comment,
+                        'level'   => 0,
+                        'labels'  => $labels,
+                    ]); ?>
                 <?php endforeach; ?>
             </ol>
         <?php endif; ?>

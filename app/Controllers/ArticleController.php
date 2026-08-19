@@ -254,15 +254,16 @@ final class ArticleController extends Controller
 
         $comments = new CommentRepository($this->db());
 
-        // Ответ прикрепляем к началу ветки: на ответ отвечают тому же
-        // разговору, а не наращивают вложенность.
+        // Ответ привязывается ровно к тому комментарию, на который нажали:
+        // так на странице видно, кто кому отвечает, и ответ на ответ
+        // начинает новую ветку.
         $parentId = (int) ($_POST['parent_id'] ?? 0);
         $parent   = $parentId > 0 ? $comments->find($parentId) : null;
 
         $parentId = $parent !== null
             && (int) $parent['article_id'] === (int) $article['id']
             && $parent['status'] === 'approved'
-                ? $comments->rootId($parentId)
+                ? $parentId
                 : null;
 
         $comments->add(

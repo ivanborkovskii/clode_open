@@ -681,6 +681,12 @@
   list-style: none;
 }
 
+/* Пункт списка — это реплика вместе с ответами на неё. Сама реплика
+   внутри отдельной карточкой, поэтому отступы у пункта нулевые. */
+.comment-item {
+  display: block;
+}
+
 .comment {
   padding: var(--s-5);
   background: var(--paper);
@@ -706,18 +712,22 @@
   text-wrap: pretty;
 }
 
-/* Ветка ответов. Отступ слева и линия — единственное, чем ответ отличается
-   от начала разговора: разной рамкой и фоном список превратился бы в мешанину.
-   Вложенность одна, поэтому отступ фиксированный и на телефон помещается. */
-.comments__branch {
-  margin-left: clamp(var(--s-4), 4vw, var(--s-7));
+/* Ветка ответов: отступ слева и линия. Разной рамкой и фоном список
+   превратился бы в мешанину, поэтому ответ отличается только положением. */
+.comments--replies {
+  gap: var(--s-4);
+  margin-top: var(--s-4);
   padding-left: var(--s-5);
   border-left: 2px solid var(--line);
 }
 
-.comments--replies {
-  gap: var(--s-4);
-}
+/* Отступ растёт только до третьего уровня. Дальше лесенка не помещалась бы
+   на телефоне, а кто кому отвечает, видно по подписи «в ответ», а не
+   по глубине отступа. */
+.comments--l0 { margin-left: clamp(var(--s-3), 3vw, var(--s-6)); }
+.comments--l1 { margin-left: clamp(var(--s-2), 2vw, var(--s-5)); }
+.comments--l2 { margin-left: clamp(var(--s-1), 1vw, var(--s-4)); }
+.comments--l3 { margin-left: 0; }
 
 /* Ответ владельца сайта выделен: читателю важно видеть, где отвечает
    автор статьи, а где другой посетитель. */
@@ -732,6 +742,19 @@
   color: var(--text-invert);
   font-size: var(--fs-xs);
 }
+
+/* «в ответ Имя» — главное, что делает длинную ветку понятной. */
+.comment__to {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.comment__to a {
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+
+.comment__to a:hover { text-decoration: underline; }
 
 .comment__reply {
   display: inline-block;
@@ -837,4 +860,16 @@
     width: 32px;
     height: 32px;
   }
+
+  /* Ветка на телефоне сдвигается меньше: на узком экране каждый десяток
+     точек отступа — это строка текста, которая переносится. Кто кому
+     отвечает, здесь тем более видно по подписи «в ответ». */
+  .comments--replies {
+    padding-left: var(--s-3);
+  }
+
+  .comments--l0 { margin-left: var(--s-2); }
+  .comments--l1 { margin-left: var(--s-1); }
+  .comments--l2,
+  .comments--l3 { margin-left: 0; }
 }

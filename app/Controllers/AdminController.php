@@ -541,9 +541,11 @@ final class AdminController extends Controller
             $comments->setStatus($id, 'approved');
         }
 
+        // Ответ привязан именно к этому комментарию, а не к началу ветки:
+        // тогда на странице видно, на чью реплику он написан.
         $comments->addAuthorReply(
             (int) $comment['article_id'],
-            $comments->rootId($id),
+            $id,
             $this->config['company']['name'],
             mb_substr($body, 0, 3000),
         );

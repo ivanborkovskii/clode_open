@@ -31,42 +31,45 @@ final class CommentRepository extends Repository
     }
 
     /**
-     * Проверенные комментарии ветками: начало разговора и ответы под ним.
+     * Проверенные комментарии деревом: ответ стоит под тем, кому он написан.
      *
-     * Собирается из одной выборки, а не запросом на каждую ветку. Ответ,
-     * начало которого не опубликовано (например, его отклонили позже),
-     * показывается сам по себе — иначе он молча исчез бы со страницы.
+     * Собирается из одной выборки, а не запросом на каждую ветку. Вместе
+     * с ответом сохраняется имя того, кому он адресован: на странице это
+     * подпись «в ответ». Ответ, чьё начало не опубликовано — например, его
+     * отклонили позже, — показывается сам по себе, иначе он молча исчез бы
+     * со страницы вместе со всем, что под ним.
      *
      * @return array<int, array<string, mixed>>
      */
     public function tree(int $articleId): array
     {
-        $rows  = $this->approved($articleId);
-        $roots = [];
-        $known = [];
+        $items = [];
 
-        foreach ($rows as $row) {
-            $known[(int) $row['id']] = true;
+        foreach ($this->approved($articleId) as $row) {
+            $row['replies']     = [];
+            $row['parent_name'] = '';
+            $items[(int) $row['id']] = $row;
         }
 
-        foreach ($rows as $row) {
-            $parent = (int) ($row['parent_id'] ?? 0);
+        $tree = [];
 
-            if ($parent === 0 || !isset($known[$parent])) {
-                $row['replies'] = [];
-                $roots[(int) $row['id']] = $row;
+        // Ответ всегда написан позже того, кому отвечает, а выборка
+        // упорядочена по времени — значит, родитель уже в списке.
+        // Ссылки нужны, чтобы ответ попал внутрь родителя, а не в его копию.
+        foreach ($items as $id => &$item) {
+            $parent = (int) ($item['parent_id'] ?? 0);
+
+            if ($parent > 0 && isset($items[$parent])) {
+                $item['parent_name'] = $items[$parent]['name'];
+                $items[$parent]['replies'][] = &$item;
+            } else {
+                $tree[] = &$item;
             }
         }
 
-        foreach ($rows as $row) {
-            $parent = (int) ($row['parent_id'] ?? 0);
+        unset($item);
 
-            if ($parent !== 0 && isset($roots[$parent])) {
-                $roots[$parent]['replies'][] = $row;
-            }
-        }
-
-        return array_values($roots);
+        return $tree;
     }
 
     /**
@@ -77,19 +80,6 @@ final class CommentRepository extends Repository
     public function find(int $id): ?array
     {
         return $this->one('SELECT * FROM comments WHERE id = :id', ['id' => $id]);
-    }
-
-    /**
-     * Начало ветки для этого комментария.
-     *
-     * Ответ на ответ прикрепляем к тому же началу: вложенность ровно одна,
-     * иначе на узком экране разговор уезжает за край.
-     */
-    public function rootId(int $id): int
-    {
-        $parent = $this->value('SELECT parent_id FROM comments WHERE id = :id', ['id' => $id]);
-
-        return $parent === null ? $id : (int) $parent;
     }
 
     public function add(
