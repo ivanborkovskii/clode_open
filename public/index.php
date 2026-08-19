@@ -16,6 +16,12 @@ Autoloader::register($root . '/app');
 
 $config = require $root . '/config/app.php';
 
+// Каталог, который веб-сервер отдаёт наружу. Знает его только эта точка
+// входа: в исходниках он называется public, а на хостинге — public_html.
+// Загруженные картинки должны попадать именно сюда, иначе они сохранятся
+// рядом с сайтом и по своему адресу открываться не будут.
+$config['public_dir'] = __DIR__;
+
 error_reporting($config['debug'] ? E_ALL : 0);
 ini_set('display_errors', $config['debug'] ? '1' : '0');
 

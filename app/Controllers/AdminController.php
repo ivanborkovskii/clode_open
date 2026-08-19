@@ -84,6 +84,24 @@ final class AdminController extends Controller
             return;
         }
 
+        // Если отправленное больше post_max_size, PHP отбрасывает весь запрос
+        // целиком: и поля, и файлы приходят пустыми. Без этой проверки дальше
+        // не сошёлся бы токен формы и человек увидел бы «форма устарела»,
+        // хотя дело в размере картинки.
+        if ($method === 'POST' && $_POST === [] && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+            $this->page('admin/error', [
+                'title'   => 'Отправленное не поместилось',
+                'message' => 'Сервер принимает за один раз не больше '
+                    . ini_get('post_max_size') . ', а картинка — не больше '
+                    . ini_get('upload_max_filesize') . '. Нажмите в браузере «Назад»: '
+                    . 'написанное сохранится. Уменьшите картинку или сохраните '
+                    . 'статью без неё, а картинку добавьте отдельно.',
+                'details' => '',
+            ]);
+
+            return;
+        }
+
         match ($action) {
             ''             => $this->articles(),
             'vyhod'        => $this->logout(),
@@ -94,6 +112,7 @@ final class AdminController extends Controller
             'temy'         => $method === 'POST' ? $this->saveTag() : $this->tags(),
             'kartinka'     => $this->uploadImage(),
             'parol'        => $this->password($method),
+            'proverka'     => $this->selfCheck(),
             default        => $this->notFound(),
         };
     }
@@ -343,7 +362,7 @@ final class AdminController extends Controller
         // Новая обложка заменяет прежнюю. Если файл не выбирали,
         // остаётся то, что было.
         if (($_FILES['cover_file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-            $uploaded = Upload::image($_FILES['cover_file'], dirname(__DIR__, 2) . '/public');
+            $uploaded = Upload::image($_FILES['cover_file'], $this->publicDir());
 
             if (isset($uploaded['error'])) {
                 $_SESSION['admin_errors'] = ['cover' => $uploaded['error']];
@@ -415,7 +434,7 @@ final class AdminController extends Controller
             return;
         }
 
-        $result = Upload::image($_FILES['file'] ?? [], dirname(__DIR__, 2) . '/public');
+        $result = Upload::image($_FILES['file'] ?? [], $this->publicDir());
 
         $this->json($result, isset($result['error']) ? 422 : 200);
     }
@@ -494,6 +513,226 @@ final class AdminController extends Controller
     }
 
     /* --------------------------------------------------------------------
+       Проверка настроек
+       -------------------------------------------------------------------- */
+
+    /**
+     * Самопроверка: то, что на разных хостингах ведёт себя по-разному.
+     *
+     * Нужна не «на всякий случай»: каталог сайта, права на запись, версия
+     * PHP и поведение базы у хостинга свои, и по внешнему виду сайта
+     * не понять, где именно споткнулось. Здесь всё проверяется настоящими
+     * действиями — записью файла и записью в базу, — а не догадками.
+     */
+    private function selfCheck(): void
+    {
+        $public = $this->publicDir();
+        $upload = $public . Upload::DIR;
+
+        $checks = [];
+
+        $checks[] = [
+            'title' => 'Версия PHP',
+            'ok'    => PHP_VERSION_ID >= 80100,
+            'value' => PHP_VERSION,
+            'hint'  => 'Нужна 8.1 или новее.',
+        ];
+
+        foreach (['pdo_mysql' => 'работа с базой', 'gd' => 'обработка картинок',
+                  'mbstring' => 'русский текст'] as $extension => $why) {
+            $checks[] = [
+                'title' => 'Расширение ' . $extension,
+                'ok'    => extension_loaded($extension),
+                'value' => extension_loaded($extension) ? 'есть' : 'нет',
+                'hint'  => 'Отвечает за ' . $why . '.',
+            ];
+        }
+
+        $checks[] = [
+            'title' => 'Поддержка WebP',
+            'ok'    => function_exists('imagewebp'),
+            'value' => function_exists('imagewebp') ? 'есть' : 'нет',
+            'hint'  => 'Без неё картинки не сохранятся.',
+        ];
+
+        $checks[] = [
+            'title' => 'Каталог сайта',
+            'ok'    => is_dir($public),
+            'value' => $public,
+            'hint'  => 'Сюда веб-сервер смотрит наружу. Картинки должны '
+                . 'сохраняться внутри него.',
+        ];
+
+        $checks[] = [
+            'title' => 'Каталог картинок',
+            'ok'    => is_dir($upload) && is_writable($upload),
+            'value' => $upload . ' — ' . match (true) {
+                !is_dir($upload)      => 'не существует',
+                !is_writable($upload) => 'нет прав на запись',
+                default               => 'есть, запись разрешена',
+            },
+            'hint'  => 'Если прав нет, поставьте каталогу права 755 или 775.',
+        ];
+
+        $checks[] = $this->checkUpload($public);
+        $checks[] = $this->checkSession();
+        $checks[] = $this->checkComment();
+
+        $checks[] = [
+            'title' => 'Предел размера загрузки',
+            'ok'    => true,
+            'value' => 'upload_max_filesize = ' . ini_get('upload_max_filesize')
+                . ', post_max_size = ' . ini_get('post_max_size'),
+            'hint'  => 'Картинка больше этого размера до сервера не дойдёт.',
+        ];
+
+        $this->page('admin/check', [
+            'checks'   => $checks,
+            'comments' => $this->recentComments(),
+        ]);
+    }
+
+    /**
+     * Настоящая запись картинки: создаём файл, проверяем, что он доступен
+     * по своему адресу, и удаляем.
+     *
+     * @return array<string, mixed>
+     */
+    private function checkUpload(string $public): array
+    {
+        $image = @imagecreatetruecolor(40, 20);
+
+        if ($image === false) {
+            return [
+                'title' => 'Запись картинки',
+                'ok'    => false,
+                'value' => 'GD не создаёт изображения',
+                'hint'  => 'Обратитесь в поддержку хостинга.',
+            ];
+        }
+
+        $dir  = $public . Upload::DIR . '/proverka';
+        $file = $dir . '/proverka.webp';
+
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            imagedestroy($image);
+
+            return [
+                'title' => 'Запись картинки',
+                'ok'    => false,
+                'value' => 'не удалось создать каталог ' . $dir,
+                'hint'  => 'Дайте права на запись каталогу ' . $public . Upload::DIR . '.',
+            ];
+        }
+
+        $saved = @imagewebp($image, $file, 80);
+        imagedestroy($image);
+
+        if (!$saved) {
+            return [
+                'title' => 'Запись картинки',
+                'ok'    => false,
+                'value' => 'файл не записался: ' . $file,
+                'hint'  => 'Чаще всего это права на запись.',
+            ];
+        }
+
+        $url = $this->config['base_url'] . Upload::DIR . '/proverka/proverka.webp';
+
+        @unlink($file);
+        @rmdir($dir);
+
+        return [
+            'title' => 'Запись картинки',
+            'ok'    => true,
+            'value' => 'файл создан и удалён: ' . $file,
+            'hint'  => 'Значит, обложки и картинки в тексте сохранятся. '
+                . 'Адрес, по которому они открываются: ' . $url,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function checkSession(): array
+    {
+        $path    = session_save_path() ?: 'каталог по умолчанию';
+        $working = session_status() === PHP_SESSION_ACTIVE;
+
+        return [
+            'title' => 'Сессии',
+            'ok'    => $working,
+            'value' => $working ? 'работают, хранятся в ' . $path : 'не запускаются',
+            'hint'  => 'От них зависит вход в админку и защита форм. '
+                . 'Раз вы видите эту страницу, вход уже работает.',
+        ];
+    }
+
+    /**
+     * Настоящая запись комментария: вставляем и сразу удаляем.
+     * Если база откажет, здесь будет её точный текст ошибки.
+     *
+     * @return array<string, mixed>
+     */
+    private function checkComment(): array
+    {
+        $articles = new ArticleRepository($this->db());
+        $any      = $articles->adminListing('', 1);
+
+        if ($any === []) {
+            return [
+                'title' => 'Запись комментария',
+                'ok'    => true,
+                'value' => 'проверять не на чем — статей ещё нет',
+                'hint'  => 'Проверка появится, когда будет хотя бы одна статья.',
+            ];
+        }
+
+        try {
+            $comments = new CommentRepository($this->db());
+            $comments->add(
+                (int) $any[0]['id'],
+                'Проверка настроек',
+                'proverka@example.com',
+                'Это тестовая запись, она удаляется сразу после проверки.',
+                $_SERVER['REMOTE_ADDR'] ?? null,
+            );
+
+            $this->db()->exec(
+                "DELETE FROM comments WHERE name = 'Проверка настроек' AND status = 'new'"
+            );
+
+            return [
+                'title' => 'Запись комментария',
+                'ok'    => true,
+                'value' => 'база принимает комментарии',
+                'hint'  => 'Комментарий с сайта сохранится и будет ждать проверки '
+                    . 'в разделе «Комментарии».',
+            ];
+        } catch (\Throwable $error) {
+            return [
+                'title' => 'Запись комментария',
+                'ok'    => false,
+                'value' => $error->getMessage(),
+                'hint'  => 'Это точная ошибка базы данных — пришлите её текст.',
+            ];
+        }
+    }
+
+    /**
+     * Последние комментарии с их состоянием: сразу видно, дошёл ли
+     * комментарий до базы и не ждёт ли он просто проверки.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function recentComments(): array
+    {
+        try {
+            return (new CommentRepository($this->db()))->listing('all', 5);
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /* --------------------------------------------------------------------
        Служебное
        -------------------------------------------------------------------- */
 
@@ -518,6 +757,19 @@ final class AdminController extends Controller
             'counts' => $counts,
             'auth'   => (int) ($_SESSION['admin_id'] ?? 0) > 0,
         ], 'layouts/admin'));
+    }
+
+    /**
+     * Каталог, который веб-сервер отдаёт наружу.
+     *
+     * Приходит из точки входа: только она знает настоящее имя каталога.
+     * Раньше здесь было жёстко записано «public», и на хостинге, где корень
+     * называется public_html, картинки сохранялись рядом с сайтом — файл
+     * записывался без ошибки, но по своему адресу не открывался.
+     */
+    private function publicDir(): string
+    {
+        return (string) ($this->config['public_dir'] ?? dirname(__DIR__, 2) . '/public');
     }
 
     private function flash(): string

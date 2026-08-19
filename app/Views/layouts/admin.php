@@ -45,6 +45,7 @@ use App\Core\View;
 
             <div class="abar__side">
                 <a href="/stati" target="_blank" rel="noopener">Раздел на сайте</a>
+                <a href="/admin/proverka">Проверка</a>
                 <a href="/admin/parol">Пароль</a>
                 <a href="/admin/vyhod">Выйти</a>
             </div>

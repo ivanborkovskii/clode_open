@@ -324,6 +324,9 @@ textarea:focus {
 }
 
 .atag--ok { background: #e7f6ec; color: var(--a-ok); }
+
+/* Длинные пути и тексты ошибок переносятся, а не растягивают таблицу. */
+.abreak { overflow-wrap: anywhere; }
 .atag--warn { background: #fdf3e2; color: var(--a-warn); }
 
 /* --------------------------------------------------------------------------
