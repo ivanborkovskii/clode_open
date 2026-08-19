@@ -499,17 +499,56 @@ final class AdminController extends Controller
         if (Csrf::check($_POST['_token'] ?? null)) {
             $comments = new CommentRepository($this->db());
             $id       = (int) ($_POST['id'] ?? 0);
+            $action   = (string) ($_POST['do'] ?? '');
 
-            if (($_POST['do'] ?? '') === 'delete') {
+            if ($action === 'delete') {
                 $comments->delete($id);
                 $_SESSION['admin_flash'] = 'Комментарий удалён';
+            } elseif ($action === 'reply') {
+                $_SESSION['admin_flash'] = $this->reply($comments, $id);
             } else {
-                $comments->setStatus($id, (string) ($_POST['do'] ?? ''));
+                $comments->setStatus($id, $action);
                 $_SESSION['admin_flash'] = 'Комментарий обновлён';
             }
         }
 
         $this->redirect('/admin/kommentarii?status=' . urlencode((string) ($_POST['back'] ?? 'new')));
+    }
+
+    /**
+     * Ответ владельца сайта на комментарий.
+     *
+     * Публикуется сразу: проверять собственный ответ не у кого. Заодно
+     * комментарий, на который отвечают, становится опубликованным —
+     * отвечать на то, чего на сайте нет, бессмысленно.
+     *
+     * @return string Сообщение для админки
+     */
+    private function reply(CommentRepository $comments, int $id): string
+    {
+        $body    = trim((string) ($_POST['reply'] ?? ''));
+        $comment = $comments->find($id);
+
+        if ($comment === null) {
+            return 'Комментарий не найден';
+        }
+
+        if (mb_strlen($body) < 2) {
+            return 'Ответ пустой — ничего не отправлено';
+        }
+
+        if ($comment['status'] !== 'approved') {
+            $comments->setStatus($id, 'approved');
+        }
+
+        $comments->addAuthorReply(
+            (int) $comment['article_id'],
+            $comments->rootId($id),
+            $this->config['company']['name'],
+            mb_substr($body, 0, 3000),
+        );
+
+        return 'Ответ опубликован';
     }
 
     /* --------------------------------------------------------------------

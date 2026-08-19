@@ -245,6 +245,89 @@
   }
 
   /* ------------------------------------------------------------------
+     Ответ на комментарий
+
+     Форма на странице одна: по нажатию «Ответить» она переезжает под
+     нужный комментарий. Вторая форма в разметке означала бы второй
+     набор полей и второй результат отправки — а отвечают по одному.
+     ------------------------------------------------------------------ */
+
+  var commentForm = document.querySelector('[data-comment-form]');
+
+  if (commentForm) {
+    initReplies(commentForm);
+  }
+
+  function initReplies(card) {
+    var field = card.querySelector('[data-reply-field]');
+    var note = card.querySelector('[data-reply-note]');
+    var label = card.querySelector('[data-reply-label]');
+    var title = card.querySelector('[data-form-title]');
+    var cancel = card.querySelector('[data-reply-cancel]');
+
+    // Форму нужно возвращать на место, поэтому запоминаем, где она стояла.
+    var home = document.createElement('div');
+    card.parentNode.insertBefore(home, card);
+
+    if (!field || !note) {
+      return;
+    }
+
+    var titleText = title ? title.textContent.trim() : '';
+
+    var reset = function () {
+      field.value = '';
+      note.hidden = true;
+      home.parentNode.insertBefore(card, home);
+
+      if (title) {
+        title.textContent = titleText;
+      }
+    };
+
+    document.querySelectorAll('[data-reply]').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+
+        var comment = link.closest('.comment');
+
+        field.value = link.dataset.reply;
+        note.hidden = false;
+
+        if (label) {
+          label.textContent = (card.dataset.answering || '') + ' ' + link.dataset.replyName;
+        }
+
+        if (title && card.dataset.replyTitle) {
+          title.textContent = card.dataset.replyTitle;
+        }
+
+        // Форма встаёт сразу под тем комментарием, на который отвечают:
+        // так видно, к чему относится ответ.
+        if (comment) {
+          comment.appendChild(card);
+        }
+
+        var input = card.querySelector('#c-body');
+
+        if (input) {
+          input.focus({ preventScroll: true });
+        }
+
+        card.scrollIntoView({ block: 'center' });
+      });
+    });
+
+    if (cancel) {
+      cancel.addEventListener('click', function (event) {
+        event.preventDefault();
+        reset();
+        card.scrollIntoView({ block: 'center' });
+      });
+    }
+  }
+
+  /* ------------------------------------------------------------------
      Оценка статьи
      ------------------------------------------------------------------ */
 

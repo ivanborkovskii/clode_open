@@ -6,9 +6,14 @@
  * со скриптом отправляется без перезагрузки. Новый комментарий появляется
  * на странице после проверки в админке, о чём прямо сказано в ответе.
  *
+ * Комментарии идут ветками: под началом разговора собираются ответы.
+ * Глубина ровно одна — ответ на ответ попадает в ту же ветку, иначе
+ * на телефоне разговор уезжает за край экрана.
+ *
  * @var array $article
  * @var array $comments
  * @var array $texts
+ * @var array|null $replyTo Кому пишут ответ: id и имя
  * @var array $state   Результат предыдущей отправки: status, errors, values
  */
 
@@ -20,21 +25,53 @@ $labels  = $texts['article']['comments'];
 $errors  = $state['errors'] ?? [];
 $values  = $state['values'] ?? [];
 $success = ($state['status'] ?? '') === 'success';
+$replyTo = $replyTo ?? null;
 
 $old = static fn (string $field): string => View::e($values[$field] ?? '');
+
+/**
+ * Одна запись разговора. Ответы отличаются только отступом и пометкой
+ * автора, поэтому разметка у них общая.
+ */
+$render = static function (array $comment, bool $isReply) use ($labels, $view): void {
+    $view->partial('sections/comment', [
+        'comment' => $comment,
+        'isReply' => $isReply,
+        'labels'  => $labels,
+    ]);
+};
 ?>
 <section class="section section--alt" id="kommentarii">
     <div class="container container--narrow">
         <h2 class="comments__title"><?= View::e($labels['title']) ?></h2>
 
-        <div class="form-card comments__form">
+        <?php // Подписи для скрипта: слова живут в текстах раздела, а не в нём. ?>
+        <div class="form-card comments__form" id="comment-form" data-comment-form
+             data-answering="<?= View::e($labels['answering']) ?>"
+             data-reply-title="<?= View::e($labels['reply_form']) ?>">
             <?php if ($success): ?>
                 <div class="form__success" data-form-success>
                     <h3><?= View::e($labels['form']) ?></h3>
                     <p><?= View::e($labels['moderation']) ?></p>
                 </div>
             <?php else: ?>
-                <h3><?= View::e($labels['form']) ?></h3>
+                <h3 data-form-title>
+                    <?= View::e($replyTo === null ? $labels['form'] : $labels['reply_form']) ?>
+                </h3>
+
+                <?php
+                // Строка «отвечаете такому-то» появляется и без JavaScript:
+                // тогда её ставит сервер по метке в адресе. Со скриптом её
+                // заполняет он же, когда переносит форму под комментарий.
+                ?>
+                <p class="comments__answering" data-reply-note
+                   <?= $replyTo === null ? 'hidden' : '' ?>>
+                    <span data-reply-label>
+                        <?= $replyTo === null ? '' : View::e($labels['answering'] . ' ' . $replyTo['name']) ?>
+                    </span>
+                    <a href="#comment-form" data-reply-cancel><?= View::e($labels['cancel']) ?></a>
+                </p>
+
                 <p class="comments__lead"><?= View::e($labels['lead']) ?></p>
 
                 <form class="form" method="post"
@@ -42,6 +79,10 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                       data-success-title="<?= View::e($labels['form']) ?>"
                       data-success-text="<?= View::e($labels['moderation']) ?>">
                     <input type="hidden" name="_token" value="<?= View::e(Csrf::token()) ?>">
+
+                    <?php // Номер комментария, на который пишут ответ. Пусто — новая ветка. ?>
+                    <input type="hidden" name="parent_id" data-reply-field
+                           value="<?= $replyTo === null ? '' : (int) $replyTo['id'] ?>">
 
                     <?php // Ловушка для ботов: людям поле не видно. ?>
                     <div class="honeypot" aria-hidden="true">
@@ -113,20 +154,17 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
         <?php else: ?>
             <ol class="comments">
                 <?php foreach ($comments as $comment): ?>
-                    <li class="comment">
-                        <p class="comment__head">
-                            <b class="comment__name"><?= View::e($comment['name']) ?></b>
-                            <time class="comment__date"
-                                  datetime="<?= View::e(substr((string) $comment['created_at'], 0, 10)) ?>">
-                                <?= View::e(Text::date((string) $comment['created_at'])) ?>
-                            </time>
-                        </p>
-                        <?php
-                        // Текст комментария выводится экранированным и с переносами
-                        // строк: разметку посетителей на страницу не пускаем.
-                        ?>
-                        <p class="comment__body"><?= nl2br(View::e($comment['body'])) ?></p>
-                    </li>
+                    <?php $render($comment, false); ?>
+
+                    <?php if ($comment['replies'] !== []): ?>
+                        <li class="comments__branch">
+                            <ol class="comments comments--replies">
+                                <?php foreach ($comment['replies'] as $reply): ?>
+                                    <?php $render($reply, true); ?>
+                                <?php endforeach; ?>
+                            </ol>
+                        </li>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </ol>
         <?php endif; ?>

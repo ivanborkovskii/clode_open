@@ -706,6 +706,64 @@
   text-wrap: pretty;
 }
 
+/* Ветка ответов. Отступ слева и линия — единственное, чем ответ отличается
+   от начала разговора: разной рамкой и фоном список превратился бы в мешанину.
+   Вложенность одна, поэтому отступ фиксированный и на телефон помещается. */
+.comments__branch {
+  margin-left: clamp(var(--s-4), 4vw, var(--s-7));
+  padding-left: var(--s-5);
+  border-left: 2px solid var(--line);
+}
+
+.comments--replies {
+  gap: var(--s-4);
+}
+
+/* Ответ владельца сайта выделен: читателю важно видеть, где отвечает
+   автор статьи, а где другой посетитель. */
+.comment--author {
+  border-color: var(--accent);
+}
+
+.comment__badge {
+  padding: 0.1rem 0.5rem;
+  background: var(--accent);
+  border-radius: 10px;
+  color: var(--text-invert);
+  font-size: var(--fs-xs);
+}
+
+.comment__reply {
+  display: inline-block;
+  margin-top: var(--s-3);
+  color: var(--accent-deep);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+}
+
+.comment__reply:hover { text-decoration: underline; }
+
+/* Строка «отвечаете такому-то» над формой. */
+.comments__answering {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-3);
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--paper-alt);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+}
+
+.comments__answering[hidden] { display: none; }
+
+/* Форма, переехавшая под комментарий, отделяется от его текста. */
+.comment > .form-card {
+  margin-top: var(--s-4);
+}
+
 /* --------------------------------------------------------------------------
    8. Похожие статьи
    -------------------------------------------------------------------------- */

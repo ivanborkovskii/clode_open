@@ -111,9 +111,10 @@ final class ArticleController extends Controller
             return;
         }
 
-        $ratings = new RatingRepository($this->db());
-        $id      = (int) $article['id'];
-        $content = $this->content('articles');
+        $ratings  = new RatingRepository($this->db());
+        $comments = new CommentRepository($this->db());
+        $id       = (int) $article['id'];
+        $content  = $this->content('articles');
 
         $this->html($this->view->render('article', [
             'styles'  => ['css/pages.css', 'css/articles.css'],
@@ -128,7 +129,10 @@ final class ArticleController extends Controller
                 'summary' => $ratings->summary($id),
                 'mine'    => $ratings->of($id, $this->voter()),
             ],
-            'comments' => (new CommentRepository($this->db()))->approved($id),
+            'comments' => $comments->tree($id),
+            // Кому именно пишут ответ — приходит из адреса ?otvet=НОМЕР.
+            // Так «Ответить» работает и без JavaScript.
+            'replyTo'  => $this->replyTarget($comments, $id),
             'related'  => $articles->related($article),
             'texts'    => $content,
             'state'    => $this->commentFlash(),
@@ -182,6 +186,34 @@ final class ArticleController extends Controller
         $this->json(['q' => $query, 'items' => $items]);
     }
 
+    /**
+     * Комментарий, на который посетитель нажал «Ответить».
+     *
+     * Номер приходит из адреса, поэтому проверяем всё: что комментарий
+     * существует, что он опубликован и что он от этой же статьи.
+     *
+     * @return array{id:int, name:string}|null
+     */
+    private function replyTarget(CommentRepository $comments, int $articleId): ?array
+    {
+        $id = (int) ($_GET['otvet'] ?? 0);
+
+        if ($id <= 0) {
+            return null;
+        }
+
+        $comment = $comments->find($id);
+
+        if ($comment === null
+            || (int) $comment['article_id'] !== $articleId
+            || $comment['status'] !== 'approved'
+        ) {
+            return null;
+        }
+
+        return ['id' => $id, 'name' => (string) $comment['name']];
+    }
+
     /** Приём комментария к статье. */
     public function comment(string $slug): void
     {
@@ -220,7 +252,20 @@ final class ArticleController extends Controller
             return;
         }
 
-        (new CommentRepository($this->db()))->add(
+        $comments = new CommentRepository($this->db());
+
+        // Ответ прикрепляем к началу ветки: на ответ отвечают тому же
+        // разговору, а не наращивают вложенность.
+        $parentId = (int) ($_POST['parent_id'] ?? 0);
+        $parent   = $parentId > 0 ? $comments->find($parentId) : null;
+
+        $parentId = $parent !== null
+            && (int) $parent['article_id'] === (int) $article['id']
+            && $parent['status'] === 'approved'
+                ? $comments->rootId($parentId)
+                : null;
+
+        $comments->add(
             (int) $article['id'],
             $validator->value('name'),
             $validator->value('email'),
@@ -228,6 +273,7 @@ final class ArticleController extends Controller
             // экранированным, и вставить сюда ссылку или скрипт нельзя.
             ($suspicious ? '[возможно спам] ' : '') . $validator->value('body'),
             $_SERVER['REMOTE_ADDR'] ?? null,
+            $parentId,
         );
 
         $this->commentResult($isAjax, $slug, 'success', []);

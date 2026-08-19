@@ -10,6 +10,7 @@
  * @var array $article
  * @var array $rating
  * @var array $comments
+ * @var array|null $replyTo
  * @var array $related
  * @var array $texts
  * @var array $seo
@@ -33,6 +34,7 @@
 <?php $view->partial('sections/article-comments', [
     'article'  => $article,
     'comments' => $comments,
+    'replyTo'  => $replyTo,
     'texts'    => $texts,
     'state'    => $state,
 ]); ?>

@@ -53,6 +53,15 @@ $tabs = [
                 <li class="acomment">
                     <div class="acomment__head">
                         <b><?= View::e($comment['name']) ?></b>
+
+                        <?php if ($comment['is_author']): ?>
+                            <span class="atag atag--ok">ваш ответ</span>
+                        <?php elseif ($comment['parent_name'] !== null): ?>
+                            <span class="amuted asmall">
+                                в ответ: <?= View::e($comment['parent_name']) ?>
+                            </span>
+                        <?php endif; ?>
+
                         <?php if ($comment['email'] !== ''): ?>
                             <a class="alink asmall" href="mailto:<?= View::e($comment['email']) ?>">
                                 <?= View::e($comment['email']) ?>
@@ -100,6 +109,33 @@ $tabs = [
                             Удалить
                         </button>
                     </form>
+
+                    <?php
+                    // Ответ пишется здесь же, отдельной формой: он публикуется
+                    // сразу и помечается на сайте как ответ автора. Если
+                    // комментарий ещё не опубликован, ответ публикует и его —
+                    // отвечать на то, чего на сайте нет, незачем.
+                    ?>
+                    <?php if (!$comment['is_author']): ?>
+                        <form class="areply" method="post" action="/admin/kommentariy">
+                            <input type="hidden" name="_token" value="<?= View::e(Csrf::token()) ?>">
+                            <input type="hidden" name="id" value="<?= (int) $comment['id'] ?>">
+                            <input type="hidden" name="back" value="<?= View::e($status) ?>">
+
+                            <label class="afield">
+                                <span>
+                                    <?= $comment['answered']
+                                        ? 'Ответить ещё раз'
+                                        : 'Ваш ответ' ?>
+                                </span>
+                                <textarea name="reply" rows="3"
+                                          placeholder="Ответ появится на странице статьи сразу"></textarea>
+                            </label>
+
+                            <button class="abtn abtn--small abtn--primary" type="submit"
+                                    name="do" value="reply">Отправить ответ</button>
+                        </form>
+                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>

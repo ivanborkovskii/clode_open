@@ -85,17 +85,26 @@ CREATE TABLE IF NOT EXISTS article_tag (
 CREATE TABLE IF NOT EXISTS comments (
     id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     article_id INT UNSIGNED NOT NULL,
+    -- На какой комментарий это ответ. Пусто — начало ветки.
+    -- Глубина ровно одна: ответ на ответ прикрепляется к тому же началу,
+    -- иначе на телефоне ветка уезжает за край экрана.
+    parent_id  INT UNSIGNED DEFAULT NULL,
     name       VARCHAR(120) NOT NULL,
     email      VARCHAR(190) NOT NULL DEFAULT '',
     body       TEXT         NOT NULL,
     status     ENUM('new','approved','rejected') NOT NULL DEFAULT 'new',
+    -- Ответ владельца сайта: помечается на странице и публикуется сразу.
+    is_author  TINYINT(1)   NOT NULL DEFAULT 0,
     ip         VARBINARY(16) DEFAULT NULL,
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY comments_article (article_id, status, created_at),
     KEY comments_moderation (status, created_at),
+    KEY comments_parent (parent_id),
     CONSTRAINT comments_article_fk FOREIGN KEY (article_id)
-        REFERENCES articles (id) ON DELETE CASCADE
+        REFERENCES articles (id) ON DELETE CASCADE,
+    CONSTRAINT comments_parent_fk FOREIGN KEY (parent_id)
+        REFERENCES comments (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Оценка статьи: от 1 до 5.

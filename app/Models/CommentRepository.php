@@ -22,7 +22,7 @@ final class CommentRepository extends Repository
     public function approved(int $articleId): array
     {
         return $this->all(
-            "SELECT id, name, body, created_at
+            "SELECT id, parent_id, name, body, is_author, created_at
                FROM comments
               WHERE article_id = :id AND status = 'approved'
               ORDER BY created_at, id",
@@ -30,19 +30,108 @@ final class CommentRepository extends Repository
         );
     }
 
-    public function add(int $articleId, string $name, string $email, string $body, ?string $ip): void
+    /**
+     * Проверенные комментарии ветками: начало разговора и ответы под ним.
+     *
+     * Собирается из одной выборки, а не запросом на каждую ветку. Ответ,
+     * начало которого не опубликовано (например, его отклонили позже),
+     * показывается сам по себе — иначе он молча исчез бы со страницы.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function tree(int $articleId): array
     {
+        $rows  = $this->approved($articleId);
+        $roots = [];
+        $known = [];
+
+        foreach ($rows as $row) {
+            $known[(int) $row['id']] = true;
+        }
+
+        foreach ($rows as $row) {
+            $parent = (int) ($row['parent_id'] ?? 0);
+
+            if ($parent === 0 || !isset($known[$parent])) {
+                $row['replies'] = [];
+                $roots[(int) $row['id']] = $row;
+            }
+        }
+
+        foreach ($rows as $row) {
+            $parent = (int) ($row['parent_id'] ?? 0);
+
+            if ($parent !== 0 && isset($roots[$parent])) {
+                $roots[$parent]['replies'][] = $row;
+            }
+        }
+
+        return array_values($roots);
+    }
+
+    /**
+     * Комментарий по номеру — чтобы проверить, к чему пишут ответ.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function find(int $id): ?array
+    {
+        return $this->one('SELECT * FROM comments WHERE id = :id', ['id' => $id]);
+    }
+
+    /**
+     * Начало ветки для этого комментария.
+     *
+     * Ответ на ответ прикрепляем к тому же началу: вложенность ровно одна,
+     * иначе на узком экране разговор уезжает за край.
+     */
+    public function rootId(int $id): int
+    {
+        $parent = $this->value('SELECT parent_id FROM comments WHERE id = :id', ['id' => $id]);
+
+        return $parent === null ? $id : (int) $parent;
+    }
+
+    public function add(
+        int $articleId,
+        string $name,
+        string $email,
+        string $body,
+        ?string $ip,
+        ?int $parentId = null,
+    ): void {
         $this->run(
-            'INSERT INTO comments (article_id, name, email, body, ip)
-             VALUES (:article, :name, :email, :body, :ip)',
+            'INSERT INTO comments (article_id, parent_id, name, email, body, ip)
+             VALUES (:article, :parent, :name, :email, :body, :ip)',
             [
                 'article' => $articleId,
+                'parent'  => $parentId,
                 'name'    => $name,
                 'email'   => $email,
                 'body'    => $body,
                 // Адрес храним в двоичном виде: он нужен только на случай
                 // разбора спама и не показывается нигде на сайте.
                 'ip'      => $ip === null ? null : (@inet_pton($ip) ?: null),
+            ],
+        );
+    }
+
+    /**
+     * Ответ владельца сайта из админки.
+     *
+     * Проверять его не у кого — он публикуется сразу и помечается как
+     * ответ автора.
+     */
+    public function addAuthorReply(int $articleId, int $parentId, string $name, string $body): void
+    {
+        $this->run(
+            "INSERT INTO comments (article_id, parent_id, name, body, status, is_author)
+             VALUES (:article, :parent, :name, :body, 'approved', 1)",
+            [
+                'article' => $articleId,
+                'parent'  => $parentId,
+                'name'    => $name,
+                'body'    => $body,
             ],
         );
     }
@@ -59,10 +148,18 @@ final class CommentRepository extends Repository
         $params = $status === 'all' ? [] : ['status' => $status];
 
         return $this->all(
-            "SELECT c.id, c.name, c.email, c.body, c.status, c.created_at,
+            // Вместе с комментарием достаём имя того, кому он отвечает,
+            // и признак «на этот комментарий уже ответили»: без них
+            // в админке не видно, где разговор продолжен, а где нет.
+            "SELECT c.id, c.article_id, c.parent_id, c.name, c.email, c.body,
+                    c.status, c.is_author, c.created_at,
+                    p.name AS parent_name,
+                    (SELECT COUNT(*) FROM comments r
+                      WHERE r.parent_id = c.id AND r.is_author = 1) AS answered,
                     a.title AS article_title, a.slug AS article_slug
                FROM comments c
                JOIN articles a ON a.id = c.article_id
+               LEFT JOIN comments p ON p.id = c.parent_id
                {$filter}
               ORDER BY c.created_at DESC, c.id DESC
               LIMIT {$limit}",
