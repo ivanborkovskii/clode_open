@@ -427,8 +427,10 @@ strong { font-weight: 700; }
 
 .logo {
   display: flex;
-  align-items: baseline;
-  gap: 0.5ch;
+  /* По центру, а не по базовой линии: у знака базовой линии нет,
+     и по ней он вставал бы ниже строки. */
+  align-items: center;
+  gap: 0.6rem;
   flex: none;
   font-size: 1.125rem;
   font-weight: 800;
@@ -436,7 +438,16 @@ strong { font-weight: 700; }
   color: #fff;
 }
 
-.logo__mark { color: var(--accent); }
+/* Размер знака привязан к кеглю названия: так они остаются в тех же
+   пропорциях, в каких логотип нарисован, на любом экране. */
+.logo__mark {
+  flex: none;
+  display: block;
+  width: 2em;
+  height: 2em;
+}
+
+.logo__accent { color: var(--accent); }
 
 .nav {
   display: flex;

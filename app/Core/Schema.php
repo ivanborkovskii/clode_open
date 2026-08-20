@@ -60,7 +60,7 @@ final class Schema
      */
     private static function organization(string $base, array $company): array
     {
-        return [
+        $node = [
             '@type'     => 'ProfessionalService',
             '@id'       => $base . '/#organization',
             'name'      => $company['brand'],
@@ -88,6 +88,21 @@ final class Schema
                 'name'  => $company['name'],
             ],
         ];
+
+        // sameAs — страницы этой же компании в других местах: соцсети,
+        // карты, справочники. По ним поисковик связывает сайт и эти
+        // страницы в одну компанию, а название — с ней. Это главное,
+        // что работает на узнавание названия за пределами самого сайта.
+        //
+        // Пустого поля в разметке быть не должно: добавляем, только если
+        // ссылки заданы.
+        $sameAs = array_values(array_filter($company['social'] ?? []));
+
+        if ($sameAs !== []) {
+            $node['sameAs'] = $sameAs;
+        }
+
+        return $node;
     }
 
     /**

@@ -30,10 +30,7 @@ $menu = [
 ?>
 <header class="header">
     <div class="container header__inner">
-        <a class="logo" href="/">
-            <span class="logo__mark">//</span>
-            <span><?= View::e($company['brand']) ?></span>
-        </a>
+        <?php $view->partial('partials/logo'); ?>
 
         <nav class="nav" aria-label="Основная навигация">
             <?php foreach ($menu as $item): ?>

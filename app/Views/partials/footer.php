@@ -35,10 +35,7 @@ $columns = [
     <div class="container">
         <div class="footer__top">
             <div>
-                <a class="logo" href="/">
-                    <span class="logo__mark">//</span>
-                    <span><?= View::e($company['brand']) ?></span>
-                </a>
+                <?php $view->partial('partials/logo'); ?>
 
                 <div class="footer__contact">
                     <a class="footer__phone" href="tel:<?= View::e($company['phone_href']) ?>">
