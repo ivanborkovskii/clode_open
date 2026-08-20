@@ -239,6 +239,50 @@
       });
     });
 
+    /* Два пальца внутри окна.
+
+       Масштабировать страницу браузеру здесь запрещено (touch-action
+       в стилях), иначе после закрытия окна сайт остался бы увеличенным.
+       Но привычный жест должен работать, поэтому разводим и сводим
+       пальцы — увеличивается и уменьшается сама картинка. */
+    var fingersApart = function (touches) {
+      var dx = touches[0].clientX - touches[1].clientX;
+      var dy = touches[0].clientY - touches[1].clientY;
+
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    var pinchFrom = 0;
+
+    viewer.addEventListener('touchstart', function (event) {
+      pinchFrom = event.touches.length === 2 ? fingersApart(event.touches) : 0;
+    }, { passive: true });
+
+    viewer.addEventListener('touchmove', function (event) {
+      if (event.touches.length !== 2 || !pinchFrom) {
+        return;
+      }
+
+      var now = fingersApart(event.touches);
+
+      // Заметный порог: иначе дрожание пальцев переключало бы картинку
+      // туда-сюда. Сработав один раз, ждём нового касания — pinchFrom = 0.
+      if (now > pinchFrom * 1.3) {
+        var box = viewerImg.getBoundingClientRect();
+        var midX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+        var midY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+
+        setZoom(true, {
+          x: (midX - box.left) / box.width,
+          y: (midY - box.top) / box.height
+        });
+        pinchFrom = 0;
+      } else if (now < pinchFrom * 0.75) {
+        setZoom(false);
+        pinchFrom = 0;
+      }
+    }, { passive: true });
+
     viewer.querySelector('.viewer__close').addEventListener('click', closeViewer);
 
     // Клик мимо картинки закрывает просмотр.
