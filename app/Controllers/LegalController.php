@@ -29,6 +29,12 @@ final class LegalController extends Controller
                 'title'       => $doc['title'],
                 'description' => $doc['description'],
                 'canonical'   => $this->url($path),
+                // Цепочка нужна и здесь: это обычные страницы сайта,
+                // на них тоже приходят из поиска.
+                'breadcrumbs' => [
+                    ['label' => 'Главная',      'href' => '/'],
+                    ['label' => $doc['title'],  'href' => $path],
+                ],
             ],
             'doc' => $doc,
         ]));

@@ -26,6 +26,9 @@ final class PageController extends Controller
                     ['label' => 'Главная',    'href' => '/'],
                     ['label' => 'О компании', 'href' => '/o-kompanii'],
                 ],
+                // Уточняем тип страницы: поисковик понимает, что это
+                // рассказ о компании, а не услуга и не статья.
+                'page_type' => 'AboutPage',
             ],
             'page' => $this->content('about'),
             'form' => $this->formFlash(),
@@ -46,6 +49,7 @@ final class PageController extends Controller
                     ['label' => 'Главная',  'href' => '/'],
                     ['label' => 'Контакты', 'href' => '/kontakty'],
                 ],
+                'page_type' => 'ContactPage',
             ],
             'page' => $this->content('contacts'),
             'form' => $this->formFlash(),

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Csrf;
+use App\Core\Schema;
 use App\Core\Session;
 use App\Core\Text;
 use App\Core\Validator;
@@ -74,11 +75,27 @@ final class ArticleController extends Controller
         ], $page, self::PER_PAGE);
 
         $content = $this->content('articles');
+        $seo     = $this->listingSeo($category, $selected, $query, $result['page']);
+
+        // Состав раздела для поисковика: что за статьи и по каким адресам.
+        // Разбирать для этого вёрстку ему не приходится.
+        $seo['page_type'] = 'CollectionPage';
+        $seo['jsonld']    = [Schema::itemList(
+            $this->config['base_url'],
+            (string) $seo['canonical'],
+            array_map(
+                static fn (array $item): array => [
+                    'name' => (string) $item['title'],
+                    'href' => '/stati/' . $item['slug'],
+                ],
+                $result['items'],
+            ),
+        )];
 
         $this->html($this->view->render('articles', [
             'styles'  => ['css/pages.css', 'css/articles.css'],
             'scripts' => ['js/articles.js'],
-            'seo'     => $this->listingSeo($category, $selected, $query, $result['page']),
+            'seo'     => $seo,
             'page'    => [
                 'hero'       => $this->listingHero($content, $category, $selected, $query),
                 'search'     => ['action' => $base, 'value' => $query],
@@ -621,23 +638,74 @@ final class ArticleController extends Controller
                 ],
                 ['label' => $article['title'], 'href' => '/stati/' . $article['slug']],
             ],
-            // Микроразметка статьи: заголовок, даты и автор — то, что
-            // поисковики показывают в выдаче.
+            'og_image_width'  => (int) $article['cover_width'],
+            'og_image_height' => (int) $article['cover_height'],
+            'og_image_alt'    => $article['cover_alt'] !== ''
+                ? $article['cover_alt']
+                : $article['title'],
+
+            // Даты, раздел и темы для Open Graph — их читают соцсети
+            // и агрегаторы.
+            'article' => [
+                'published' => $article['published_at'],
+                'modified'  => substr((string) $article['updated_at'], 0, 10),
+                'section'   => $article['category_name'],
+                'tags'      => array_column($article['tags'] ?? [], 'name'),
+            ],
+
+            // Микроразметка статьи: заголовок, даты, автор, раздел и темы —
+            // то, по чему поисковик понимает, что это публикация, а не
+            // страница услуги.
             'jsonld' => [[
-                '@context' => 'https://schema.org',
                 '@type'    => 'Article',
+                '@id'      => $this->url('/stati/' . $article['slug']) . '#article',
                 'headline' => $article['title'],
                 'description'   => $description,
                 'datePublished' => $article['published_at'],
                 'dateModified'  => substr((string) $article['updated_at'], 0, 10),
-                'author' => [
-                    '@type' => 'Person',
-                    'name'  => $article['author'] !== ''
-                        ? $article['author']
-                        : $this->config['company']['name'],
-                ],
-                'mainEntityOfPage' => $this->url('/stati/' . $article['slug']),
-            ] + ($article['cover'] !== '' ? ['image' => $this->config['base_url'] . $article['cover']] : [])],
+                'author' => $this->author((string) $article['author']),
+                'publisher'    => ['@id' => $this->config['base_url'] . '/#organization'],
+                'inLanguage'   => 'ru-RU',
+                'articleSection' => $article['category_name'],
+                'isPartOf'     => ['@id' => $this->url('/stati/' . $article['slug']) . '#webpage'],
+                'mainEntityOfPage' => ['@id' => $this->url('/stati/' . $article['slug']) . '#webpage'],
+            ]
+                + ($article['tags'] !== []
+                    ? ['keywords' => implode(', ', array_column($article['tags'], 'name'))]
+                    : [])
+                + ($article['cover'] !== ''
+                    ? ['image' => [
+                        '@type'  => 'ImageObject',
+                        'url'    => $this->config['base_url'] . $article['cover'],
+                        'width'  => (int) $article['cover_width'],
+                        'height' => (int) $article['cover_height'],
+                    ]]
+                    : ['image' => $this->config['base_url'] . '/assets/img/share.png'])],
+        ];
+    }
+
+    /**
+     * Автор статьи для микроразметки.
+     *
+     * В поле статьи пишут «Иван Борковский, основатель компании» — одной
+     * строкой. В разметке имя и должность лучше разделить: имя человека
+     * не «Иван Борковский, основатель компании».
+     *
+     * @return array<string, string>
+     */
+    private function author(string $author): array
+    {
+        $author = trim($author !== '' ? $author : $this->config['company']['name']);
+        $comma  = mb_strpos($author, ',');
+
+        if ($comma === false) {
+            return ['@type' => 'Person', 'name' => $author];
+        }
+
+        return [
+            '@type'    => 'Person',
+            'name'     => trim(mb_substr($author, 0, $comma)),
+            'jobTitle' => trim(mb_substr($author, $comma + 1)),
         ];
     }
 

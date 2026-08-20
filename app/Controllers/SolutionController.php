@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Schema;
+
 final class SolutionController extends Controller
 {
     /**
@@ -67,6 +69,18 @@ final class SolutionController extends Controller
                     ['label' => 'Главная',  'href' => '/'],
                     ['label' => 'Решения',  'href' => '/resheniya'],
                 ],
+                'page_type' => 'CollectionPage',
+                'jsonld'    => [Schema::itemList(
+                    $this->config['base_url'],
+                    $this->url('/resheniya'),
+                    array_map(
+                        static fn (array $item): array => [
+                            'name' => $item['title'],
+                            'href' => $item['href'],
+                        ],
+                        $this->content('solutions')['items'],
+                    ),
+                )],
             ],
             'page' => $this->content('solutions'),
             'form' => $this->formFlash(),
@@ -93,6 +107,16 @@ final class SolutionController extends Controller
                     ['label' => 'Решения',      'href' => '/resheniya'],
                     ['label' => $meta['crumb'], 'href' => '/resheniya/' . $slug],
                 ],
+                // Решение задачи — это тоже услуга, только описанная
+                // со стороны задачи, а не со стороны работ.
+                'jsonld' => [[
+                    '@type' => 'Service',
+                    '@id'   => $this->url('/resheniya/' . $slug) . '#service',
+                    'name'        => $meta['crumb'],
+                    'description' => $meta['description'],
+                    'provider'    => ['@id' => $this->config['base_url'] . '/#organization'],
+                    'url'         => $this->url('/resheniya/' . $slug),
+                ]],
             ],
             'page' => $this->content($meta['content']),
             'form' => $this->formFlash(),

@@ -8,12 +8,36 @@
  * @var string $content
  */
 
+use App\Core\Schema;
 use App\Core\View;
 
 $company = $config['company'];
 $title   = ($seo['title'] ?? '') !== ''
     ? $seo['title'] . ' — ' . $company['brand']
     : $company['brand'];
+
+$base = rtrim((string) $config['base_url'], '/');
+$url  = (string) ($seo['canonical'] ?? $base . '/');
+
+// Картинка ссылки. У статьи это её обложка, у остальных страниц — общая
+// картинка сайта. Без неё ссылка в мессенджере выглядит голой строкой,
+// поэтому она есть всегда.
+$image = (string) ($seo['og_image'] ?? '');
+
+if ($image === '') {
+    $image  = $base . '/assets/img/share.png';
+    $imageW = 1200;
+    $imageH = 630;
+    // У общей картинки своё описание: заголовок страницы описывал бы
+    // не её, а страницу.
+    $seo['og_image_alt'] ??= 'Внедрение Битрикс24 и amoCRM — ' . $company['brand'];
+} else {
+    $imageW = (int) ($seo['og_image_width'] ?? 0);
+    $imageH = (int) ($seo['og_image_height'] ?? 0);
+}
+
+// Разметку страницы собираем здесь, чтобы в шаблоне остался только вывод.
+$seo['og_image'] = $image;
 ?>
 <!doctype html>
 <html lang="ru">
@@ -30,17 +54,39 @@ $title   = ($seo['title'] ?? '') !== ''
     <meta name="robots" content="noindex, nofollow">
     <?php endif; ?>
 
+    <?php
+    // Open Graph: как ссылка на страницу выглядит в мессенджерах, соцсетях
+    // и мессенджер-виджетах. Набор одинаковый на всех страницах сайта,
+    // различается только содержимое.
+    ?>
     <meta property="og:type" content="<?= View::e($seo['og_type'] ?? 'website') ?>">
+    <meta property="og:site_name" content="<?= View::e($company['brand']) ?>">
     <meta property="og:locale" content="ru_RU">
     <meta property="og:title" content="<?= View::e($title) ?>">
     <meta property="og:description" content="<?= View::e($seo['description'] ?? '') ?>">
-    <?php if (!empty($seo['canonical'])): ?>
-    <meta property="og:url" content="<?= View::e($seo['canonical']) ?>">
+    <meta property="og:url" content="<?= View::e($url) ?>">
+    <meta property="og:image" content="<?= View::e($image) ?>">
+    <?php if ($imageW > 0): ?>
+    <meta property="og:image:width" content="<?= $imageW ?>">
+    <meta property="og:image:height" content="<?= $imageH ?>">
     <?php endif; ?>
-    <?php // Картинка для ссылки в мессенджерах и соцсетях — обложка статьи. ?>
-    <?php if (!empty($seo['og_image'])): ?>
-    <meta property="og:image" content="<?= View::e($seo['og_image']) ?>">
+    <meta property="og:image:alt" content="<?= View::e($seo['og_image_alt'] ?? $title) ?>">
+
+    <?php // Даты и раздел — только у статьи: у остальных страниц их нет. ?>
+    <?php if (!empty($seo['article'])): ?>
+    <meta property="article:published_time" content="<?= View::e($seo['article']['published']) ?>">
+    <meta property="article:modified_time" content="<?= View::e($seo['article']['modified']) ?>">
+    <meta property="article:section" content="<?= View::e($seo['article']['section']) ?>">
+    <?php foreach ($seo['article']['tags'] ?? [] as $tag): ?>
+    <meta property="article:tag" content="<?= View::e($tag) ?>">
+    <?php endforeach; ?>
     <?php endif; ?>
+
+    <?php
+    // Twitter читает свои теги, но при их отсутствии берёт Open Graph.
+    // Указываем только то, чего в Open Graph нет: вид карточки.
+    ?>
+    <meta name="twitter:card" content="summary_large_image">
 
     <meta name="theme-color" content="#071739">
 
@@ -68,57 +114,18 @@ $title   = ($seo['title'] ?? '') !== ''
 
     <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 
+    <?php
+    // Микроразметка страницы одним графом: компания, сайт, сама страница,
+    // хлебные крошки и то, что добавила страница — статья, услуга, список.
+    // Узлы связаны через @id, поэтому сведения о компании не повторяются.
+    ?>
     <script type="application/ld+json">
-    <?= json_encode([
-        '@context' => 'https://schema.org',
-        '@type'    => 'ProfessionalService',
-        'name'     => $company['brand'],
-        'legalName' => $company['legal_name'],
-        'description' => $seo['description'] ?? '',
-        'url'      => $config['base_url'],
-        'telephone' => $company['phone'],
-        'email'    => $company['email'],
-        'address'  => [
-            '@type'           => 'PostalAddress',
-            'addressLocality' => $company['locality'],
-            'streetAddress'   => $company['address'],
-            'addressCountry'  => 'RU',
-        ],
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
+    <?= json_encode(
+        Schema::graph($config, $seo),
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT,
+    ) ?>
     </script>
 
-    <?php
-    // Хлебные крошки для поиска. Выводятся, только если страница их передала:
-    // на главной цепочки нет.
-    ?>
-    <?php if (!empty($seo['breadcrumbs'])): ?>
-    <script type="application/ld+json">
-    <?= json_encode([
-        '@context' => 'https://schema.org',
-        '@type'    => 'BreadcrumbList',
-        'itemListElement' => array_map(
-            static fn (int $i, array $crumb): array => [
-                '@type'    => 'ListItem',
-                'position' => $i + 1,
-                'name'     => $crumb['label'],
-                'item'     => $config['base_url'] . $crumb['href'],
-            ],
-            array_keys($seo['breadcrumbs']),
-            $seo['breadcrumbs'],
-        ),
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
-    </script>
-    <?php endif; ?>
-
-    <?php
-    // Дополнительная микроразметка страницы — например, разметка статьи.
-    // Передаётся страницей списком, чтобы макет ничего не знал о разделах.
-    ?>
-    <?php foreach ($seo['jsonld'] ?? [] as $schema): ?>
-    <script type="application/ld+json">
-    <?= json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
-    </script>
-    <?php endforeach; ?>
 </head>
 <body>
     <a class="skip-link" href="#main">Перейти к содержимому</a>

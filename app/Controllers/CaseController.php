@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Schema;
+
 final class CaseController extends Controller
 {
     /**
@@ -76,6 +78,18 @@ final class CaseController extends Controller
                     ['label' => 'Главная', 'href' => '/'],
                     ['label' => 'Кейсы',   'href' => '/keysy'],
                 ],
+                'page_type' => 'CollectionPage',
+                'jsonld'    => [Schema::itemList(
+                    $this->config['base_url'],
+                    $this->url('/keysy'),
+                    array_map(
+                        static fn (array $item): array => [
+                            'name' => $item['company'],
+                            'href' => $item['href'],
+                        ],
+                        $this->content('cases')['list']['items'],
+                    ),
+                )],
             ],
             'page' => $this->content('cases'),
             'form' => $this->formFlash(),
@@ -103,6 +117,19 @@ final class CaseController extends Controller
                     ['label' => 'Кейсы',        'href' => '/keysy'],
                     ['label' => $meta['crumb'], 'href' => '/keysy/' . $slug],
                 ],
+                // Разбор проекта. Тип CreativeWork, а не Article: у кейса
+                // нет даты публикации, а Article без даты поисковики
+                // помечают как неполную разметку.
+                'jsonld' => [[
+                    '@type' => 'CreativeWork',
+                    '@id'   => $this->url('/keysy/' . $slug) . '#case',
+                    'name'        => $meta['title'],
+                    'description' => $meta['description'],
+                    'about'       => $meta['crumb'],
+                    'creator'     => ['@id' => $this->config['base_url'] . '/#organization'],
+                    'inLanguage'  => 'ru-RU',
+                    'url'         => $this->url('/keysy/' . $slug),
+                ]],
             ],
             'page' => $this->content($meta['content']),
             'form' => $this->formFlash(),

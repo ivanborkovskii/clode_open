@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Schema;
+
 final class ServiceController extends Controller
 {
     /**
@@ -77,6 +79,19 @@ final class ServiceController extends Controller
                     ['label' => 'Главная', 'href' => '/'],
                     ['label' => 'Услуги',  'href' => '/uslugi'],
                 ],
+                // Состав раздела: какие услуги в нём и по каким адресам.
+                'page_type' => 'CollectionPage',
+                'jsonld'    => [Schema::itemList(
+                    $this->config['base_url'],
+                    $this->url('/uslugi'),
+                    array_map(
+                        static fn (array $item): array => [
+                            'name' => $item['title'],
+                            'href' => $item['href'],
+                        ],
+                        $this->content('services')['items'],
+                    ),
+                )],
             ],
             'page' => $this->content('services'),
             'form' => $this->formFlash(),
@@ -105,6 +120,17 @@ final class ServiceController extends Controller
                     ['label' => 'Услуги',         'href' => '/uslugi'],
                     ['label' => $meta['crumb'],   'href' => '/uslugi/' . $slug],
                 ],
+                // Услуга как услуга, а не просто страница: поисковик видит,
+                // что именно оказывается и кем.
+                'jsonld' => [[
+                    '@type' => 'Service',
+                    '@id'   => $this->url('/uslugi/' . $slug) . '#service',
+                    'name'        => $meta['crumb'],
+                    'description' => $meta['description'],
+                    'serviceType' => $meta['crumb'],
+                    'provider'    => ['@id' => $this->config['base_url'] . '/#organization'],
+                    'url'         => $this->url('/uslugi/' . $slug),
+                ]],
             ],
             'page' => $this->content($meta['content']),
             'form' => $this->formFlash(),
