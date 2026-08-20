@@ -40,7 +40,13 @@ if ($image === '') {
 $seo['og_image'] = $image;
 ?>
 <!doctype html>
-<html lang="ru">
+<?php
+// prefix объявляет словари Open Graph. Сам по себе og: валидаторы знают,
+// а вот article: (даты, раздел и темы статьи) — нет: Яндекс.Вебмастер
+// на него ругается «префикс неизвестен». Объявляем оба явно, тогда
+// разметку разбирают и Яндекс, и остальные.
+?>
+<html lang="ru" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

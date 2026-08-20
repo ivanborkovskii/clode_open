@@ -91,8 +91,14 @@ final class Schema
     }
 
     /**
-     * Сайт целиком. Поиск объявлен настоящий — тот, что стоит в разделе
-     * статей; объявлять несуществующий поиск нельзя.
+     * Сайт целиком.
+     *
+     * Здесь был объявлен поиск по статьям (SearchAction). Мы его убрали:
+     * поле query-input, без которого поиск в разметке бессмыслен, в самой
+     * спецификации schema.org не описано — это было расширение Google для
+     * строки поиска в выдаче. Google эту строку убрал, и разметка перестала
+     * на что-либо влиять, а Яндекс.Вебмастер выдаёт на неё предупреждение.
+     * Пользы ноль, замечание в проверке есть — значит, лишнее.
      *
      * @param  array<string, mixed> $company
      * @return array<string, mixed>
@@ -106,14 +112,6 @@ final class Schema
             'name'       => $company['brand'],
             'inLanguage' => 'ru-RU',
             'publisher'  => ['@id' => $base . '/#organization'],
-            'potentialAction' => [
-                '@type'  => 'SearchAction',
-                'target' => [
-                    '@type'       => 'EntryPoint',
-                    'urlTemplate' => $base . '/stati?q={search_term_string}',
-                ],
-                'query-input' => 'required name=search_term_string',
-            ],
         ];
     }
 
