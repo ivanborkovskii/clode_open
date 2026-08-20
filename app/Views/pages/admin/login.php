@@ -4,6 +4,7 @@
  *
  * @var string $error
  * @var string $login
+ * @var array  $config
  */
 
 use App\Core\Csrf;
@@ -11,7 +12,7 @@ use App\Core\View;
 ?>
 <div class="acard-narrow">
     <h1>Вход</h1>
-    <p class="amuted">Управление статьями сайта crm.ivanborkovsky.ru</p>
+    <p class="amuted">Управление статьями сайта <?= View::e($config['company']['brand']) ?></p>
 
     <?php if ($error !== ''): ?>
         <p class="aalert aalert--error"><?= View::e($error) ?></p>
