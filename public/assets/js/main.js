@@ -155,20 +155,82 @@
     var viewerImg = viewer.querySelector('[data-viewer-img]');
     var viewerTitle = viewer.querySelector('[data-viewer-title]');
 
-    var setZoom = function (on, point) {
-      viewer.dataset.zoomed = String(on);
+    /* Плавное превращение одного размера в другой.
 
-      if (!on) {
+       Сам размер картинки меняется мгновенно, и это намеренно: картинка
+       остаётся чёткой, потому что показывает настоящие пиксели, а не
+       растянутые. Но мгновенный скачок режет глаз, поэтому поверх
+       проигрывается короткое превращение из прежнего размера в новый.
+
+       Двигается только преобразование, без пересчёта раскладки, — поэтому
+       идёт плавно и на телефоне. К последнему кадру преобразование
+       снимается, и картинка снова показывает настоящие пиксели.
+
+       Если в системе выключены анимации, ничего не проигрывается: там
+       человек просил не двигать лишнего. Правило в стилях сюда не
+       достаёт — оно про CSS-переходы, а это отдельная анимация. */
+    var motionOk = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var growFrom = function (before, point) {
+      if (!motionOk || typeof viewerImg.animate !== 'function') {
         return;
       }
 
-      // Прокручиваем к той точке, по которой человек кликнул, —
-      // иначе после увеличения он оказывается в левом верхнем углу.
-      var x = point ? point.x : 0.5;
-      var y = point ? point.y : 0.5;
+      var after = viewerImg.getBoundingClientRect();
 
-      viewerScroll.scrollLeft = viewerImg.offsetWidth * x - viewerScroll.clientWidth / 2;
-      viewerScroll.scrollTop = viewerImg.offsetHeight * y - viewerScroll.clientHeight / 2;
+      if (!before.width || !after.width) {
+        return;
+      }
+
+      // Растём от точки, по которой нажали: она остаётся на месте,
+      // и картинка не уезжает из-под пальца. При уменьшении такой точки
+      // нет — сжимаем к середине.
+      viewerImg.style.transformOrigin = point
+        ? Math.round(point.x * 100) + '% ' + Math.round(point.y * 100) + '%'
+        : '50% 50%';
+
+      viewerImg.animate(
+        [{ transform: 'scale(' + (before.width / after.width) + ')' },
+          { transform: 'none' }],
+        { duration: 260, easing: 'cubic-bezier(0.2, 0, 0.2, 1)' }
+      );
+    };
+
+    /* Есть ли смысл увеличивать.
+
+       Если картинка и так помещается на экран целиком, увеличивать нечего:
+       растягивать её сверх настоящего размера — только мылить. Раньше
+       в таком случае курсор всё равно обещал увеличение, а нажатие
+       не делало ничего. */
+    var updateZoomable = function () {
+      viewer.dataset.zoomable = String(
+        viewerImg.naturalWidth > viewerImg.clientWidth + 1
+        || viewerImg.naturalHeight > viewerImg.clientHeight + 1
+      );
+    };
+
+    viewerImg.addEventListener('load', updateZoomable);
+    // При смене размера окна картинка может как перестать помещаться,
+    // так и наоборот.
+    window.addEventListener('resize', updateZoomable);
+
+    var setZoom = function (on, point) {
+      // Размер до переключения — от него и поедет превращение.
+      var before = viewerImg.getBoundingClientRect();
+
+      viewer.dataset.zoomed = String(on);
+
+      if (on) {
+        // Прокручиваем к той точке, по которой человек кликнул, —
+        // иначе после увеличения он оказывается в левом верхнем углу.
+        var x = point ? point.x : 0.5;
+        var y = point ? point.y : 0.5;
+
+        viewerScroll.scrollLeft = viewerImg.offsetWidth * x - viewerScroll.clientWidth / 2;
+        viewerScroll.scrollTop = viewerImg.offsetHeight * y - viewerScroll.clientHeight / 2;
+      }
+
+      growFrom(before, on ? point : null);
     };
 
     var closeViewer = function () {
@@ -183,6 +245,14 @@
       setZoom(false);
       viewer.showModal();
       document.body.dataset.viewerOpen = 'true';
+
+      // Помещается ли картинка, считаем при её загрузке. Но если она
+      // уже в памяти браузера, события загрузки не будет — тогда
+      // считаем прямо сейчас, окно к этому моменту открыто и размеры
+      // известны.
+      if (viewerImg.complete) {
+        updateZoomable();
+      }
     };
 
     zoomLinks.forEach(function (link) {
@@ -226,6 +296,11 @@
     }
 
     viewerImg.addEventListener('click', function (event) {
+      // Увеличивать нечего — нажатие ничего не значит.
+      if (viewer.dataset.zoomable !== 'true') {
+        return;
+      }
+
       if (viewer.dataset.zoomed === 'true') {
         setZoom(false);
         return;
@@ -259,7 +334,8 @@
     }, { passive: true });
 
     viewer.addEventListener('touchmove', function (event) {
-      if (event.touches.length !== 2 || !pinchFrom) {
+      if (event.touches.length !== 2 || !pinchFrom
+          || viewer.dataset.zoomable !== 'true') {
         return;
       }
 
