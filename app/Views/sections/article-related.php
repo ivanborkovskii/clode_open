@@ -17,7 +17,7 @@ if ($related === []) {
     return;
 }
 ?>
-<section class="section section--tight">
+<section class="section section--tight article-related">
     <div class="container">
         <div class="section-head section-head--center">
             <h2><?= View::e($texts['article']['related']) ?></h2>
