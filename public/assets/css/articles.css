@@ -657,17 +657,27 @@
 .rating__stars:hover .rating__star svg,
 .rating__stars:focus-within .rating__star svg { fill: none; }
 
-.rating__star:hover,
-.rating__star:hover ~ .rating__star,
-.rating__star:focus-visible,
-.rating__star:focus-visible ~ .rating__star {
+/* Селекторы намеренно начинаются с .rating__stars, хотя без него они
+   выглядели бы короче.
+
+   Правило выше гасит все звёзды, пока указатель внутри строки, — и весит
+   три класса. Само по себе .rating__star:hover весит два и проигрывало
+   ему: наведённая звезда гасла вместе с остальными, а загорались только
+   те, что идут за ней. Получалось, что наводишь на пятую, а горят четыре.
+
+   С .rating__stars впереди вес одинаковый, и побеждает то правило,
+   что ниже, — то есть это. */
+.rating__stars .rating__star:hover,
+.rating__stars .rating__star:hover ~ .rating__star,
+.rating__stars .rating__star:focus-visible,
+.rating__stars .rating__star:focus-visible ~ .rating__star {
   color: #f0a41e;
 }
 
-.rating__star:hover svg,
-.rating__star:hover ~ .rating__star svg,
-.rating__star:focus-visible svg,
-.rating__star:focus-visible ~ .rating__star svg { fill: currentColor; }
+.rating__stars .rating__star:hover svg,
+.rating__stars .rating__star:hover ~ .rating__star svg,
+.rating__stars .rating__star:focus-visible svg,
+.rating__stars .rating__star:focus-visible ~ .rating__star svg { fill: currentColor; }
 
 .rating__star:hover { transform: translateY(-1px); }
 
