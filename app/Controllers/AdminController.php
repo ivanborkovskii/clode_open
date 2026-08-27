@@ -797,11 +797,14 @@ final class AdminController extends Controller
             // всё равно должна открыться.
         }
 
+        // Второй аргумент — запрет хранить страницу в браузере. Для админки
+        // это обязательно: после выхода её содержимое не должно доставаться
+        // кнопкой «назад».
         $this->html($this->view->render($template, $data + [
             'seo'    => ['title' => 'Управление статьями', 'noindex' => true],
             'counts' => $counts,
             'auth'   => (int) ($_SESSION['admin_id'] ?? 0) > 0,
-        ], 'layouts/admin'));
+        ], 'layouts/admin'), false);
     }
 
     /**

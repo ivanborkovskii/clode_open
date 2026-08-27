@@ -35,6 +35,16 @@ final class Session
             session_save_path($dir);
         }
 
+        // PHP вместе с сессией сам ставит заголовки кэширования, и ставит
+        // их наотмашь: no-store, Pragma: no-cache и Expires с датой
+        // 19 ноября 1981 года. no-store запрещает браузеру даже хранить
+        // страницу — а значит выключает мгновенный возврат по кнопке
+        // «назад» и не даёт ответить «не изменилось».
+        //
+        // Отключаем это здесь, а нужные заголовки страница ставит сама,
+        // в Controller::html(). Строка обязана идти до session_start().
+        session_cache_limiter('');
+
         @session_start([
             'cookie_httponly' => true,
             'cookie_samesite' => 'Lax',
