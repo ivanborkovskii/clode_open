@@ -135,7 +135,7 @@ abstract class Controller
         // успешный ответ. У страницы «не найдено» свой код, и подменять
         // его на 304 нельзя.
         if (http_response_code() === 200
-            && trim((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? '')) === $etag
+            && self::etagMatches((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''), $etag)
         ) {
             http_response_code(304);
 
@@ -143,6 +143,54 @@ abstract class Controller
         }
 
         echo $body;
+    }
+
+    /**
+     * Тот ли это отпечаток, который мы выдали в прошлый раз.
+     *
+     * Сравнивать строки напрямую нельзя: до браузера отпечаток доходит
+     * изменённым, и обратно приходит уже не тот, что ставил PHP.
+     *
+     *   * Apache при сжатии страницы дописывает в него -gzip:
+     *     "abc" превращается в "abc-gzip";
+     *   * nginx в такой же ситуации помечает его «слабым» — W/"abc";
+     *   * браузер может прислать несколько отпечатков через запятую
+     *     и звёздочку вместо любого из них.
+     *
+     * Из-за этого страницы отвечали 200 вместо 304, и аудит писал,
+     * что браузерного кэширования нет.
+     *
+     * Слабое сравнение здесь и нужно: по правилам протокола ответ
+     * «не изменилось» на нём и основан — важно, что страница та же
+     * по смыслу, а не побайтово.
+     */
+    private static function etagMatches(string $header, string $etag): bool
+    {
+        $header = trim($header);
+
+        if ($header === '') {
+            return false;
+        }
+
+        foreach (explode(',', $header) as $candidate) {
+            $candidate = trim($candidate);
+
+            if ($candidate === '*' || self::bareEtag($candidate) === $etag) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Отпечаток без пометки «слабый» и без следа сжатия. */
+    private static function bareEtag(string $tag): string
+    {
+        if (str_starts_with($tag, 'W/')) {
+            $tag = substr($tag, 2);
+        }
+
+        return preg_replace('/-(gzip|br|deflate)"$/', '"', $tag) ?? $tag;
     }
 
     protected function redirect(string $location, int $status = 302): void
