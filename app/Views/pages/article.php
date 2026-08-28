@@ -18,12 +18,14 @@
  * @var array $related
  * @var array $texts
  * @var array $seo
+ * @var array $author Имя, должность и портрет автора
  * @var array $state  Результат отправки комментария
  * @var array $form   Результат отправки заявки
  */
 ?>
 <?php $view->partial('sections/article-head', [
     'article' => $article,
+    'author'  => $author,
     'crumbs'  => $seo['breadcrumbs'],
 ]); ?>
 

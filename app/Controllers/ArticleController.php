@@ -142,6 +142,9 @@ final class ArticleController extends Controller
                 'noindex' => $article['status'] !== 'published',
             ],
             'article' => $article,
+            // Автор разобран на имя, должность и портрет — шаблону остаётся
+            // только вывести.
+            'author'  => $this->authorCard((string) $article['author']),
             'rating'  => [
                 'summary' => $ratings->summary($id),
                 'mine'    => $ratings->of($id, $this->voter()),
@@ -685,6 +688,32 @@ final class ArticleController extends Controller
     }
 
     /**
+     * Карточка автора: имя, должность, портрет.
+     *
+     * Одно место на две надобности — подпись под заголовком статьи
+     * и микроразметка. Иначе решение «чей это автор» пришлось бы
+     * повторять дважды и однажды разойтись.
+     *
+     * Портрет ставится только владельцу сайта. Автор в админке пишется
+     * свободной строкой: если однажды статью подпишет кто-то другой,
+     * его имя с чужой фотографией было бы прямым обманом читателя.
+     *
+     * @return array{name: string, role: string, photo: string}
+     */
+    private function authorCard(string $author): array
+    {
+        $company = $this->config['company'];
+        $person  = Text::person($author !== '' ? $author : (string) $company['name']);
+
+        $own = mb_strtolower($person['name'])
+            === mb_strtolower(trim((string) $company['name']));
+
+        return $person + [
+            'photo' => $own ? (string) ($company['photo'] ?? '') : '',
+        ];
+    }
+
+    /**
      * Автор статьи для микроразметки.
      *
      * В поле статьи пишут «Иван Борковский, основатель компании» — одной
@@ -695,18 +724,19 @@ final class ArticleController extends Controller
      */
     private function author(string $author): array
     {
-        $author = trim($author !== '' ? $author : $this->config['company']['name']);
-        $comma  = mb_strpos($author, ',');
+        $card = $this->authorCard($author);
 
-        if ($comma === false) {
-            return ['@type' => 'Person', 'name' => $author];
+        $node = ['@type' => 'Person', 'name' => $card['name']];
+
+        if ($card['role'] !== '') {
+            $node['jobTitle'] = $card['role'];
         }
 
-        return [
-            '@type'    => 'Person',
-            'name'     => trim(mb_substr($author, 0, $comma)),
-            'jobTitle' => trim(mb_substr($author, $comma + 1)),
-        ];
+        if ($card['photo'] !== '') {
+            $node['image'] = $this->config['base_url'] . $card['photo'];
+        }
+
+        return $node;
     }
 
     /**

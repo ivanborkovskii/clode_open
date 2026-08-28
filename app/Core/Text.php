@@ -216,4 +216,32 @@ final class Text
 
         return (int) date('j', $time) . ' ' . $months[(int) date('n', $time)] . ' ' . date('Y', $time);
     }
+
+    /**
+     * Автор статьи разбирается на имя и должность.
+     *
+     * В админке автор пишется одной строкой: «Иван Борковский, основатель
+     * компании». Отдельных полей нет намеренно — заполнять два поля ради
+     * одной строки неудобно. Разделяет первая запятая: в должности она
+     * встречается, в имени — нет.
+     *
+     * Разбор нужен в двух местах — под заголовком статьи и в микроразметке.
+     * Поэтому он здесь, а не в каждом по отдельности.
+     *
+     * @return array{name: string, role: string}
+     */
+    public static function person(string $author): array
+    {
+        $author = trim($author);
+        $comma  = mb_strpos($author, ',');
+
+        if ($comma === false) {
+            return ['name' => $author, 'role' => ''];
+        }
+
+        return [
+            'name' => trim(mb_substr($author, 0, $comma)),
+            'role' => trim(mb_substr($author, $comma + 1)),
+        ];
+    }
 }

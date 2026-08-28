@@ -2,10 +2,13 @@
 /**
  * Шапка статьи: крошки, заголовок, выходные данные и обложка.
  *
- * Дата, время чтения, категория и автор стоят сразу под заголовком —
- * по ним читатель решает, тратить ли на статью десять минут.
+ * Дата, время чтения и категория стоят сразу под заголовком — по ним
+ * читатель решает, тратить ли на статью десять минут. Автор вынесен
+ * из этой строки отдельным блоком: с портретом он в неё не помещался,
+ * да и подпись человека — не то же самое, что выходные данные.
  *
  * @var array $article
+ * @var array $author  name, role, photo
  * @var array $crumbs
  */
 
@@ -52,10 +55,29 @@ use App\Core\View;
                    href="/stati/kategoriya/<?= View::e($article['category_slug']) ?>">
                     <?= View::e($article['category_name']) ?>
                 </a>
-                <?php if ($article['author'] !== ''): ?>
-                    <span>Автор: <?= View::e($article['author']) ?></span>
-                <?php endif; ?>
             </p>
+
+            <?php
+            // Подпись автора. Портрет показывается, только если он задан:
+            // у чужого автора его не будет, и блок останется просто
+            // именем с должностью.
+            ?>
+            <?php if (($author['name'] ?? '') !== ''): ?>
+                <div class="author">
+                    <?php if ($author['photo'] !== ''): ?>
+                        <img class="author__photo"
+                             src="<?= View::e($author['photo']) ?>"
+                             width="56" height="56" loading="lazy"
+                             alt="<?= View::e($author['name']) ?>">
+                    <?php endif; ?>
+                    <span class="author__text">
+                        <span class="author__name"><?= View::e($author['name']) ?></span>
+                        <?php if ($author['role'] !== ''): ?>
+                            <span class="author__role"><?= View::e($author['role']) ?></span>
+                        <?php endif; ?>
+                    </span>
+                </div>
+            <?php endif; ?>
         </div>
 
         <?php if ($article['cover'] !== ''): ?>

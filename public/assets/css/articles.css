@@ -411,6 +411,47 @@
   color: var(--text-invert-muted);
 }
 
+/* Подпись автора: портрет кружком, рядом имя и должность.
+
+   Стоит отдельным блоком под выходными данными, а не в их строке:
+   с портретом автор туда не помещался, да и подпись человека — не то же
+   самое, что дата и время чтения.
+
+   Шапка статьи тёмная, поэтому цвета здесь свои, не как у обычного текста. */
+.author {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+}
+
+.author__photo {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* Тонкая рамка отделяет светлый снимок от тёмного фона. */
+  border: 1px solid var(--line-invert);
+}
+
+.author__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.author__name {
+  font-weight: 700;
+  color: var(--text-invert);
+}
+
+.author__role {
+  font-size: var(--fs-sm);
+  color: var(--text-invert-muted);
+}
+
 .article-head__cover {
   margin: clamp(2rem, 1.5rem + 2vw, 3rem) 0 0;
 }
