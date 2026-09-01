@@ -47,8 +47,27 @@ $menu = [
             <a class="header__phone" href="tel:<?= View::e($company['phone_href']) ?>">
                 <?= View::e($company['phone']) ?>
             </a>
-            <a class="btn btn--primary header__cta" href="#zayavka">Оставить заявку</a>
         </div>
+
+        <?php
+        // Кнопка заявки видна и на телефоне: шапка едет вместе с прокруткой,
+        // и в длинной статье она остаётся единственным способом оставить
+        // заявку, не долистав до конца. Телефон и меню на телефоне прячутся,
+        // кнопка — нет.
+        //
+        // Надписи две, показывается одна: на узком экране «Оставить заявку»
+        // не помещается рядом с логотипом, и вместо того чтобы резать
+        // логотип, режем надпись. Какая именно видна — решают стили.
+        //
+        // На правовых страницах формы заявки нет, и якорь вёл бы в никуда —
+        // там кнопка отправляет на «Контакты».
+        $hasForm = !in_array($current, ['/privacy', '/soglasie'], true);
+        ?>
+        <a class="btn btn--primary header__cta"
+           href="<?= $hasForm ? '#zayavka' : '/kontakty#zayavka' ?>">
+            <span class="header__cta-long">Оставить заявку</span>
+            <span class="header__cta-short">Заявка</span>
+        </a>
 
         <button class="burger" type="button"
                 aria-label="Открыть меню"
@@ -81,6 +100,8 @@ $menu = [
         <a class="mobile-menu__mail" href="mailto:<?= View::e($company['email']) ?>">
             <?= View::e($company['email']) ?>
         </a>
-        <a class="btn btn--primary btn--block" href="#zayavka" data-menu-close>Оставить заявку</a>
+        <a class="btn btn--primary btn--block"
+           href="<?= $hasForm ? '#zayavka' : '/kontakty#zayavka' ?>"
+           data-menu-close>Оставить заявку</a>
     </div>
 </div>
