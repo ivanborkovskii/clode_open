@@ -1137,6 +1137,82 @@ body[data-viewer-open='true'] { overflow: hidden; }
   color: var(--text-invert-muted);
 }
 
+/* Мессенджеры.
+
+   Один блок на три места: подвал, «Можно связаться напрямую» и страницу
+   «Контакты». Два первых — на тёмном фоне, страница «Контакты» — на
+   светлом, поэтому цвета вынесены в переменные блока и подменяются
+   модификатором. */
+.messengers {
+  --messenger-line: var(--line);
+  --messenger-text: var(--text);
+  --messenger-bg: var(--paper);
+}
+
+.messengers__title {
+  margin-bottom: var(--s-3);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.messengers__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.messenger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  /* По высоте — не меньше 44 точек: на телефоне в такую ссылку
+     нужно попасть пальцем. */
+  min-height: 44px;
+  padding: 0.5rem 0.875rem;
+  background: var(--messenger-bg);
+  border: 1px solid var(--messenger-line);
+  border-radius: var(--radius-sm);
+  color: var(--messenger-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color var(--transition), color var(--transition),
+    background var(--transition);
+}
+
+.messenger:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.messenger__icon {
+  flex: none;
+}
+
+/* На тёмном фоне: подвал и блок прямой связи. */
+.messengers--invert {
+  --messenger-line: var(--line-invert);
+  --messenger-text: var(--text-invert);
+  --messenger-bg: transparent;
+}
+
+.messengers--invert .messenger:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* На странице «Контакты» блок стоит под сеткой способов связи.
+   Линия во всю ширину отделяет его от карточек: без неё он читается
+   как продолжение первой колонки. */
+.messengers--wide {
+  margin-top: var(--s-7);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--line);
+}
+
 .form-card {
   padding: clamp(1.5rem, 1.2rem + 2vw, 2.5rem);
   background: var(--paper);

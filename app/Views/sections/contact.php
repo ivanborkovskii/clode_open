@@ -43,6 +43,11 @@ $old = static fn (string $field): string => View::e($values[$field] ?? '');
                     <address class="contact__address" style="font-style: normal;">
                         <?= View::e($company['address']) ?>
                     </address>
+
+                    <?php $view->partial('partials/messengers', [
+                        'title'    => 'Или написать в мессенджер',
+                        'modifier' => 'messengers--invert',
+                    ]); ?>
                 </div>
                 <?php endif; ?>
             </div>

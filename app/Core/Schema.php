@@ -96,7 +96,14 @@ final class Schema
         //
         // Пустого поля в разметке быть не должно: добавляем, только если
         // ссылки заданы.
-        $sameAs = array_values(array_filter($company['social'] ?? []));
+        // Мессенджеры сюда же: ссылка в личные сообщения — такая же
+        // страница компании в другом месте. Отдельно их в social
+        // не вписывают, чтобы один адрес не жил в конфиге дважды.
+        $messengers = array_column($company['messengers'] ?? [], 'href');
+
+        $sameAs = array_values(array_unique(
+            array_filter(array_merge($company['social'] ?? [], $messengers))
+        ));
 
         if ($sameAs !== []) {
             $node['sameAs'] = $sameAs;

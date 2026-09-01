@@ -56,5 +56,12 @@ $link = [
                 </div>
             <?php endforeach; ?>
         </div>
+
+        <?php // Мессенджеры — отдельной строкой под способами связи:
+              // это ссылки, а не карточки с пояснением. ?>
+        <?php $view->partial('partials/messengers', [
+            'title'    => $ways['messengers'] ?? '',
+            'modifier' => 'messengers--wide',
+        ]); ?>
     </div>
 </section>

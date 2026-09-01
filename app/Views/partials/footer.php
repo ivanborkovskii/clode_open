@@ -43,6 +43,10 @@ $columns = [
                     </a>
                     <a href="mailto:<?= View::e($company['email']) ?>"><?= View::e($company['email']) ?></a>
                     <address style="font-style: normal;"><?= View::e($company['address']) ?></address>
+
+                    <?php $view->partial('partials/messengers', [
+                        'modifier' => 'messengers--invert',
+                    ]); ?>
                 </div>
             </div>
 
