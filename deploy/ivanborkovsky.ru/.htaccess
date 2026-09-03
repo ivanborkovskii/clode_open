@@ -48,10 +48,10 @@
     RewriteRule ^uslugi/vnedrenie/vnedrenie-bitrix24(\.php)?/?$ https://crm.ivanborkovsky.ru/uslugi/vnedrenie-bitrix24 [L,R=301]
     RewriteRule ^uslugi/vnedrenie/vnedrenie-amocrm(\.php)?/?$ https://crm.ivanborkovsky.ru/uslugi/vnedrenie-amocrm [L,R=301]
 
-    # Страницы тарифов ведут на соответствующую услугу: цен на новом
-    # сайте нет, и ближе всего к «сколько стоит Битрикс24» — страница
-    # о внедрении Битрикс24.
-    RewriteRule ^tarify/tarify-bitrix24(\.php)?/?$ https://crm.ivanborkovsky.ru/uslugi/vnedrenie-bitrix24 [L,R=301]
+    # Тарифы Битрикс24 — на страницу тарифов нового сайта: там те же
+    # лицензии и цены. По amoCRM такой страницы пока нет, поэтому её
+    # тарифы ведут на соответствующую услугу.
+    RewriteRule ^tarify/tarify-bitrix24(\.php)?/?$ https://crm.ivanborkovsky.ru/tarify/bitriks24 [L,R=301]
     RewriteRule ^tarify/tarify-amocrm(\.php)?/?$ https://crm.ivanborkovsky.ru/uslugi/vnedrenie-amocrm [L,R=301]
 
     # Раздел услуг целиком — на список услуг нового сайта.

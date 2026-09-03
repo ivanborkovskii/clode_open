@@ -16,6 +16,7 @@ $columns = [
         ['label' => 'Настройка и доработка CRM', 'href' => '/uslugi/nastroyka-i-dorabotka-crm'],
         ['label' => 'Интеграции',                'href' => '/uslugi/integracii'],
         ['label' => 'Сопровождение CRM',         'href' => '/uslugi/soprovozhdenie-crm'],
+        ['label' => 'Тарифы Битрикс24',          'href' => '/tarify/bitriks24'],
     ],
     'Решения' => [
         ['label' => 'Продажи',                 'href' => '/resheniya/prodazhi'],

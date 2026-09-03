@@ -220,4 +220,61 @@ final class Schema
             ),
         ];
     }
+
+    /**
+     * Тарифы как товары с ценой.
+     *
+     * Нужна на странице тарифов: без разметки поисковик видит только
+     * набор чисел в вёрстке и не понимает, что это цены и к чему они
+     * относятся.
+     *
+     * Товар здесь чужой — лицензия Битрикс24, поэтому у каждого тарифа
+     * указан производитель, а продавец не указан вовсе: цену назначает
+     * Битрикс24, а не мы.
+     *
+     * Цена за месяц идёт двумя полями сразу. price понимают все
+     * поисковики, но в нём нельзя сказать «в месяц» — за это отвечает
+     * priceSpecification. Без него 2 490 ₽ читались бы как цена навсегда.
+     *
+     * @param  array<int, array{name:string, users:string, month:int, year:int}> $plans
+     * @return array<string, mixed>
+     */
+    public static function products(string $url, string $brand, array $plans): array
+    {
+        return [
+            '@type' => 'ItemList',
+            '@id'   => $url . '#tarify',
+            'itemListElement' => array_map(
+                static function (int $i, array $plan) use ($url, $brand): array {
+                    $price = (string) $plan['month'];
+
+                    return [
+                        '@type'    => 'ListItem',
+                        'position' => $i + 1,
+                        'item'     => [
+                            '@type'       => 'Product',
+                            'name'        => $brand . ' ' . $plan['name'],
+                            'description' => $plan['users'],
+                            'brand'       => ['@type' => 'Brand', 'name' => $brand],
+                            'offers' => [
+                                '@type'         => 'Offer',
+                                'url'           => $url,
+                                'price'         => $price,
+                                'priceCurrency' => 'RUB',
+                                'availability'  => 'https://schema.org/InStock',
+                                'priceSpecification' => [
+                                    '@type'         => 'UnitPriceSpecification',
+                                    'price'         => $price,
+                                    'priceCurrency' => 'RUB',
+                                    'unitText'      => 'месяц',
+                                ],
+                            ],
+                        ],
+                    ];
+                },
+                array_keys($plans),
+                array_values($plans),
+            ),
+        ];
+    }
 }

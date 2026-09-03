@@ -22,6 +22,7 @@ $isActive = static fn (string $href): bool =>
 $menu = [
     ['label' => 'Услуги',     'href' => '/uslugi'],
     ['label' => 'Решения',    'href' => '/resheniya'],
+    ['label' => 'Тарифы',     'href' => '/tarify/bitriks24'],
     ['label' => 'Кейсы',      'href' => '/keysy'],
     ['label' => 'Статьи',     'href' => '/stati'],
     ['label' => 'О компании', 'href' => '/o-kompanii'],

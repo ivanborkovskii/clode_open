@@ -856,3 +856,199 @@
   .stage:not(:last-child)::before { display: none; }
   .stage__body { padding-top: 0; }
 }
+
+/* --------------------------------------------------------------------------
+   Тарифы
+
+   Карточки для выбора и таблица для проверки. Цифры и списки — данные
+   Битрикс24, поэтому оформление сдержанное: никаких «выгодно» и «хит
+   продаж», которых нет в источнике.
+   -------------------------------------------------------------------------- */
+
+.tarifs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.tarif {
+  display: flex;
+  flex-direction: column;
+  padding: var(--s-5);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  /* Верхняя линия акцентом — тот же приём, что у блока стоимости
+     сопровождения: цена на странице выделяется цветом, а не заливкой. */
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.tarif__name {
+  font-size: var(--fs-h4);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.tarif__users {
+  margin-top: var(--s-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.tarif__price {
+  margin-top: var(--s-5);
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.tarif__per {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Строка про оплату за год держит высоту даже пустой — у бесплатного
+   тарифа её нет, а карточки должны стоять вровень. */
+.tarif__year {
+  margin-top: var(--s-2);
+  min-height: 2.6em;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.tarif__title {
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.tarif__list {
+  display: grid;
+  gap: var(--s-2);
+  margin: var(--s-4) 0 var(--s-5);
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.tarif__list li {
+  position: relative;
+  padding-left: var(--s-5);
+  line-height: 1.45;
+}
+
+.tarif__list li::before {
+  content: '';
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 10px;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* Кнопки прижаты к низу карточки: списки разной длины, а кнопки
+   должны стоять на одной линии. */
+.tarif .btn {
+  margin-top: auto;
+  width: 100%;
+  min-height: 46px;
+  font-size: var(--fs-sm);
+}
+
+/* --- Таблица сравнения --- */
+
+.tarif-table__scroll {
+  overflow-x: auto;
+  /* Полоса прокрутки принадлежит таблице, а не странице: сама страница
+     вбок не едет. */
+  overscroll-behavior-x: contain;
+}
+
+.tarif-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.tarif-table th,
+.tarif-table td {
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.tarif-table thead th {
+  border-bottom: 2px solid var(--ink-900);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.tarif-table tbody th {
+  font-weight: 400;
+  color: var(--text);
+}
+
+.tarif-table td,
+.tarif-table thead th:not(:first-child) {
+  width: 15%;
+  text-align: center;
+}
+
+.tarif-table tbody tr:hover { background: var(--paper); }
+
+.tarif-table__price { font-weight: 700; white-space: nowrap; }
+
+.tarif-table__year {
+  display: block;
+  margin-top: var(--s-1);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.tarif-table__yes { color: var(--accent); font-weight: 700; }
+.tarif-table__no { color: var(--text-muted); opacity: 0.5; }
+
+/* --- Примечания --- */
+
+.tarif-note {
+  margin-top: var(--s-6);
+  padding: var(--s-4) var(--s-5);
+  background: var(--paper-alt);
+  border-left: 3px solid var(--accent);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.tarif-separate h2 {
+  margin-top: var(--s-3);
+  font-size: var(--fs-h3);
+}
+
+.tarif-separate__text {
+  margin: var(--s-4) 0 var(--s-5);
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+@media (max-width: 1149px) {
+  .tarifs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639px) {
+  .tarifs { grid-template-columns: minmax(0, 1fr); }
+
+  /* Таблице нужна минимальная ширина, иначе колонки сжимаются
+     до нечитаемых: пусть лучше прокручивается вбок. */
+  .tarif-table { min-width: 34rem; }
+}

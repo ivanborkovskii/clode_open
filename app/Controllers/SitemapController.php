@@ -43,6 +43,7 @@ final class SitemapController extends Controller
             '/soglasie' => '0.3',
         ];
         // Адреса разделов берутся из самих контроллеров — список в одном месте.
+        $paths[TariffController::BITRIX] = '0.8';
         $paths['/resheniya'] = '0.9';
         $paths['/keysy']     = '0.9';
         $paths['/stati']     = '0.9';

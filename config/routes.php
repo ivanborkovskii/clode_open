@@ -23,6 +23,8 @@ $router->get('/uslugi/{slug}', 'ServiceController@show', ServiceController::path
 $router->get('/resheniya', 'SolutionController@index');
 $router->get('/resheniya/{slug}', 'SolutionController@show', SolutionController::paths());
 
+$router->get('/tarify/bitriks24', 'TariffController@bitrix');
+
 $router->get('/keysy', 'CaseController@index');
 $router->get('/keysy/{slug}', 'CaseController@show', CaseController::paths());
 
