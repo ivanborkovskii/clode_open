@@ -20,8 +20,11 @@ final class TaxonomyRepository extends Repository
     public function categories(): array
     {
         return $this->all(
+            // updated_at — дата самой свежей статьи в категории. Нужна карте
+            // сайта: сама категория не меняется, меняется её состав.
             "SELECT c.id, c.slug, c.name, c.title, c.description, c.position,
-                    COUNT(a.id) AS articles
+                    COUNT(a.id) AS articles,
+                    MAX(a.updated_at) AS updated_at
                FROM categories c
                LEFT JOIN articles a
                       ON a.category_id = c.id AND a.status = 'published'

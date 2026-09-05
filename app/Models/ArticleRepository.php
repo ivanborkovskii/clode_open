@@ -318,12 +318,34 @@ final class ArticleRepository extends Repository
                 );
             }
 
+            // Темы статьи лежат отдельной таблицей, и база сама по ним
+            // дату изменения статьи не двигает. А для карты сайта смена
+            // тем — это изменение страницы: подпись под текстом другая.
+            // Поэтому сверяем состав тем и, если он поменялся, отмечаем
+            // статью изменённой.
+            $tagIds = array_values(array_unique($tagIds));
+            $was    = array_map('intval', array_column(
+                $this->all('SELECT tag_id FROM article_tag WHERE article_id = :id', ['id' => $id]),
+                'tag_id',
+            ));
+
             $this->run('DELETE FROM article_tag WHERE article_id = :id', ['id' => $id]);
 
-            foreach (array_unique($tagIds) as $tagId) {
+            foreach ($tagIds as $tagId) {
                 $this->run(
                     'INSERT INTO article_tag (article_id, tag_id) VALUES (:article, :tag)',
                     ['article' => $id, 'tag' => $tagId],
+                );
+            }
+
+            sort($was);
+            $now = array_map('intval', $tagIds);
+            sort($now);
+
+            if ($was !== $now) {
+                $this->run(
+                    'UPDATE articles SET updated_at = CURRENT_TIMESTAMP WHERE id = :id',
+                    ['id' => $id],
                 );
             }
 

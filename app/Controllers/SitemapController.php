@@ -5,6 +5,12 @@
  * Сразу сделана как индекс из нескольких файлов: при тысячах SEO-статей
  * один файл не подойдёт (лимит поисковых систем — 50 000 URL на файл).
  * Сейчас в индексе два файла: постоянные страницы и статьи.
+ *
+ * Про даты изменения. Раньше у всех постоянных страниц стояла сегодняшняя
+ * дата: сайт каждый день сообщал поисковику, что изменилось всё. Такому
+ * полю перестают верить целиком — вместе с честными датами статей.
+ * Поэтому дата теперь либо настоящая, либо не выводится вовсе:
+ * по спецификации поле необязательное, и его отсутствие лучше вранья.
  */
 
 declare(strict_types=1);
@@ -13,34 +19,101 @@ namespace App\Controllers;
 
 use App\Models\ArticleRepository;
 use App\Models\TaxonomyRepository;
+use PDOException;
 
 final class SitemapController extends Controller
 {
+    /**
+     * Какой страницей какой файл текстов управляет.
+     *
+     * Дата изменения страницы берётся из времени этого файла: тексты
+     * страниц лежат в config/content, и при выкладке обновления файл
+     * заменяется — значит его время и есть время, когда страница
+     * поменялась.
+     *
+     * Страница без файла в этом списке уйдёт в карту без даты.
+     */
+    private const CONTENT = [
+        '/'                                => 'home',
+        '/uslugi'                          => 'services',
+        '/uslugi/vnedrenie-bitrix24'       => 'service-bitrix24',
+        '/uslugi/vnedrenie-amocrm'         => 'service-amocrm',
+        '/uslugi/nastroyka-i-dorabotka-crm' => 'service-dorabotka',
+        '/uslugi/integracii'               => 'service-integracii',
+        '/uslugi/soprovozhdenie-crm'       => 'service-soprovozhdenie',
+        '/resheniya'                       => 'solutions',
+        '/resheniya/prodazhi'              => 'solution-prodazhi',
+        '/resheniya/kommunikacii'          => 'solution-kommunikacii',
+        '/resheniya/analitika'             => 'solution-analitika',
+        '/resheniya/upravlenie-sotrudnikami' => 'solution-sotrudniki',
+        '/keysy'                           => 'cases',
+        '/keysy/gradus-klimata'            => 'case-gradus-klimata',
+        '/keysy/neoray'                    => 'case-neoray',
+        '/keysy/mid'                       => 'case-mid',
+        '/keysy/arsenalsnab'               => 'case-arsenalsnab',
+        '/keysy/obrazovatelnyy-centr'      => 'case-obrazovatelnyy-centr',
+        '/stati'                           => 'articles',
+        '/o-kompanii'                      => 'about',
+        '/kontakty'                        => 'contacts',
+        '/privacy'                         => 'legal',
+        '/soglasie'                        => 'legal',
+        TariffController::BITRIX           => 'tarify-bitrix24',
+    ];
+
     /** Индекс карт: /sitemap.xml */
     public function index(): void
     {
-        $files = ['sitemap-pages.xml', 'sitemap-articles.xml'];
-        $body  = '';
+        $body = '';
 
-        foreach ($files as $file) {
+        // Индекс карт должен открываться и при недоступной базе: без него
+        // поисковик не найдёт и карту постоянных страниц, которой база
+        // не нужна. Поэтому у статей в этом случае просто не будет даты.
+        try {
+            $articles = $this->articleUrls();
+        } catch (PDOException) {
+            $articles = [];
+        }
+
+        foreach (['sitemap-pages.xml' => $this->pageUrls(),
+                  'sitemap-articles.xml' => $articles] as $file => $urls) {
+            // У файла карты дата — самая свежая из тех, что внутри него.
+            $dates = array_filter(array_column($urls, 'lastmod'));
+
             $body .= "  <sitemap><loc>{$this->config['base_url']}/{$file}</loc>"
-                . '<lastmod>' . date('Y-m-d') . "</lastmod></sitemap>\n";
+                . ($dates !== [] ? '<lastmod>' . max($dates) . '</lastmod>' : '')
+                . "</sitemap>\n";
         }
 
         $this->xml('sitemapindex', $body);
     }
 
-    /** Статические страницы: /sitemap-pages.xml */
+    /** Постоянные страницы: /sitemap-pages.xml */
     public function pages(): void
+    {
+        $this->urlset($this->pageUrls());
+    }
+
+    /** Статьи и страницы категорий: /sitemap-articles.xml */
+    public function articles(): void
+    {
+        $this->urlset($this->articleUrls());
+    }
+
+    /**
+     * Постоянные страницы сайта.
+     *
+     * @return array<int, array{loc:string, lastmod:string, priority:string}>
+     */
+    private function pageUrls(): array
     {
         // По мере разработки внутренних страниц список пополняется.
         $paths = [
-            '/'         => '1.0',
-            '/uslugi'   => '0.9',
+            '/'           => '1.0',
+            '/uslugi'     => '0.9',
             '/o-kompanii' => '0.7',
             '/kontakty'   => '0.7',
-            '/privacy'  => '0.3',
-            '/soglasie' => '0.3',
+            '/privacy'    => '0.3',
+            '/soglasie'   => '0.3',
         ];
         // Адреса разделов берутся из самих контроллеров — список в одном месте.
         $paths[TariffController::BITRIX] = '0.8';
@@ -56,43 +129,82 @@ final class SitemapController extends Controller
             $paths[$path] = '0.8';
         }
 
-        $body  = '';
+        $urls = [];
 
         foreach ($paths as $path => $priority) {
-            $body .= "  <url><loc>{$this->config['base_url']}{$path}</loc>"
-                . '<lastmod>' . date('Y-m-d') . "</lastmod>"
-                . "<priority>{$priority}</priority></url>\n";
+            $urls[] = [
+                'loc'      => $this->config['base_url'] . $path,
+                'lastmod'  => $this->pageDate($path),
+                'priority' => $priority,
+            ];
         }
 
-        $this->xml('urlset', $body);
+        return $urls;
     }
 
     /**
-     * Статьи и страницы категорий: /sitemap-articles.xml
+     * Статьи и категории.
      *
      * Даты берутся из базы — поисковик видит, что статья менялась,
-     * и приходит перечитать её.
+     * и приходит перечитать её. У категории дата самой свежей статьи
+     * в ней: сама по себе категория не меняется, меняется её состав.
+     *
+     * Если база недоступна, ошибка не глушится: сам файл карты статей
+     * ответит «временно недоступно», и поисковик придёт за ним позже.
+     * Пустая карта была бы хуже — она выглядит как «статей больше нет».
+     *
+     * @return array<int, array{loc:string, lastmod:string, priority:string}>
      */
-    public function articles(): void
+    private function articleUrls(): array
     {
-        $body = '';
+        $urls = [];
 
         foreach ((new TaxonomyRepository($this->db()))->categories() as $category) {
             if ((int) $category['articles'] === 0) {
                 continue;
             }
 
-            $body .= "  <url><loc>{$this->config['base_url']}/stati/kategoriya/{$category['slug']}</loc>"
-                . '<lastmod>' . date('Y-m-d') . '</lastmod>'
-                . "<priority>0.7</priority></url>\n";
+            $urls[] = [
+                'loc'      => $this->config['base_url'] . '/stati/kategoriya/' . $category['slug'],
+                'lastmod'  => substr((string) ($category['updated_at'] ?? ''), 0, 10),
+                'priority' => '0.7',
+            ];
         }
 
         foreach ((new ArticleRepository($this->db()))->published() as $article) {
-            $modified = substr((string) $article['updated_at'], 0, 10);
+            $urls[] = [
+                'loc'      => $this->config['base_url'] . '/stati/' . $article['slug'],
+                'lastmod'  => substr((string) $article['updated_at'], 0, 10),
+                'priority' => '0.6',
+            ];
+        }
 
-            $body .= "  <url><loc>{$this->config['base_url']}/stati/{$article['slug']}</loc>"
-                . "<lastmod>{$modified}</lastmod>"
-                . "<priority>0.6</priority></url>\n";
+        return $urls;
+    }
+
+    /** Дата изменения постоянной страницы — по времени файла с её текстами. */
+    private function pageDate(string $path): string
+    {
+        $name = self::CONTENT[$path] ?? '';
+
+        if ($name === '') {
+            return '';
+        }
+
+        $time = @filemtime(dirname(__DIR__, 2) . '/config/content/' . $name . '.php');
+
+        return $time === false ? '' : date('Y-m-d', $time);
+    }
+
+    /** @param array<int, array{loc:string, lastmod:string, priority:string}> $urls */
+    private function urlset(array $urls): void
+    {
+        $body = '';
+
+        foreach ($urls as $url) {
+            $body .= "  <url><loc>{$url['loc']}</loc>"
+                . ($url['lastmod'] !== '' ? "<lastmod>{$url['lastmod']}</lastmod>" : '')
+                . "<priority>{$url['priority']}</priority></url>\n";
         }
 
         $this->xml('urlset', $body);
