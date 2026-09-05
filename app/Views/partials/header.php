@@ -101,6 +101,14 @@ $menu = [
         <a class="mobile-menu__mail" href="mailto:<?= View::e($company['email']) ?>">
             <?= View::e($company['email']) ?>
         </a>
+
+        <?php // Мессенджеры и здесь: меню на телефоне — это единственное
+              // место, где собраны все способы связи, и уходить за ними
+              // в подвал через всю страницу незачем. ?>
+        <?php $view->partial('partials/messengers', [
+            'modifier' => 'messengers--invert',
+        ]); ?>
+
         <a class="btn btn--primary btn--block"
            href="<?= $hasForm ? '#zayavka' : '/kontakty#zayavka' ?>"
            data-menu-close>Оставить заявку</a>
