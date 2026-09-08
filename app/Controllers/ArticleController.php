@@ -29,7 +29,13 @@ use App\Models\TaxonomyRepository;
 
 final class ArticleController extends Controller
 {
-    private const PER_PAGE = 9;
+    /**
+     * Сколько статей показывать на одной странице списка.
+     *
+     * Карточки стоят в три колонки, поэтому число кратно трём: последний
+     * ряд заполнен целиком, а не обрывается одной карточкой.
+     */
+    private const PER_PAGE = 18;
 
     public function index(): void
     {
@@ -75,7 +81,13 @@ final class ArticleController extends Controller
         ], $page, self::PER_PAGE);
 
         $content = $this->content('articles');
-        $seo     = $this->listingSeo($category, $selected, $query, $result['page']);
+
+        // В разметку идёт запрошенный номер страницы, а не выданный.
+        // Если страницы с таким номером нет, список показывает первую —
+        // и такой адрес не должен звать поисковик за собой. Особенно
+        // теперь, когда на странице помещается вдвое больше статей:
+        // прежние адреса со второй страницей стали лишними.
+        $seo = $this->listingSeo($category, $selected, $query, $page);
 
         // Состав раздела для поисковика: что за статьи и по каким адресам.
         // Разбирать для этого вёрстку ему не приходится.
