@@ -82,12 +82,11 @@ final class ArticleController extends Controller
 
         $content = $this->content('articles');
 
-        // В разметку идёт запрошенный номер страницы, а не выданный.
-        // Если страницы с таким номером нет, список показывает первую —
-        // и такой адрес не должен звать поисковик за собой. Особенно
-        // теперь, когда на странице помещается вдвое больше статей:
-        // прежние адреса со второй страницей стали лишними.
-        $seo = $this->listingSeo($category, $selected, $query, $page);
+        // В разметку идёт запрошенный номер страницы, а не выданный,
+        // и общее число страниц. По ним видно, настоящая это страница
+        // списка или адрес с номером, которого нет: настоящая должна
+        // попасть в индекс, несуществующая — нет.
+        $seo = $this->listingSeo($category, $selected, $query, $page, (int) $result['pages']);
 
         // Состав раздела для поисковика: что за статьи и по каким адресам.
         // Разбирать для этого вёрстку ему не приходится.
@@ -597,10 +596,22 @@ final class ArticleController extends Controller
      * @param  array<int, array<string, mixed>> $tags
      * @return array<string, mixed>
      */
-    private function listingSeo(?array $category, array $tags, string $query, int $page): array
-    {
-        $content   = $this->content('articles');
-        $isFilered = $tags !== [] || $query !== '' || $page > 1;
+    private function listingSeo(
+        ?array $category,
+        array $tags,
+        string $query,
+        int $page,
+        int $pages,
+    ): array {
+        $content = $this->content('articles');
+
+        // Отбор по темам и поиск в индексе не нужны: это выборки из того же
+        // списка, комбинаций много, а содержимое повторяется.
+        $filtered = $tags !== [] || $query !== '';
+
+        // Адрес со страницей, которой нет. Список в таком случае показывает
+        // первую страницу, и звать за собой поисковика такой адрес не должен.
+        $missing = $page > max(1, $pages);
 
         $crumbs = [['label' => 'Главная', 'href' => '/'], ['label' => 'Статьи', 'href' => '/stati']];
 
@@ -613,15 +624,32 @@ final class ArticleController extends Controller
 
         $base = $category === null ? '/stati' : '/stati/kategoriya/' . $category['slug'];
 
+        // Вторая страница списка — самостоятельная страница, а не копия
+        // первой. Раньше она объявляла своим адресом первую, и поисковик
+        // считал их одной: до статей, лежащих дальше первой страницы,
+        // он не добирался. Теперь каждая страница списка называет свой
+        // собственный адрес.
+        //
+        // У выборок по темам и поиску адрес по-прежнему общий, без
+        // параметров: их в индексе быть не должно, и вести они должны
+        // на чистый список.
+        $self = $filtered || $missing ? $base : $this->link($base, [], '', $page);
+
+        $title = $category === null ? $content['seo']['title'] : $category['title'];
+
+        // Свой заголовок у каждой страницы списка: иначе у них совпадают
+        // и адрес в выдаче, и подпись под ним.
+        if ($page > 1 && !$missing) {
+            $title .= ' — страница ' . $page;
+        }
+
         return [
-            'title' => $category === null
-                ? $content['seo']['title']
-                : $category['title'],
+            'title'       => $title,
             'description' => $category === null
                 ? $content['seo']['description']
                 : $category['description'],
-            'canonical'   => $this->url($base),
-            'noindex'     => $isFilered,
+            'canonical'   => $this->url($self),
+            'noindex'     => $filtered || $missing,
             'breadcrumbs' => $crumbs,
         ];
     }
