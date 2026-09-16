@@ -29,6 +29,26 @@ header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('X-Frame-Options: SAMEORIGIN');
 
+// ОДИН АДРЕС У ОДНОЙ СТРАНИЦЫ.
+//
+// «/uslugi» и «/uslugi/» для человека одно и то же, а для поисковика —
+// два разных адреса с одинаковым содержимым. Раньше оба отвечали «страница
+// найдена», и вес страницы делился между ними. Теперь адрес со слэшем
+// на конце переводит на адрес без него.
+//
+// Код 308, а не 301: он сохраняет способ отправки. При 301 браузер
+// превращает отправку формы в обычный переход и теряет её содержимое.
+// Поисковики понимают 308 так же, как 301.
+$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if ($path !== '/' && str_ends_with($path, '/')) {
+    $query = (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY);
+
+    header('Location: ' . rtrim($path, '/') . ($query !== '' ? '?' . $query : ''), true, 308);
+
+    return;
+}
+
 $router = new Router();
 require $root . '/config/routes.php';
 
