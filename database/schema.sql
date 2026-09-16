@@ -72,6 +72,27 @@ CREATE TABLE IF NOT EXISTS articles (
         REFERENCES categories (id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Прежние адреса статей.
+--
+-- Адрес статьи можно поменять в админке, и без этой таблицы прежний адрес
+-- сразу отвечал бы «страница не найдена». А по нему уже ходят люди
+-- из поиска, из закладок и по чужим ссылкам, и на него у поисковика
+-- записаны накопленные позиции. Поэтому каждый прежний адрес запоминается
+-- и ведёт на нынешний.
+--
+-- Одна строка — один прежний адрес, поэтому он же и первичный ключ:
+-- занять чужой прежний адрес нельзя. Статью удалили — её прежние адреса
+-- уходят вместе с ней.
+CREATE TABLE IF NOT EXISTS article_slugs (
+    slug       VARCHAR(160) NOT NULL,
+    article_id INT UNSIGNED NOT NULL,
+    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (slug),
+    KEY article_slugs_article (article_id),
+    CONSTRAINT article_slugs_article_fk FOREIGN KEY (article_id)
+        REFERENCES articles (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS article_tag (
     article_id INT UNSIGNED NOT NULL,
     tag_id     INT UNSIGNED NOT NULL,

@@ -124,6 +124,29 @@ final class ArticleRepository extends Repository
     }
 
     /** @return array<string, mixed>|null */
+    /**
+     * Нынешний адрес статьи, которая раньше жила по этому адресу.
+     *
+     * Нужен на случай, когда адрес статьи поменяли: прежний должен вести
+     * на нынешний, а не в «страница не найдена». Черновики не в счёт —
+     * неопубликованной статьи для посетителя не существует, и переводить
+     * на неё некуда.
+     *
+     * @return string|null Нынешний адрес или null, если такого прежнего нет
+     */
+    public function movedTo(string $slug): ?string
+    {
+        $row = $this->one(
+            "SELECT a.slug
+               FROM article_slugs s
+               JOIN articles a ON a.id = s.article_id
+              WHERE s.slug = :slug AND a.status = 'published'",
+            ['slug' => $slug],
+        );
+
+        return $row === null ? null : (string) $row['slug'];
+    }
+
     public function findById(int $id): ?array
     {
         $article = $this->one(
@@ -306,6 +329,14 @@ final class ArticleRepository extends Repository
 
                 $id = (int) $this->db->lastInsertId();
             } else {
+                // Прежний адрес нужно запомнить до того, как он пропадёт.
+                // По нему уже ходят из поиска и по чужим ссылкам, и без
+                // записи он ответил бы «страница не найдена».
+                $was = (string) $this->value(
+                    'SELECT slug FROM articles WHERE id = :id',
+                    ['id' => $id],
+                );
+
                 $set = [];
 
                 foreach ($fields as $field) {
@@ -316,7 +347,24 @@ final class ArticleRepository extends Repository
                     'UPDATE articles SET ' . implode(', ', $set) . ' WHERE id = :id',
                     $this->only($data, $fields) + ['id' => $id],
                 );
+
+                if ($was !== '' && $was !== (string) ($data['slug'] ?? '')) {
+                    // REPLACE, а не INSERT: адрес могли менять и возвращать
+                    // обратно не один раз, и повтор не должен всё уронить.
+                    $this->run(
+                        'REPLACE INTO article_slugs (slug, article_id) VALUES (:slug, :id)',
+                        ['slug' => $was, 'id' => $id],
+                    );
+                }
             }
+
+            // Нынешний адрес в списке прежних быть не должен: иначе статья
+            // переводила бы сама на себя по кругу. Такое случается, когда
+            // адрес поменяли и вернули обратно.
+            $this->run(
+                'DELETE FROM article_slugs WHERE slug = :slug',
+                ['slug' => (string) ($data['slug'] ?? '')],
+            );
 
             // Темы статьи лежат отдельной таблицей, и база сама по ним
             // дату изменения статьи не двигает. А для карты сайта смена
