@@ -782,14 +782,15 @@ final class ArticleController extends Controller
         if ($faq !== []) {
             $seo['jsonld'][] = Schema::faq(
                 $this->url('/stati/' . $article['slug']),
-                // В разметку уходит то же самое, что видит человек:
-                // уже очищенный ответ, без тегов, которых на странице
-                // не будет. Расхождение разметки и страницы для поисковика
-                // хуже, чем её отсутствие.
+                // В разметку уходит тот же текст, что видит человек, —
+                // но с более узким набором тегов: в ответе поисковики
+                // разбирают только часть разметки, остальное считают
+                // ошибкой. Текст при этом не меняется, убираются
+                // лишь сами теги.
                 array_map(
                     static fn (array $item): array => [
                         'question' => (string) $item['question'],
-                        'answer'   => Text::safeHtml((string) $item['answer']),
+                        'answer'   => Text::answerHtml((string) $item['answer']),
                     ],
                     $faq,
                 ),

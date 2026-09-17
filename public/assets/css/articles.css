@@ -693,9 +693,13 @@
    7. Вопросы и ответы
    -------------------------------------------------------------------------- */
 
-/* Ответы открыты, а не спрятаны под раскрывающийся блок. Вопрос — это
-   обычный заголовок h3: так он попадает в структуру страницы, и поисковик
-   видит, что здесь отвечают именно на него. */
+/* Ответы свёрнуты и раскрываются по нажатию. Это <details>: без скрипта
+   вопрос всё равно открывается, просто сразу. Плавность добавляет
+   articles.js, анимируя высоту обёртки.
+
+   На индексацию это не влияет: содержимое раскрывающихся блоков
+   поисковики читают целиком — и вопрос остаётся заголовком h3,
+   то есть частью структуры страницы. */
 .faq__title {
   margin: 0 0 var(--s-5);
   font-size: var(--fs-h3);
@@ -706,22 +710,80 @@
 }
 
 .faq__item {
-  padding: var(--s-5) 0;
   border-bottom: 1px solid var(--line);
 }
 
+/* Системный треугольник убираем: в разных браузерах он выглядит
+   по-разному и не попадает в оформление сайта. */
+.faq__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-5) 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq__head::-webkit-details-marker { display: none; }
+
+.faq__head:hover .faq__question { color: var(--accent); }
+
+/* Рамка по нажатию не нужна, а по клавише Tab — нужна: без неё
+   с клавиатуры не видно, на каком вопросе находишься. */
+.faq__head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .faq__question {
-  margin: 0 0 var(--s-3);
+  margin: 0;
   font-size: var(--fs-lead);
   line-height: 1.35;
   color: var(--ink-900);
+  transition: color 0.15s ease;
 }
 
-/* У ответа внутри обычная вёрстка текста, поэтому на нём класс prose.
-   Здесь только убираем внешние отступы: расстояние между вопросами
-   задаёт сам блок. */
+/* Стрелка нарисована двумя границами: внутри <summary> по правилам
+   разметки может стоять либо текст, либо один заголовок — картинку
+   рядом с заголовком туда не поставить. */
+.faq__head::after {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: translateY(-3px) rotate(45deg);
+  transition: transform 0.25s ease;
+}
+
+.faq__item[open] .faq__head::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+
+/* Высоту этой обёртки и анимирует скрипт. */
+.faq__wrap {
+  overflow: hidden;
+  transition: height 0.25s ease;
+}
+
+.faq__answer {
+  padding-bottom: var(--s-5);
+}
+
 .faq__answer > :first-child { margin-top: 0; }
 .faq__answer > :last-child { margin-bottom: 0; }
+
+/* Кому движение мешает — открывается сразу. */
+@media (prefers-reduced-motion: reduce) {
+  .faq__wrap,
+  .faq__head::after,
+  .faq__question {
+    transition: none;
+  }
+}
 
 /* --------------------------------------------------------------------------
    8. Оценка
