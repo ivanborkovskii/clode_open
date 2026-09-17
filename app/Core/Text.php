@@ -39,6 +39,102 @@ final class Text
         return trim($value, '-');
     }
 
+    /**
+     * Оглавление статьи: якоря у заголовков и список разделов.
+     *
+     * Собирается из самого текста, а не пишется руками: автор размечает
+     * разделы заголовками, как и раньше, а оглавление появляется само
+     * и обновляется вместе с ними.
+     *
+     * Каждому заголовку приписывается якорь — короткий адрес, по которому
+     * на него можно перейти. Делается он из текста заголовка, поэтому
+     * читается: «Как работает интеграция» → «kak-rabotaet-integraciya».
+     * Свой якорь автора, если он его проставил, сохраняется: по нему
+     * могли уже поставить ссылку.
+     *
+     * Уровней два: h2 — раздел, h3 — подраздел внутри него. Более мелкие
+     * заголовки в оглавление не идут, иначе оно становится длиннее статьи.
+     *
+     * @return array{
+     *     html: string,
+     *     items: array<int, array{id: string, text: string, children: array<int, array{id: string, text: string}>}>
+     * }
+     */
+    public static function outline(string $html): array
+    {
+        $flat = [];
+        $used = [];
+
+        $html = preg_replace_callback(
+            '#<h([23])\b([^>]*)>(.*?)</h\1>#is',
+            static function (array $match) use (&$flat, &$used): string {
+                [$whole, $level, $attributes, $inner] = $match;
+
+                $text = self::plain($inner);
+
+                // Заголовок без текста — например, из одной картинки.
+                // Вести в оглавлении на него некуда.
+                if ($text === '') {
+                    return $whole;
+                }
+
+                // Свой якорь автора становится основой, но проверку
+                // на повтор проходит наравне с остальными.
+                $base = '';
+
+                if (preg_match('/\bid\s*=\s*("|\')(.*?)\1/is', $attributes, $own)) {
+                    $base       = trim($own[2]);
+                    $attributes = str_replace($own[0], '', $attributes);
+                }
+
+                if ($base === '') {
+                    $base = self::slug($text);
+                }
+
+                if ($base === '') {
+                    $base = 'razdel';
+                }
+
+                // Два одинаковых заголовка в статье — обычное дело.
+                // Якорь должен быть один на всю страницу, иначе переход
+                // всегда попадает на первый из них.
+                $id     = $base;
+                $number = 2;
+
+                while (isset($used[$id])) {
+                    $id = $base . '-' . $number++;
+                }
+
+                $used[$id] = true;
+                $flat[]    = ['id' => $id, 'text' => $text, 'level' => (int) $level];
+
+                return '<h' . $level . rtrim($attributes)
+                    . ' id="' . $id . '">' . $inner . '</h' . $level . '>';
+            },
+            $html,
+        ) ?? $html;
+
+        // Подразделы складываем внутрь своего раздела. Если статья
+        // начинается сразу с h3, он становится пунктом верхнего уровня:
+        // деваться ему больше некуда.
+        $items = [];
+
+        foreach ($flat as $item) {
+            $level = $item['level'];
+            unset($item['level']);
+
+            if ($level === 2 || $items === []) {
+                $items[] = $item + ['children' => []];
+
+                continue;
+            }
+
+            $items[array_key_last($items)]['children'][] = $item;
+        }
+
+        return ['html' => $html, 'items' => $items];
+    }
+
     /** Текст без разметки: для поиска, анонса и подсчёта времени чтения. */
     public static function plain(string $html): string
     {

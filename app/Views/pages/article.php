@@ -29,7 +29,11 @@
     'crumbs'  => $seo['breadcrumbs'],
 ]); ?>
 
-<?php $view->partial('sections/article-body', ['article' => $article, 'texts' => $texts]); ?>
+<?php $view->partial('sections/article-body', [
+    'article' => $article,
+    'texts'   => $texts,
+    'toc'     => $toc,
+]); ?>
 
 <?php $view->partial('sections/article-related', ['related' => $related, 'texts' => $texts]); ?>
 

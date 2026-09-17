@@ -171,6 +171,13 @@ final class ArticleController extends Controller
         $id       = (int) $article['id'];
         $content  = $this->content('articles');
 
+        // Оглавление собирается из заголовков самого текста, и заодно
+        // текст возвращается с якорями — без них переходить по оглавлению
+        // было бы некуда. Поэтому дальше в шаблон идёт разметка отсюда,
+        // а не исходная из базы.
+        $outline          = Text::outline(Text::safeHtml((string) $article['body']));
+        $article['body']  = $outline['html'];
+
         $this->html($this->view->render('article', [
             'styles'  => ['css/pages.css', 'css/articles.css'],
             'scripts' => ['js/articles.js'],
@@ -180,6 +187,7 @@ final class ArticleController extends Controller
                 'noindex' => $article['status'] !== 'published',
             ],
             'article' => $article,
+            'toc'     => $outline['items'],
             // Автор разобран на имя, должность и портрет — шаблону остаётся
             // только вывести.
             'author'  => $this->authorCard((string) $article['author']),

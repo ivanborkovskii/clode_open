@@ -9,6 +9,7 @@
  *
  * @var array $article
  * @var array $texts
+ * @var array $toc     Разделы статьи для оглавления
  */
 
 use App\Core\Text;
@@ -26,6 +27,14 @@ use App\Core\View;
         // статья осталась на месте. Якоря и кнопку «Оставить заявку»
         // это не затрагивает — они ведут вниз по этой же странице.
         ?>
+        <?php // Оглавление стоит внутри той же колонки, что и текст:
+              // иначе оно шире статьи и выглядит как отдельный блок,
+              // а не как её начало. ?>
+        <?php $view->partial('sections/article-toc', [
+            'toc'   => $toc,
+            'texts' => $texts,
+        ]); ?>
+
         <div class="prose" data-zoom-area>
             <?= Text::newTab(Text::safeHtml((string) $article['body'])) ?>
         </div>
