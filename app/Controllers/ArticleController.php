@@ -175,19 +175,34 @@ final class ArticleController extends Controller
         // текст возвращается с якорями — без них переходить по оглавлению
         // было бы некуда. Поэтому дальше в шаблон идёт разметка отсюда,
         // а не исходная из базы.
-        $outline          = Text::outline(Text::safeHtml((string) $article['body']));
-        $article['body']  = $outline['html'];
+        $outline         = Text::outline(Text::safeHtml((string) $article['body']));
+        $article['body'] = $outline['html'];
+
+        // Вопросы под статьёй заводятся в админке, у каждой статьи свои.
+        $faq = $articles->faq($id);
+
+        if ($faq !== []) {
+            // Блок вопросов идёт в оглавление наравне с разделами статьи:
+            // он такая же её часть, просто живёт в отдельной таблице,
+            // а не в тексте, и потому заголовками не нашёлся.
+            $outline['items'][] = [
+                'id'       => 'voprosy',
+                'text'     => $content['article']['faq'],
+                'children' => [],
+            ];
+        }
 
         $this->html($this->view->render('article', [
             'styles'  => ['css/pages.css', 'css/articles.css'],
             'scripts' => ['js/articles.js'],
-            'seo'     => $this->articleSeo($article) + [
+            'seo'     => $this->articleSeo($article, $faq) + [
                 // Черновик не должен попасть в поиск, даже если ссылку
                 // на него кому-то отправили.
                 'noindex' => $article['status'] !== 'published',
             ],
             'article' => $article,
             'toc'     => $outline['items'],
+            'faq'     => $faq,
             // Автор разобран на имя, должность и портрет — шаблону остаётся
             // только вывести.
             'author'  => $this->authorCard((string) $article['author']),
@@ -693,13 +708,13 @@ final class ArticleController extends Controller
      * @param  array<string, mixed> $article
      * @return array<string, mixed>
      */
-    private function articleSeo(array $article): array
+    private function articleSeo(array $article, array $faq = []): array
     {
         $description = $article['meta_description'] !== ''
             ? $article['meta_description']
             : Text::excerpt((string) ($article['excerpt'] ?: $article['body']), 300);
 
-        return [
+        $seo = [
             'title' => $article['meta_title'] !== '' ? $article['meta_title'] : $article['title'],
             'description' => $description,
             'canonical'   => $this->url('/stati/' . $article['slug']),
@@ -760,6 +775,28 @@ final class ArticleController extends Controller
                     ]]
                     : ['image' => $this->config['base_url'] . '/assets/img/share.png'])],
         ];
+
+        // Вопросы под статьёй — отдельным узлом графа. Дописываются
+        // именно так, а не сложением массивов: у обоих узлов номер ноль,
+        // и при сложении второй молча пропал бы.
+        if ($faq !== []) {
+            $seo['jsonld'][] = Schema::faq(
+                $this->url('/stati/' . $article['slug']),
+                // В разметку уходит то же самое, что видит человек:
+                // уже очищенный ответ, без тегов, которых на странице
+                // не будет. Расхождение разметки и страницы для поисковика
+                // хуже, чем её отсутствие.
+                array_map(
+                    static fn (array $item): array => [
+                        'question' => (string) $item['question'],
+                        'answer'   => Text::safeHtml((string) $item['answer']),
+                    ],
+                    $faq,
+                ),
+            );
+        }
+
+        return $seo;
     }
 
     /**

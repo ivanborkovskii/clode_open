@@ -239,6 +239,45 @@ final class Schema
      * @param  array<int, array{name:string, users:string, month:int, year:int}> $plans
      * @return array<string, mixed>
      */
+    /**
+     * Вопросы и ответы страницы.
+     *
+     * Отдельный узел графа со своим адресом (#faq), а не подмена типа
+     * самой страницы: страница остаётся статьёй, а вопросы под ней —
+     * это её часть, а не то, чем она является целиком.
+     *
+     * Ответ отдаётся с разметкой — так разрешает schema.org, и абзацы
+     * в длинном ответе не слипаются. Но только уже очищенной: то, что
+     * ушло поисковику, должно совпадать с тем, что видит человек.
+     *
+     * Что от этого ждать. В Google — ничего: с 2023 года он показывает
+     * такие вопросы в выдаче только государственным и медицинским сайтам.
+     * Разметка сделана ради Яндекса, который её читает, и ради ИИ-помощников,
+     * которым формат «вопрос-ответ» удобен для цитирования.
+     *
+     * @param  array<int, array{question: string, answer: string}> $items
+     * @return array<string, mixed>
+     */
+    public static function faq(string $url, array $items): array
+    {
+        return [
+            '@type' => 'FAQPage',
+            '@id'   => $url . '#faq',
+            'isPartOf'   => ['@id' => $url . '#webpage'],
+            'mainEntity' => array_map(
+                static fn (array $item): array => [
+                    '@type' => 'Question',
+                    'name'  => $item['question'],
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => $item['answer'],
+                    ],
+                ],
+                array_values($items),
+            ),
+        ];
+    }
+
     public static function products(string $url, string $brand, array $plans): array
     {
         return [

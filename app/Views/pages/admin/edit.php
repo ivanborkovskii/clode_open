@@ -13,6 +13,7 @@
  * @var array $errors
  * @var array $values  Введённое в прошлый раз, если сохранение не прошло
  * @var array $topicWords Слова, по которым тема заявки составляется сама
+ * @var array $faq     Вопросы и ответы этой статьи
  */
 
 use App\Core\Csrf;
@@ -73,8 +74,10 @@ unset($_SESSION['admin_flash']);
                     <span class="aprefix">/stati/<input type="text" name="slug"
                         value="<?= View::e($val('slug')) ?>" data-slug
                         placeholder="составится из заголовка"></span>
-                    <small>Латиницей. После публикации адрес лучше не менять:
-                        по старому люди и поисковики попадут на «страница не найдена».</small>
+                    <small>Латиницей. Адрес можно поменять и после публикации:
+                        прежний запомнится и будет переводить на новый.
+                        Без нужды всё же лучше не трогать — перенос веса
+                        в поиске занимает недели.</small>
                     <?php if (isset($errors['slug'])): ?>
                         <em class="aerror"><?= View::e($errors['slug']) ?></em>
                     <?php endif; ?>
@@ -112,6 +115,45 @@ unset($_SESSION['admin_flash']);
                     <?php if (isset($errors['body'])): ?>
                         <em class="aerror"><?= View::e($errors['body']) ?></em>
                     <?php endif; ?>
+                </div>
+
+                <?php
+                // Вопросы и ответы. Строк показываем столько, сколько уже
+                // заполнено, плюс две пустые про запас: так вопрос можно
+                // добавить и с выключенным JavaScript. Кнопка «Добавить
+                // вопрос» просто копирует пустую строку — если её нажимать
+                // некому, двух запасных хватает на один заход.
+                //
+                // Строки, где заполнено только одно поле из двух,
+                // при сохранении пропускаются.
+                $rows = array_key_exists('faq', $values)
+                    ? (array) $values['faq']
+                    : $faq;
+                ?>
+                <div class="afield">
+                    <span>Вопросы и ответы</span>
+                    <small>Показываются отдельным блоком под статьёй
+                        и уходят в микроразметку — по ней Яндекс показывает
+                        вопросы прямо в выдаче. Порядок здесь — порядок
+                        на странице. Чтобы убрать вопрос, очистите оба поля.</small>
+
+                    <div class="afaq" data-faq>
+                        <?php foreach ([...$rows, [], []] as $row): ?>
+                            <div class="afaq__row" data-faq-row>
+                                <input type="text" name="faq_question[]"
+                                       value="<?= View::e((string) ($row['question'] ?? '')) ?>"
+                                       placeholder="Вопрос — так, как его задал бы человек">
+                                <textarea name="faq_answer[]" rows="3"
+                                          placeholder="Ответ. Можно теги p, strong, em, ul, ol, li, a"><?= View::e((string) ($row['answer'] ?? '')) ?></textarea>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <p>
+                        <button class="abtn abtn--ghost" type="button" data-faq-add>
+                            Добавить вопрос
+                        </button>
+                    </p>
                 </div>
             </div>
 

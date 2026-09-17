@@ -72,6 +72,26 @@ CREATE TABLE IF NOT EXISTS articles (
         REFERENCES categories (id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Вопросы и ответы под статьёй.
+--
+-- Своя таблица, а не поле в статье: вопросов у статьи может не быть
+-- совсем, а может быть десяток, и каждый нужен отдельной записью —
+-- и чтобы выводить их списком, и чтобы отдать поисковику разметкой.
+--
+-- position задаёт порядок: он задаётся в админке и к номеру записи
+-- отношения не имеет.
+CREATE TABLE IF NOT EXISTS article_faq (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    article_id INT UNSIGNED NOT NULL,
+    position   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    question   VARCHAR(300) NOT NULL,
+    answer     TEXT         NOT NULL,
+    PRIMARY KEY (id),
+    KEY article_faq_article (article_id, position),
+    CONSTRAINT article_faq_article_fk FOREIGN KEY (article_id)
+        REFERENCES articles (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Прежние адреса статей.
 --
 -- Адрес статьи можно поменять в админке, и без этой таблицы прежний адрес

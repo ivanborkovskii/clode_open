@@ -487,3 +487,27 @@ textarea:focus {
 
   .atable td { border-bottom: 0; padding: 4px 14px; }
 }
+
+/* --------------------------------------------------------------------------
+   Вопросы и ответы под статьёй
+   -------------------------------------------------------------------------- */
+
+.afaq {
+  display: grid;
+  gap: 10px;
+}
+
+/* Вопрос и ответ стоят одной парой с общей рамкой: в длинном списке
+   иначе не видно, где кончается один вопрос и начинается следующий. */
+.afaq__row {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+  background: var(--a-bg);
+}
+
+.afaq__row textarea {
+  resize: vertical;
+}

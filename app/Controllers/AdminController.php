@@ -301,6 +301,9 @@ final class AdminController extends Controller
             'article'    => $article,
             'categories' => $taxonomy->categories(),
             'tags'       => $taxonomy->tags(),
+            // Вопросы лежат отдельной таблицей, поэтому в статье их нет
+            // и читаются они отдельно.
+            'faq'        => $id > 0 ? (new ArticleRepository($this->db()))->faq($id) : [],
             // По этому списку редактор показывает, какая тема подставится
             // в форму заявки, если поле оставить пустым.
             'topicWords' => $this->content('articles')['form']['topic_words'],
@@ -411,13 +414,51 @@ final class AdminController extends Controller
             array_map('strval', (array) ($_POST['tags'] ?? [])),
         );
 
-        $saved = $articles->save($id, $data, $tagIds);
+        $saved = $articles->save($id, $data, $tagIds, $this->faqPairs());
 
         $_SESSION['admin_flash'] = $existing === null
             ? 'Статья создана'
             : 'Изменения сохранены';
 
         $this->redirect('/admin/statya?id=' . $saved);
+    }
+
+    /**
+     * Вопросы и ответы из формы редактора.
+     *
+     * Поля приходят двумя списками: вопросы и ответы в одном порядке.
+     * В форме всегда есть пустые строки про запас — они пропускаются,
+     * как и строка, где заполнено только одно из двух: вопрос без ответа
+     * и ответ без вопроса одинаково бессмысленны и на странице, и в разметке.
+     *
+     * @return array<int, array{question: string, answer: string}>
+     */
+    private function faqPairs(): array
+    {
+        $questions = array_map('strval', (array) ($_POST['faq_question'] ?? []));
+        $answers   = array_map('strval', (array) ($_POST['faq_answer'] ?? []));
+
+        $pairs = [];
+
+        foreach ($questions as $index => $question) {
+            $question = mb_substr(trim($question), 0, 300);
+            $answer   = trim($answers[$index] ?? '');
+
+            if ($question === '' || $answer === '') {
+                continue;
+            }
+
+            $pairs[] = ['question' => $question, 'answer' => $answer];
+
+            // Столько вопросов не бывает у честной статьи. Ограничение
+            // не ради базы, а чтобы случайная отправка тысячи пустых
+            // строк не превратилась в тысячу записей.
+            if (count($pairs) >= 30) {
+                break;
+            }
+        }
+
+        return $pairs;
     }
 
     private function deleteArticle(): void

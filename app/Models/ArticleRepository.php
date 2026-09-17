@@ -125,6 +125,25 @@ final class ArticleRepository extends Repository
 
     /** @return array<string, mixed>|null */
     /**
+     * Вопросы и ответы под статьёй, в заданном порядке.
+     *
+     * Вопросов может не быть совсем — тогда блок на странице не рисуется
+     * и в разметку ничего не уходит.
+     *
+     * @return array<int, array{id: int, question: string, answer: string}>
+     */
+    public function faq(int $articleId): array
+    {
+        return $this->all(
+            'SELECT id, question, answer
+               FROM article_faq
+              WHERE article_id = :id
+              ORDER BY position, id',
+            ['id' => $articleId],
+        );
+    }
+
+    /**
      * Нынешний адрес статьи, которая раньше жила по этому адресу.
      *
      * Нужен на случай, когда адрес статьи поменяли: прежний должен вести
@@ -304,9 +323,10 @@ final class ArticleRepository extends Repository
      *
      * @param  array<string, mixed> $data
      * @param  array<int, int>      $tagIds
+     * @param  array<int, array{question: string, answer: string}> $faq Вопросы под статьёй
      * @return int Идентификатор статьи
      */
-    public function save(?int $id, array $data, array $tagIds): int
+    public function save(?int $id, array $data, array $tagIds, array $faq = []): int
     {
         $fields = [
             'slug', 'category_id', 'title', 'excerpt', 'body', 'search_text',
@@ -394,6 +414,25 @@ final class ArticleRepository extends Repository
                 $this->run(
                     'UPDATE articles SET updated_at = CURRENT_TIMESTAMP WHERE id = :id',
                     ['id' => $id],
+                );
+            }
+
+            // Вопросы переписываются целиком: их правят все сразу, одной
+            // формой, и сверять построчно ради экономии одного запроса
+            // незачем. Номера записей при этом меняются, но на них никто
+            // не ссылается — ни адрес, ни разметка.
+            $this->run('DELETE FROM article_faq WHERE article_id = :id', ['id' => $id]);
+
+            foreach (array_values($faq) as $position => $pair) {
+                $this->run(
+                    'INSERT INTO article_faq (article_id, position, question, answer)
+                     VALUES (:article, :position, :question, :answer)',
+                    [
+                        'article'  => $id,
+                        'position' => $position,
+                        'question' => $pair['question'],
+                        'answer'   => $pair['answer'],
+                    ],
                 );
             }
 

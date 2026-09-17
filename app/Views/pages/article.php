@@ -19,6 +19,7 @@
  * @var array $texts
  * @var array $seo
  * @var array $author Имя, должность и портрет автора
+ * @var array $faq    Вопросы и ответы этой статьи
  * @var array $state  Результат отправки комментария
  * @var array $form   Результат отправки заявки
  */
@@ -34,6 +35,12 @@
     'texts'   => $texts,
     'toc'     => $toc,
 ]); ?>
+
+<?php // Вопросы идут сразу за статьёй: они её продолжают. У статьи без
+      // вопросов блока нет вовсе. ?>
+<?php if ($faq !== []): ?>
+    <?php $view->partial('sections/article-faq', ['faq' => $faq, 'texts' => $texts]); ?>
+<?php endif; ?>
 
 <?php $view->partial('sections/article-related', ['related' => $related, 'texts' => $texts]); ?>
 
