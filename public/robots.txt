@@ -5,4 +5,4 @@ Disallow: /admin
 Disallow: /api/
 
 # Адрес карты сайта. Заменить домен при выкладке на боевой сервер.
-Sitemap: https://crm.ivanborkovsky.ru/sitemap.xml
+Sitemap: https://ivanborkovsky.ru/sitemap.xml

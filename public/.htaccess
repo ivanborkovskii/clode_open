@@ -2,7 +2,7 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # ЕДИНСТВЕННЫЙ АДРЕС САЙТА: https://crm.ivanborkovsky.ru
+    # ЕДИНСТВЕННЫЙ АДРЕС САЙТА: https://ivanborkovsky.ru
     #
     # У одной и той же страницы не должно быть четырёх адресов — с www
     # и без, по http и по https. Для поисковика это разные страницы
@@ -19,9 +19,9 @@
     # просто исчезли бы. 308 сохраняет и способ отправки, и данные,
     # а поисковики понимают его так же, как 301.
 
-    # Переадресация с основного домена ivanborkovsky.ru живёт не здесь:
-    # у него на хостинге своя папка со своим сайтом, и правила лежат
-    # там — deploy/ivanborkovsky.ru/.htaccess.
+    # Переадресация с поддомена crm.ivanborkovsky.ru, где сайт жил
+    # раньше, живёт не здесь: у поддомена на хостинге своя папка,
+    # и правило лежит там — deploy/crm.ivanborkovsky.ru/.htaccess.
 
     # 1. Убираем www. %1 — это имя сайта без него, из условия ниже.
     #
@@ -51,6 +51,48 @@
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
     RewriteCond %{HTTP:X-Forwarded-SSL} !=on
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=308]
+
+    # ПРЕЖНИЕ АДРЕСА СТАРОГО САЙТА
+    #
+    # На этом домене раньше стоял другой сайт. Его адреса известны
+    # поисковикам и стоят в чужих ссылках, а страниц с такими адресами
+    # здесь нет. Поэтому каждый ведёт на ту страницу нового сайта,
+    # которая о том же: человек попадает туда, куда шёл, а поисковик
+    # переносит на новый адрес вес старого.
+    #
+    # Правила должны стоять до подмены на index.php: иначе запрос уйдёт
+    # в приложение и получит «страница не найдена» раньше, чем дойдёт
+    # сюда.
+    #
+    # Хвост (\.php)?/? в конце образца срабатывает на любой записи одного
+    # и того же адреса: со слэшем на конце и без, с .php и без него.
+    # Метки рекламных кампаний Apache дописывает к новому адресу сам.
+    #
+    # Адреса, которым пары не нашлось, правил не получают намеренно.
+    # Страница, которой нет, должна отвечать «не найдено». Увести их все
+    # на главную было бы хуже: поисковик считает такую переадресацию
+    # подменой и перестаёт доверять сайту.
+    RewriteRule ^contacts(\.php)?/?$        https://ivanborkovsky.ru/kontakty [L,R=301]
+    RewriteRule ^politic(\.php)?/?$         https://ivanborkovsky.ru/privacy [L,R=301]
+    RewriteRule ^personal_data(\.php)?/?$   https://ivanborkovsky.ru/soglasie [L,R=301]
+
+    RewriteRule ^uslugi/vnedrenie/vnedrenie-bitrix24(\.php)?/?$ https://ivanborkovsky.ru/uslugi/vnedrenie-bitrix24 [L,R=301]
+    RewriteRule ^uslugi/vnedrenie/vnedrenie-amocrm(\.php)?/?$ https://ivanborkovsky.ru/uslugi/vnedrenie-amocrm [L,R=301]
+
+    # Раздел внедрения целиком — на список услуг. Самого /uslugi здесь
+    # нет намеренно: на новом сайте это настоящая страница, и правило
+    # отправляло бы её саму на себя по кругу.
+    RewriteRule ^uslugi/vnedrenie/?$ https://ivanborkovsky.ru/uslugi [L,R=301]
+
+    # Тарифы Битрикс24 — на страницу тарифов: там те же лицензии и цены.
+    # По amoCRM такой страницы нет, поэтому её тарифы ведут на услугу.
+    RewriteRule ^tarify/tarify-bitrix24(\.php)?/?$ https://ivanborkovsky.ru/tarify/bitriks24 [L,R=301]
+    RewriteRule ^tarify/tarify-amocrm(\.php)?/?$ https://ivanborkovsky.ru/uslugi/vnedrenie-amocrm [L,R=301]
+
+    # База знаний — на статьи. Сопоставить статью со статьёй нельзя:
+    # это другие тексты с другими адресами. Поэтому и отдельная статья,
+    # и любой раздел базы ведут на список, где нужное находится поиском.
+    RewriteRule ^baza-znanij(/.*)?$ https://ivanborkovsky.ru/stati [L,R=301]
 
     # Каталог .well-known сайту не принадлежит: это служебный путь, по нему
     # удостоверяющий центр проверяет права на домен. Его надо исключить

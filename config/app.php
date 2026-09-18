@@ -7,9 +7,16 @@
 declare(strict_types=1);
 
 return [
-    // Базовый URL без завершающего слэша. Используется в canonical, OG и sitemap.
-    // Основной домен компании — ivanborkovsky.ru, этот сайт живёт на поддомене.
-    'base_url' => rtrim(getenv('APP_URL') ?: 'https://crm.ivanborkovsky.ru', '/'),
+    // Базовый URL без завершающего слэша.
+    //
+    // От этой строки зависит всё, чем сайт называет сам себя: canonical
+    // на каждой странице, Open Graph, микроразметка и все три карты сайта.
+    // Менять её можно только вместе с переездом — иначе сайт будет
+    // указывать поисковику на адрес, по которому его нет.
+    //
+    // Сайт жил на поддомене crm.ivanborkovsky.ru и переехал на основной
+    // домен. Поддомен переадресует сюда постранично.
+    'base_url' => rtrim(getenv('APP_URL') ?: 'https://ivanborkovsky.ru', '/'),
 
     'env'   => getenv('APP_ENV') ?: 'production',
     // По умолчанию выключена: если про эту настройку забыть при выкладке,
@@ -107,7 +114,7 @@ return [
         // Тот же ящик, что и borkovsky.iv@yandex.ru — заявки и контакты
         // на сайте ведут в одно место.
         'mail_to'   => getenv('LEADS_MAIL_TO') ?: 'info@iborkovsky.ru',
-        'mail_from' => getenv('LEADS_MAIL_FROM') ?: 'noreply@crm.ivanborkovsky.ru',
+        'mail_from' => getenv('LEADS_MAIL_FROM') ?: 'noreply@ivanborkovsky.ru',
     ],
 
     // Подтверждение прав на сайт в Яндекс Вебмастере и Google Search Console.
