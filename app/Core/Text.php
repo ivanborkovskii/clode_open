@@ -40,6 +40,71 @@ final class Text
     }
 
     /**
+     * Ссылки на свой сайт — к относительному виду.
+     *
+     * «https://ivanborkovsky.ru/uslugi» превращается в «/uslugi». Для
+     * браузера это одно и то же, но у относительной ссылки два
+     * преимущества: она не ломается при смене домена и не ведёт через
+     * переадресацию, если адрес сайта когда-то менялся.
+     *
+     * Трогаются только свои адреса из списка. Ссылки на другие сайты,
+     * почту, телефон и якори внутри страницы остаются как были.
+     *
+     * Применяется при сохранении, а не при выводе: в базе должно лежать
+     * то же, что автор увидит, когда откроет статью на правку.
+     *
+     * @param array<int, string> $hosts Свои адреса, без протокола
+     */
+    public static function relativeLinks(string $html, array $hosts): string
+    {
+        $own = array_flip(array_map('mb_strtolower', $hosts));
+
+        return preg_replace_callback(
+            '/\b(href|src)\s*=\s*("|\')(.*?)\2/is',
+            static function (array $match) use ($own): string {
+                [$whole, $attribute, $quote, $address] = $match;
+
+                $address = trim(html_entity_decode($address, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $parts   = parse_url($address);
+
+                // Разобрать не вышло, адрес и так относительный, или это
+                // почта, телефон, якорь — оставляем как есть.
+                if ($parts === false || empty($parts['host'])) {
+                    return $whole;
+                }
+
+                // Протокол либо обычный, либо его нет вовсе
+                // (адрес вида //site.ru/stranica).
+                $scheme = mb_strtolower($parts['scheme'] ?? '');
+
+                if ($scheme !== '' && $scheme !== 'http' && $scheme !== 'https') {
+                    return $whole;
+                }
+
+                if (!isset($own[mb_strtolower($parts['host'])])) {
+                    return $whole;
+                }
+
+                // Путь у ссылки на главную бывает пустым — тогда это «/».
+                $short = ($parts['path'] ?? '') ?: '/';
+
+                if (isset($parts['query'])) {
+                    $short .= '?' . $parts['query'];
+                }
+
+                if (isset($parts['fragment'])) {
+                    $short .= '#' . $parts['fragment'];
+                }
+
+                return $attribute . '=' . $quote
+                    . htmlspecialchars($short, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+                    . $quote;
+            },
+            $html,
+        ) ?? $html;
+    }
+
+    /**
      * Ответ на вопрос — так, как его принимает микроразметка.
      *
      * В тексте ответа разрешён не любой HTML: поисковики разбирают узкий

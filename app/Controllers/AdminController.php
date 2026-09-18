@@ -326,8 +326,17 @@ final class AdminController extends Controller
         $existing = $id !== null ? $articles->findById($id) : null;
 
         $title = trim((string) ($_POST['title'] ?? ''));
-        $body  = (string) ($_POST['body'] ?? '');
         $slug  = Text::slug((string) ($_POST['slug'] ?? '') ?: $title);
+
+        // Ссылки на свой сайт укорачиваем до относительных: «/uslugi»
+        // вместо «https://ivanborkovsky.ru/uslugi». Адрес при вставке
+        // копируется из адресной строки целиком, и так оно и остаётся
+        // в тексте — а потом ломается при смене домена или ведёт через
+        // лишнюю переадресацию. Ссылки на другие сайты не трогаются.
+        $body = Text::relativeLinks(
+            (string) ($_POST['body'] ?? ''),
+            $this->config['own_hosts'] ?? [],
+        );
 
         $errors     = [];
         $categories = (new TaxonomyRepository($this->db()))->categories();
@@ -442,7 +451,12 @@ final class AdminController extends Controller
 
         foreach ($questions as $index => $question) {
             $question = mb_substr(trim($question), 0, 300);
-            $answer   = trim($answers[$index] ?? '');
+
+            // Ссылки внутри ответа укорачиваются так же, как в тексте статьи.
+            $answer = Text::relativeLinks(
+                trim($answers[$index] ?? ''),
+                $this->config['own_hosts'] ?? [],
+            );
 
             if ($question === '' || $answer === '') {
                 continue;
