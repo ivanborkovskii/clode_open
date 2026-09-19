@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 use App\Core\Autoloader;
+use App\Core\ErrorLog;
 use App\Core\Router;
 use App\Core\View;
 
@@ -24,6 +25,12 @@ $config['public_dir'] = __DIR__;
 
 error_reporting($config['debug'] ? E_ALL : 0);
 ini_set('display_errors', $config['debug'] ? '1' : '0');
+
+// Показ ошибок выключен для посетителя, но не для нас: каждая ошибка
+// остаётся в storage/logs/errors.log. Без этого фатальная ошибка отдавала
+// пустой «500», и причину узнать было неоткуда — особенно если случается
+// она изредка и повторить её не выходит.
+ErrorLog::register($root . '/storage/logs');
 
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
@@ -75,6 +82,13 @@ $controller = new $class($view, $config);
 try {
     $controller->{$route['action']}(...$route['params']);
 } catch (PDOException) {
+    // Всё, что успело нарисоваться до сбоя, выбрасываем: страница
+    // с извинением должна начинаться с начала, а не дописываться
+    // к обрывку предыдущей.
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
     // База нужна только разделу «Статьи». Если она недоступна, страница
     // должна честно ответить «временно недоступно», а не отдать пустой
     // документ с кодом 200: такую страницу поисковик проиндексирует
@@ -96,5 +110,34 @@ try {
         'code'    => 503,
         'message' => 'Статьи сейчас недоступны из-за сбоя базы данных. '
             . 'Остальные разделы сайта работают.',
+    ]);
+} catch (Throwable $error) {
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    // Всё остальное, что могло пойти не так. Раньше такая ошибка
+    // останавливала PHP молча: посетитель видел пустую страницу
+    // от хостинга, а в коде не оставалось никаких следов.
+    //
+    // Теперь причина уходит в журнал, а посетитель получает честный
+    // ответ и понятную страницу. Подробностей на ней нет намеренно:
+    // пути к файлам и куски кода наружу не показывают.
+    ErrorLog::save(
+        $root . '/storage/logs',
+        'ошибка',
+        $error->getMessage(),
+        $error->getFile(),
+        $error->getLine(),
+    );
+
+    http_response_code(500);
+    header('Content-Type: text/html; charset=UTF-8');
+
+    echo $view->render('error', [
+        'seo'     => ['title' => 'Ошибка на сайте', 'noindex' => true],
+        'code'    => 500,
+        'message' => 'Что-то пошло не так на нашей стороне. '
+            . 'Мы уже знаем о сбое. Попробуйте обновить страницу.',
     ]);
 }

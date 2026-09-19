@@ -74,10 +74,19 @@ final class View
         $view = $this;
         extract($data, EXTR_SKIP);
 
+        // finally, а не просто ob_get_clean() после require: если шаблон
+        // оборвётся ошибкой, буфер останется открытым, и PHP допишет
+        // его содержимое в самом конце — поверх страницы с извинением
+        // вылезет кусок недорисованной. Так буфер закрывается всегда.
         ob_start();
-        require $file;
 
-        return (string) ob_get_clean();
+        try {
+            require $file;
+        } finally {
+            $html = (string) ob_get_clean();
+        }
+
+        return $html;
     }
 
     /** Экранирование вывода. Короткое имя — в шаблонах используется постоянно. */
