@@ -125,6 +125,65 @@ final class ArticleRepository extends Repository
 
     /** @return array<string, mixed>|null */
     /**
+     * Сколько статей останется у каждой темы при нынешнем отборе.
+     *
+     * Отмеченные темы складываются по И, поэтому число здесь — это ровно
+     * то, что получится, если добавить эту тему к уже отмеченным. Тема,
+     * которой в списке нет, не даст ни одной статьи: предлагать её
+     * не нужно, иначе ссылка ведёт в пустоту.
+     *
+     * @param  array{category?:string, tags?:array<int,string>, q?:string} $filter
+     * @return array<string, int> Адрес темы => число статей
+     */
+    public function tagCounts(array $filter): array
+    {
+        $params = [];
+        $where  = $this->where($filter, $params);
+
+        // Псевдоним tl, а не at: at уже занят внутри условия отбора по темам.
+        $rows = $this->all(
+            "SELECT t.slug, COUNT(DISTINCT a.id) AS articles
+               FROM articles a
+               JOIN categories c ON c.id = a.category_id
+               JOIN article_tag tl ON tl.article_id = a.id
+               JOIN tags t ON t.id = tl.tag_id
+              WHERE {$where}
+              GROUP BY t.slug",
+            $params,
+        );
+
+        return array_map('intval', array_column($rows, 'articles', 'slug'));
+    }
+
+    /**
+     * Сколько статей в каждой категории при нынешнем отборе по темам.
+     *
+     * Сама категория из отбора убирается: мы считаем, что будет, если
+     * на неё переключиться, а не сколько есть в нынешней.
+     *
+     * @param  array{category?:string, tags?:array<int,string>, q?:string} $filter
+     * @return array<string, int> Адрес категории => число статей
+     */
+    public function categoryCounts(array $filter): array
+    {
+        unset($filter['category']);
+
+        $params = [];
+        $where  = $this->where($filter, $params);
+
+        $rows = $this->all(
+            "SELECT c.slug, COUNT(DISTINCT a.id) AS articles
+               FROM articles a
+               JOIN categories c ON c.id = a.category_id
+              WHERE {$where}
+              GROUP BY c.slug",
+            $params,
+        );
+
+        return array_map('intval', array_column($rows, 'articles', 'slug'));
+    }
+
+    /**
      * Вопросы и ответы под статьёй, в заданном порядке.
      *
      * Вопросов может не быть совсем — тогда блок на странице не рисуется

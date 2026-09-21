@@ -37,6 +37,20 @@ final class ArticleController extends Controller
      */
     private const PER_PAGE = 18;
 
+    /**
+     * Сколько тем можно отметить одновременно.
+     *
+     * Ограничение не про удобство, а про число адресов. Каждый набор тем —
+     * это свой адрес, и растёт их количество не по числу тем, а по числу
+     * сочетаний: при тридцати темах и десяти отмеченных адресов получается
+     * больше тридцати миллионов. Поисковик обходит их вместо статей —
+     * и до самих статей не доходит.
+     *
+     * Три темы дают несколько тысяч сочетаний вместо миллионов, а больше
+     * трёх отмечать всё равно незачем: выборка сужается до пустоты.
+     */
+    private const MAX_TAGS = 3;
+
     public function index(): void
     {
         $this->listing(null);
@@ -65,20 +79,57 @@ final class ArticleController extends Controller
         $articles = new ArticleRepository($this->db());
 
         // Из адреса берём только теги, которые действительно существуют:
-        // в параметре может оказаться что угодно.
+        // в параметре может оказаться что угодно. tagsBySlugs возвращает
+        // их в едином порядке, не в том, в каком они записаны в адресе, —
+        // на этом и строится приведение адреса к единственному виду ниже.
         $requested = $this->tagSlugs();
-        $selected  = $taxonomy->tagsBySlugs($requested);
+        $selected  = array_slice($taxonomy->tagsBySlugs($requested), 0, self::MAX_TAGS);
         $active    = array_column($selected, 'slug');
 
         $query = trim((string) ($_GET['q'] ?? ''));
         $page  = max(1, (int) ($_GET['stranica'] ?? 1));
         $base  = $category === null ? '/stati' : '/stati/kategoriya/' . $category['slug'];
 
-        $result = $articles->paginate([
+        // ОДИН НАБОР ТЕМ — ОДИН АДРЕС.
+        //
+        // «?tegi=ai,1c» и «?tegi=1c,ai» — это один и тот же отбор, но два
+        // разных адреса. Добавьте сюда повторы, несуществующие темы и любое
+        // их количество — и у одной страницы появляются миллионы адресов.
+        // Поисковик обходит их все: закрыть страницу от индексации мало,
+        // чтобы увидеть запрет, её сначала надо скачать.
+        //
+        // Поэтому любая запись, кроме единственно верной, переводится
+        // на неё. Кольца не будет: после перехода запись совпадает
+        // с канонической, и правило больше не срабатывает.
+        $canonical = implode(',', $active);
+
+        if ((string) ($_GET['tegi'] ?? '') !== $canonical) {
+            $this->redirect($this->link($base, $active, $query, $page), 301);
+
+            return;
+        }
+
+        $filter = [
             'category' => $category['slug'] ?? '',
             'tags'     => $active,
             'q'        => $query,
-        ], $page, self::PER_PAGE);
+        ];
+
+        $result = $articles->paginate($filter, $page, self::PER_PAGE);
+
+        // Сочетание тем, по которому нет ни одной статьи, страницей быть
+        // не должно. Раньше такой адрес отвечал «страница найдена»,
+        // показывал «статей нет» и продолжал предлагать ссылки на другие
+        // сочетания — то есть работал ловушкой для поисковика.
+        //
+        // Ссылками такое сочетание теперь и не набрать: темы, которые
+        // не дадут ни одной статьи, не кликаются. Остаётся адрес, набранный
+        // руками или найденный роботом, — и он отвечает «не найдено».
+        if ($active !== [] && (int) $result['total'] === 0) {
+            $this->notFound();
+
+            return;
+        }
 
         // Страницы с таким номером нет. Раньше список молча показывал
         // последнюю и отвечал «страница найдена» — то есть у одного и того
@@ -121,8 +172,23 @@ final class ArticleController extends Controller
             'page'    => [
                 'hero'       => $this->listingHero($content, $category, $selected, $query),
                 'search'     => ['action' => $base, 'value' => $query],
-                'categories' => $this->categoryChips($taxonomy, $category, $active, $query),
-                'tags'       => $this->tagChips($taxonomy, $base, $active, $query),
+                // Кнопки отбора считаются от нынешней выборки: у каждой
+                // видно, сколько статей останется, а те, после которых
+                // не осталось бы ни одной, не кликаются вовсе.
+                'categories' => $this->categoryChips(
+                    $taxonomy,
+                    $category,
+                    $active,
+                    $query,
+                    $articles->categoryCounts($filter),
+                ),
+                'tags'       => $this->tagChips(
+                    $taxonomy,
+                    $base,
+                    $active,
+                    $query,
+                    $articles->tagCounts($filter),
+                ),
                 'reset'      => ($active !== [] || $query !== '' || $category !== null) ? '/stati' : '',
                 'texts'      => $content,
                 'form'       => $content['form'],
@@ -473,7 +539,11 @@ final class ArticleController extends Controller
             static fn (string $slug): bool => $slug !== '' && preg_match('/^[a-z0-9\-]+$/', $slug) === 1,
         );
 
-        return array_slice(array_unique($slugs), 0, 10);
+        // Предел здесь — защита от адреса с тысячей тем: такой список
+        // не должен доходить до базы. Настоящее ограничение на число
+        // отмеченных тем — MAX_TAGS, и применяется оно позже, когда темы
+        // уже приведены к единому порядку.
+        return array_slice(array_unique($slugs), 0, 20);
     }
 
     /**
@@ -497,7 +567,15 @@ final class ArticleController extends Controller
             $params['stranica'] = $page;
         }
 
-        return $params === [] ? $base : $base . '?' . http_build_query($params);
+        if ($params === []) {
+            return $base;
+        }
+
+        // Запятую возвращаем как есть. http_build_query кодирует её в %2C,
+        // и тогда у одного отбора два написания адреса: «?tegi=1c,ai»
+        // и «?tegi=1c%2Cai». Для адреса запятая разрешена, а плодить
+        // написания там, где мы только что свели их к одному, незачем.
+        return $base . '?' . str_replace('%2C', ',', http_build_query($params));
     }
 
     /**
@@ -513,6 +591,7 @@ final class ArticleController extends Controller
         ?array $current,
         array $tags,
         string $query,
+        array $counts,
     ): array {
         $chips = [[
             'name'   => 'Все',
@@ -522,11 +601,21 @@ final class ArticleController extends Controller
         ]];
 
         foreach ($taxonomy->categories() as $category) {
+            $slug     = (string) $category['slug'];
+            $isActive = ($current['slug'] ?? '') === $slug;
+
+            // Сколько статей будет в этой категории при отмеченных темах.
+            // Категория, в которой с ними нет ни одной, не кликается:
+            // иначе переход вёл бы на «страница не найдена».
+            $left = $counts[$slug] ?? 0;
+
             $chips[] = [
                 'name'   => $category['name'],
-                'href'   => $this->link('/stati/kategoriya/' . $category['slug'], $tags, $query),
-                'active' => ($current['slug'] ?? '') === $category['slug'],
-                'count'  => (int) $category['articles'],
+                'href'   => $isActive || $left > 0
+                    ? $this->link('/stati/kategoriya/' . $slug, $tags, $query)
+                    : '',
+                'active' => $isActive,
+                'count'  => $left,
             ];
         }
 
@@ -544,22 +633,50 @@ final class ArticleController extends Controller
         string $base,
         array $active,
         string $query,
+        array $counts,
     ): array {
         $chips = [];
 
-        foreach ($taxonomy->tags(true) as $tag) {
-            $isActive = in_array($tag['slug'], $active, true);
+        // Больше трёх тем одновременно не отмечается — см. MAX_TAGS.
+        // Когда предел достигнут, неотмеченные темы перестают кликаться:
+        // иначе ссылка вела бы на адрес, который тут же переведёт обратно.
+        $canAdd = count($active) < self::MAX_TAGS;
 
+        $all = $taxonomy->tags(true);
+
+        // Порядок тем, в котором пишется канонический адрес. Нужен, чтобы
+        // кнопка сразу вела на правильный адрес: если складывать темы
+        // в порядке нажатия, получится «?tegi=ai,1c», которое тут же
+        // переведёт на «?tegi=1c,ai». Для человека разницы нет, а робот
+        // обойдёт оба и пройдёт лишний переход.
+        $order = array_column($all, 'slug');
+
+        foreach ($all as $tag) {
+            $slug     = (string) $tag['slug'];
+            $isActive = in_array($slug, $active, true);
+
+            // Сколько статей останется, если нажать. У отмеченной темы
+            // снятие отбор только расширяет, поэтому число для неё —
+            // это сколько статей с ней в нынешней выборке.
+            $left = $counts[$slug] ?? 0;
+
+            // array_intersect сохраняет порядок первого списка — так набор
+            // тем сразу складывается в том же порядке, что и в каноническом
+            // адресе.
             $next = $isActive
-                ? array_values(array_diff($active, [$tag['slug']]))
-                : [...$active, $tag['slug']];
+                ? array_values(array_diff($active, [$slug]))
+                : array_values(array_intersect($order, [...$active, $slug]));
+
+            // Ссылки нет — значит, кнопка не кликается: либо после неё
+            // не осталось бы ни одной статьи, либо предел тем достигнут.
+            $open = $isActive || ($canAdd && $left > 0);
 
             $chips[] = [
-                'slug'   => $tag['slug'],
+                'slug'   => $slug,
                 'name'   => $tag['name'],
-                'href'   => $this->link($base, $next, $query),
+                'href'   => $open ? $this->link($base, $next, $query) : '',
                 'active' => $isActive,
-                'count'  => (int) $tag['articles'],
+                'count'  => $left,
             ];
         }
 

@@ -200,6 +200,16 @@
   color: var(--text-invert);
 }
 
+/* Тема или категория, после которой не осталось бы ни одной статьи.
+   Кнопка на месте — видно, что тема есть и сейчас по ней пусто, —
+   но не кликается: вести ей некуда. */
+.chip--off {
+  border-style: dashed;
+  color: var(--text-muted);
+  opacity: 0.55;
+  cursor: default;
+}
+
 .chip__count {
   font-size: var(--fs-xs);
   color: var(--text-muted);

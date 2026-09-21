@@ -70,14 +70,23 @@ foreach ($page['tags'] as $tag) {
             <ul class="chips" aria-labelledby="filter-categories">
                 <?php foreach ($page['categories'] as $chip): ?>
                     <li>
-                        <a class="chip<?= $chip['active'] ? ' chip--on' : '' ?>"
-                           href="<?= View::e($chip['href']) ?>"
-                           <?= $chip['active'] ? 'aria-current="true"' : '' ?>>
-                            <?= View::e($chip['name']) ?>
-                            <?php if ($chip['count'] !== null): ?>
+                        <?php // Без ссылки — значит, после нажатия не осталось бы
+                              // ни одной статьи. Кнопка видна, но не кликается. ?>
+                        <?php if ($chip['href'] === ''): ?>
+                            <span class="chip chip--off">
+                                <?= View::e($chip['name']) ?>
                                 <span class="chip__count"><?= (int) $chip['count'] ?></span>
-                            <?php endif; ?>
-                        </a>
+                            </span>
+                        <?php else: ?>
+                            <a class="chip<?= $chip['active'] ? ' chip--on' : '' ?>"
+                               href="<?= View::e($chip['href']) ?>"
+                               <?= $chip['active'] ? 'aria-current="true"' : '' ?>>
+                                <?= View::e($chip['name']) ?>
+                                <?php if ($chip['count'] !== null): ?>
+                                    <span class="chip__count"><?= (int) $chip['count'] ?></span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endif; ?>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -91,12 +100,19 @@ foreach ($page['tags'] as $tag) {
                 <ul class="chips" aria-labelledby="filter-tags">
                     <?php foreach ($page['tags'] as $chip): ?>
                         <li>
-                            <a class="chip<?= $chip['active'] ? ' chip--on' : '' ?>"
-                               href="<?= View::e($chip['href']) ?>"
-                               <?= $chip['active'] ? 'aria-current="true"' : '' ?>>
-                                <?= View::e($chip['name']) ?>
-                                <span class="chip__count"><?= (int) $chip['count'] ?></span>
-                            </a>
+                            <?php if ($chip['href'] === ''): ?>
+                                <span class="chip chip--off">
+                                    <?= View::e($chip['name']) ?>
+                                    <span class="chip__count"><?= (int) $chip['count'] ?></span>
+                                </span>
+                            <?php else: ?>
+                                <a class="chip<?= $chip['active'] ? ' chip--on' : '' ?>"
+                                   href="<?= View::e($chip['href']) ?>"
+                                   <?= $chip['active'] ? 'aria-current="true"' : '' ?>>
+                                    <?= View::e($chip['name']) ?>
+                                    <span class="chip__count"><?= (int) $chip['count'] ?></span>
+                                </a>
+                            <?php endif; ?>
                         </li>
                     <?php endforeach; ?>
                 </ul>
