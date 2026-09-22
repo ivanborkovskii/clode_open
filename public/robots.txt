@@ -30,6 +30,13 @@ Disallow: /*q=
 # Это просьба, а не запрет: робот может её не послушать. Настоящий
 # отказ стоит в .htaccess, там запрос не доходит до сайта вовсе.
 # Здесь — для тех, кто правила соблюдает.
+#
+# Закрыты только те, кто собирает тексты для обучения модели: в ответах
+# такой модели ссылки на источник нет. Те, кто отвечает человеку
+# со ссылкой на сайт, не закрыты намеренно — PerplexityBot,
+# OAI-SearchBot, ChatGPT-User, Claude-User. И тем более не закрыты
+# YandexBot с Googlebot: именно они собирают ИИ-ответы Яндекса
+# и Google, где русскоязычный посетитель и может вас найти.
 User-agent: Applebot
 User-agent: meta-externalagent
 User-agent: Amazonbot
@@ -37,7 +44,6 @@ User-agent: Bytespider
 User-agent: GPTBot
 User-agent: ClaudeBot
 User-agent: anthropic-ai
-User-agent: PerplexityBot
 User-agent: CCBot
 User-agent: AhrefsBot
 User-agent: SemrushBot

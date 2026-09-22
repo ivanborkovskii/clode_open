@@ -16,13 +16,37 @@
     # с отказом не собирается, к базе обращений нет, процессорного
     # времени уходит в сотни раз меньше, чем на настоящую страницу.
     #
-    # ЧЕГО ЗДЕСЬ НЕТ НАМЕРЕННО. Googlebot, YandexBot, bingbot и Mail.RU
-    # не закрыты: это настоящие поисковики, они приводят посетителей.
-    # Если Яндекс обходит сайт слишком часто, это решается не запретом,
-    # а настройкой скорости обхода в Вебмастере.
+    # ЧЕГО ЗДЕСЬ НЕТ НАМЕРЕННО — и это важнее самого списка.
     #
-    # Список правится свободно: дописать имя через | — и робот отсечён.
-    RewriteCond %{HTTP_USER_AGENT} (Applebot|meta-externalagent|Amazonbot|Bytespider|GPTBot|ClaudeBot|anthropic-ai|PerplexityBot|CCBot|Diffbot|Omgilibot|ImagesiftBot|cohere-ai|YouBot|Timpibot|AhrefsBot|SemrushBot|MJ12bot|DotBot|BLEXBot|Barkrowler|DataForSeoBot|serpstatbot|PetalBot|SeznamBot|MegaIndex) [NC]
+    # Сборщики для ИИ бывают двух разных пород, и путать их нельзя.
+    #
+    # Первая порода собирает тексты для обучения модели. В ответах
+    # такой модели ссылки на источник нет: она не помнит, откуда взяла.
+    # Закрыть их — значит не попасть в будущие обучающие наборы,
+    # и только. На видимость сайта сегодня это не влияет никак.
+    # Все имена ниже — из этой породы.
+    #
+    # Вторая порода ходит на сайт, чтобы ответить на вопрос человека
+    # здесь и сейчас, и ставит ссылку на источник. Такие приводят живых
+    # посетителей, и закрывать их — значит пропасть из ИИ-ответов.
+    # Поэтому не закрыты и не будут:
+    #   PerplexityBot  — отвечает со ссылками на источники;
+    #   OAI-SearchBot  — поиск внутри ChatGPT, со ссылками;
+    #   ChatGPT-User   — заходит, когда человек попросил открыть сайт;
+    #   Claude-User, Claude-SearchBot — то же самое у Claude.
+    #
+    # И главное для русскоязычного сайта: ИИ-ответы Яндекса (Алиса,
+    # Нейро) собирает YandexBot, а ИИ-ответы Google — Googlebot. Оба
+    # не закрыты. То есть в тех двух ИИ, где вас реально могут искать,
+    # сайт остаётся.
+    #
+    # Googlebot, YandexBot, bingbot и Mail.RU не закрыты тем более:
+    # это обычные поисковики. Если Яндекс обходит слишком часто, это
+    # решается настройкой скорости обхода в Вебмастере, а не запретом.
+    #
+    # Список правится свободно: дописать имя через | — и робот отсечён,
+    # убрать — и снова пущен.
+    RewriteCond %{HTTP_USER_AGENT} (Applebot|meta-externalagent|Amazonbot|Bytespider|GPTBot|ClaudeBot|anthropic-ai|CCBot|Diffbot|Omgilibot|ImagesiftBot|cohere-ai|YouBot|Timpibot|AhrefsBot|SemrushBot|MJ12bot|DotBot|BLEXBot|Barkrowler|DataForSeoBot|serpstatbot|PetalBot|SeznamBot|MegaIndex) [NC]
     RewriteRule ^ - [F,L]
 
     # ПОИСК ЧУЖИХ ДЫР
