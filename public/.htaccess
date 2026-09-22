@@ -43,10 +43,20 @@
     # Googlebot, YandexBot, bingbot и Mail.RU не закрыты тем более:
     # это обычные поисковики. Если Яндекс обходит слишком часто, это
     # решается настройкой скорости обхода в Вебмастере, а не запретом.
+    # Bing важен для русскоязычных за пределами РФ: в США и Европе
+    # у него заметная доля, и через его индекс живёт DuckDuckGo.
+    #
+    # Мелкие поисковики со своим индексом тоже не закрыты. Их легко
+    # принять за сборщиков по незнакомому имени, но это ошибка:
+    #   PetalBot  — поиск Huawei, предустановлен на их телефонах
+    #               без сервисов Google; в России и Казахстане такие
+    #               аппараты встречаются часто;
+    #   SeznamBot — чешский поиск со своим индексом; русскоязычных
+    #               в Чехии немного, но обход почти ничего не стоит.
     #
     # Список правится свободно: дописать имя через | — и робот отсечён,
     # убрать — и снова пущен.
-    RewriteCond %{HTTP_USER_AGENT} (Applebot|meta-externalagent|Amazonbot|Bytespider|GPTBot|ClaudeBot|anthropic-ai|CCBot|Diffbot|Omgilibot|ImagesiftBot|cohere-ai|YouBot|Timpibot|AhrefsBot|SemrushBot|MJ12bot|DotBot|BLEXBot|Barkrowler|DataForSeoBot|serpstatbot|PetalBot|SeznamBot|MegaIndex) [NC]
+    RewriteCond %{HTTP_USER_AGENT} (Applebot|meta-externalagent|Amazonbot|Bytespider|GPTBot|ClaudeBot|anthropic-ai|CCBot|Diffbot|Omgilibot|ImagesiftBot|cohere-ai|YouBot|Timpibot|AhrefsBot|SemrushBot|MJ12bot|DotBot|BLEXBot|Barkrowler|DataForSeoBot|serpstatbot|MegaIndex) [NC]
     RewriteRule ^ - [F,L]
 
     # ПОИСК ЧУЖИХ ДЫР

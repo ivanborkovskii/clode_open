@@ -37,6 +37,11 @@ Disallow: /*q=
 # OAI-SearchBot, ChatGPT-User, Claude-User. И тем более не закрыты
 # YandexBot с Googlebot: именно они собирают ИИ-ответы Яндекса
 # и Google, где русскоязычный посетитель и может вас найти.
+#
+# Не закрыт и PetalBot — это поиск Huawei со своим индексом,
+# предустановленный на их телефонах без сервисов Google. В России
+# и Казахстане такие аппараты встречаются часто. Трафика он даёт
+# немного, но это живые люди, а не сборщик текстов.
 User-agent: Applebot
 User-agent: meta-externalagent
 User-agent: Amazonbot
@@ -51,7 +56,6 @@ User-agent: MJ12bot
 User-agent: DotBot
 User-agent: BLEXBot
 User-agent: DataForSeoBot
-User-agent: PetalBot
 Disallow: /
 
 # Адрес карты сайта. Заменить домен при выкладке на боевой сервер.
