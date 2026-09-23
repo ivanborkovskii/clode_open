@@ -39,11 +39,25 @@ foreach ($page['tags'] as $tag) {
                 <?php
                 // autocomplete="off" — иначе браузер поверх наших подсказок
                 // покажет свой список прошлых запросов.
+                //
+                // Поле объявлено как type="text" с role="combobox", а не
+                // type="search", и это вынужденно.
+                //
+                // Скрипт помечает поле признаком aria-expanded — «список
+                // подсказок сейчас открыт». На поле типа search стандарт
+                // такой признак запрещает, и проверка W3C считала это
+                // ошибкой. Разрешён он у поля с подсказками, а объявить
+                // поле таковым можно только на типе text.
+                //
+                // enterkeyhint возвращает то единственное, что терялось
+                // вместе с типом search: на телефоне кнопка ввода снова
+                // подписана «Поиск», а не «Перейти».
                 ?>
-                <input class="asearch__input" type="search" id="article-search" name="q"
+                <input class="asearch__input" type="text" id="article-search" name="q"
                        value="<?= View::e($search['value']) ?>"
                        placeholder="<?= View::e($texts['search']['placeholder']) ?>"
-                       autocomplete="off" data-search-input
+                       autocomplete="off" data-search-input enterkeyhint="search"
+                       role="combobox" aria-autocomplete="list"
                        aria-controls="article-suggest" aria-expanded="false">
 
                 <button class="btn btn--primary asearch__submit" type="submit">

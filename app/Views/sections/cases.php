@@ -10,6 +10,20 @@
  */
 
 use App\Core\View;
+
+// Уровень заголовка в карточке зависит от того, есть ли над ними
+// заголовок раздела.
+//
+// Блок используется в двух местах. Внутри страницы, где выше стоит
+// <h2> раздела, названия компаний — это подзаголовки, то есть <h3>.
+// На отдельной странице «Кейсы» заголовка раздела нет: там сразу
+// после <h1> страницы идут карточки, и они должны быть <h2>.
+//
+// Раньше уровень был жёстко проставлен как <h3>, и на странице
+// «Кейсы» получался пропуск: <h1>, а следом сразу <h3>. Для человека
+// со скринридером это выглядит так, будто раздел потерялся, и
+// проверка W3C считает это ошибкой.
+$caseLevel = !empty($cases['title']) ? 'h3' : 'h2';
 ?>
 <section class="section" id="keysy">
     <div class="container">
@@ -43,7 +57,7 @@ use App\Core\View;
                     <div class="case__body">
                         <header class="case__head">
                             <div>
-                                <h3 class="case__company"><?= View::e($case['company']) ?></h3>
+                                <<?= $caseLevel ?> class="case__company"><?= View::e($case['company']) ?></<?= $caseLevel ?>>
                                 <p class="case__industry"><?= View::e($case['industry']) ?></p>
                             </div>
                             <span class="case__system"><?= View::e($case['system']) ?></span>

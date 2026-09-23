@@ -810,11 +810,26 @@ final class ArticleController extends Controller
             $title .= ' — страница ' . $page;
         }
 
+        $description = $category === null
+            ? $content['seo']['description']
+            : $category['description'];
+
+        // Своё описание у каждой страницы списка.
+        //
+        // Заголовок номер страницы получал, а описание — нет, и у второй
+        // со третьей оно совпадало слово в слово. В выдаче это значит
+        // одинаковую подпись под разными ссылками, а поисковик считает
+        // такие страницы дублями друг друга.
+        //
+        // Номер дописывается в конец, чтобы начало описания — то, что
+        // видно в выдаче в первую очередь, — осталось прежним.
+        if ($page > 1 && !$missing) {
+            $description .= ' Страница ' . $page . '.';
+        }
+
         return [
             'title'       => $title,
-            'description' => $category === null
-                ? $content['seo']['description']
-                : $category['description'],
+            'description' => $description,
             'canonical'   => $this->url($self),
             'noindex'     => $filtered || $missing,
             'breadcrumbs' => $crumbs,

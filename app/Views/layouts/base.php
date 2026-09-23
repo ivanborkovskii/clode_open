@@ -132,6 +132,20 @@ $seo['og_image'] = $image;
     <?php endforeach; ?>
 
     <?php
+    // Кнопка «Наверх» без скрипта. Показать её по прокрутке нечем, поэтому
+    // при отключённом JavaScript она видна всегда.
+    //
+    // Этот блок стоит в <head>, и это не прихоть. Раньше он лежал в конце
+    // <body>, рядом с самой кнопкой, — так понятнее читать, но по стандарту
+    // <style> внутри <noscript> разрешён только в <head>. Проверка W3C
+    // выдавала ровно одну ошибку на каждой странице сайта, и это была она.
+    // В <head> та же запись совершенно законна.
+    ?>
+    <noscript>
+        <style>.to-top { opacity: 1; visibility: visible; transform: none; }</style>
+    </noscript>
+
+    <?php
     // Иконка сайта. Объявлены оба файла, и порядок здесь не случайный.
     //
     // Раньше в разметке стоял только SVG. Файл favicon.ico при этом лежал
@@ -188,11 +202,6 @@ $seo['og_image'] = $image;
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow-up"/></svg>
         <span>Наверх</span>
     </a>
-
-    <?php // Без скрипта показать кнопку по прокрутке нечем — показываем всегда. ?>
-    <noscript>
-        <style>.to-top { opacity: 1; visibility: visible; transform: none; }</style>
-    </noscript>
 
     <script src="<?= View::e($view->asset('js/main.js')) ?>" defer></script>
 

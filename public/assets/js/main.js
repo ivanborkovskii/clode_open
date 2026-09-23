@@ -87,7 +87,7 @@
 
     var activate = function (index) {
       tabs.forEach(function (tab, i) {
-        tab.setAttribute('aria-selected', String(i === index));
+        tab.setAttribute('aria-expanded', String(i === index));
         panels[i].hidden = i !== index;
       });
     };

@@ -21,11 +21,24 @@ use App\Core\View;
 
         <div class="services__layout" data-tabs>
             <?php foreach ($services['items'] as $i => $item): ?>
+                <?php
+                // Кнопка и её панель стоят рядом, парами: на десктопе это
+                // выглядит вкладками, на мобильном — аккордеоном.
+                //
+                // Раньше здесь было role="tab" с role="tabpanel", и это
+                // не проходило проверку: по стандарту все вкладки должны
+                // лежать в общем контейнере role="tablist", а панели — вне
+                // его. У нас они чередуются, иначе аккордеон не собрать.
+                //
+                // Поэтому объявление приведено к тому, что здесь на самом
+                // деле есть: кнопка, раскрывающая свой блок. Для человека
+                // со скринридером это понятнее прежнего — ему больше
+                // не обещают вкладок, которых в разметке нет.
+                ?>
                 <button class="services__tab"
                         type="button"
-                        role="tab"
                         id="tab-<?= View::e($item['slug']) ?>"
-                        aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"
+                        aria-expanded="<?= $i === 0 ? 'true' : 'false' ?>"
                         aria-controls="panel-<?= View::e($item['slug']) ?>"
                         data-tab>
                     <?= View::e($item['title']) ?>
@@ -33,7 +46,7 @@ use App\Core\View;
 
                 <div class="services__panel"
                      id="panel-<?= View::e($item['slug']) ?>"
-                     role="tabpanel"
+                     role="region"
                      aria-labelledby="tab-<?= View::e($item['slug']) ?>"
                      data-panel
                      <?= $i === 0 ? '' : 'hidden' ?>>
