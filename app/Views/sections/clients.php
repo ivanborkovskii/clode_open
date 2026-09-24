@@ -30,7 +30,8 @@ use App\Core\View;
                 <li class="clients__item">
                     <img src="/assets/img/logos/<?= View::e($client["slug"]) ?>.webp"
                          alt="Логотип компании <?= View::e($client['name']) ?>"
-                         height="44" loading="lazy" decoding="async">
+                         width="<?= (int) $client['w'] ?>" height="<?= (int) $client['h'] ?>"
+                         loading="lazy" decoding="async">
                 </li>
             <?php endforeach; ?>
         </ul>
