@@ -7,6 +7,10 @@ storage/sessions/*
 # в репозитории им делать нечего, а .htaccess из этого каталога — нужен.
 public/assets/img/stati/*/
 
+# Настройки конкретного сервера: пароль к базе, ящик для заявок.
+# В репозитории им не место, а рядом лежит образец local.primer.php.
+config/local.php
+
 .env
 .DS_Store
 node_modules/
