@@ -48,6 +48,17 @@ final class ServiceController extends Controller
                 . 'и полей, автоматизация, подключение телефонии, сайта, мессенджеров '
                 . 'и почты, интеграция с 1С и Мой склад, обучение и сопровождение.',
         ],
+        'audit-bitrix24' => [
+            'content'     => 'service-audit-bitrix24',
+            'crumb'       => 'Аудит Битрикс24',
+            'menu'        => 'Аудит',
+            'group'       => 'bitrix24',
+            'title'       => 'Аудит Битрикс24 — проверка CRM, воронок и автоматизации',
+            'description' => 'Аудит Битрикс24: анализ CRM-воронок, бизнес-процессов, '
+                . 'автоматизации, работы сотрудников и аналитики. Найдём слабые места '
+                . 'и определим, что нужно изменить.',
+        ],
+
         'vnedrenie-amocrm' => [
             'content'     => 'service-amocrm',
             'crumb'       => 'Внедрение amoCRM',
@@ -180,6 +191,30 @@ final class ServiceController extends Controller
             return;
         }
 
+        $page = $this->content($meta['content']);
+
+        // Вопросы и ответы уходят в микроразметку, если они у услуги есть.
+        //
+        // Узел добавляется отдельной строкой, а не через сложение массивов:
+        // у обоих узлов ключ 0, и при сложении второй молча пропадает.
+        // На статьях это уже случалось — здесь сразу сделано правильно.
+        $jsonld = [[
+            '@type' => 'Service',
+            '@id'   => $this->url('/uslugi/' . $slug) . '#service',
+            'name'        => $meta['crumb'],
+            'description' => $meta['description'],
+            'serviceType' => $meta['crumb'],
+            'provider'    => ['@id' => $this->config['base_url'] . '/#organization'],
+            'url'         => $this->url('/uslugi/' . $slug),
+        ]];
+
+        if (!empty($page['faq']['items'])) {
+            $jsonld[] = Schema::faq(
+                $this->url('/uslugi/' . $slug),
+                $page['faq']['items'],
+            );
+        }
+
         $this->html($this->view->render('service', [
             'styles' => ['css/pages.css'],
             'seo' => [
@@ -192,18 +227,10 @@ final class ServiceController extends Controller
                     ['label' => $meta['crumb'],   'href' => '/uslugi/' . $slug],
                 ],
                 // Услуга как услуга, а не просто страница: поисковик видит,
-                // что именно оказывается и кем.
-                'jsonld' => [[
-                    '@type' => 'Service',
-                    '@id'   => $this->url('/uslugi/' . $slug) . '#service',
-                    'name'        => $meta['crumb'],
-                    'description' => $meta['description'],
-                    'serviceType' => $meta['crumb'],
-                    'provider'    => ['@id' => $this->config['base_url'] . '/#organization'],
-                    'url'         => $this->url('/uslugi/' . $slug),
-                ]],
+                // что именно оказывается и кем. Плюс вопросы, если есть.
+                'jsonld' => $jsonld,
             ],
-            'page' => $this->content($meta['content']),
+            'page' => $page,
             'form' => $this->formFlash(),
         ]));
     }

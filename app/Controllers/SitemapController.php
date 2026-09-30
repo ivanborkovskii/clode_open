@@ -37,6 +37,7 @@ final class SitemapController extends Controller
         '/'                                => 'home',
         '/uslugi'                          => 'services',
         '/uslugi/vnedrenie-bitrix24'       => 'service-bitrix24',
+        '/uslugi/audit-bitrix24'           => 'service-audit-bitrix24',
         '/uslugi/vnedrenie-amocrm'         => 'service-amocrm',
         '/uslugi/nastroyka-i-dorabotka-crm' => 'service-dorabotka',
         '/uslugi/integracii'               => 'service-integracii',

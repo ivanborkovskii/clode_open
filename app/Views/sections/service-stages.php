@@ -5,6 +5,11 @@
  * Нумерованная дорожка с вертикальной линией: этапы идут строго по порядку,
  * и линия показывает это лучше, чем восемь одинаковых карточек в сетке.
  *
+ * У этапа может быть ссылка на смежную услугу — href и label. Нужна она
+ * там, где этап сам по себе является отдельной работой: например, аудит
+ * входит в доработку, но его можно заказать и отдельно. Ссылка выводится
+ * только если та страница уже разработана, как и в блоке «что дальше».
+ *
  * @var array $stages title, lead, items
  */
 
@@ -28,6 +33,13 @@ use App\Core\View;
                     <div class="stage__body">
                         <h3 class="stage__title"><?= View::e($stage['title']) ?></h3>
                         <p class="stage__text"><?= View::e($stage['text']) ?></p>
+
+                        <?php if (!empty($stage['href']) && $view->exists($stage['href'])): ?>
+                            <a class="link-arrow" href="<?= View::e($stage['href']) ?>">
+                                <?= View::e($stage['label']) ?>
+                                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </li>
             <?php endforeach; ?>
