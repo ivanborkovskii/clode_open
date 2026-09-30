@@ -37,6 +37,14 @@
     <?php $view->partial('sections/approach', ['approach' => $page['included']]); ?>
 <?php endif; ?>
 
+<?php // Где услуга находит потери. Блок со значками, тот же, что «что
+      // подключаем» у внедрения: перечень равнозначных пунктов, порядок
+      // которых читателю неважен. Стоит до этапов — это содержательная
+      // часть, а этапы только объясняют порядок работы. ?>
+<?php if (!empty($page['losses'])): ?>
+    <?php $view->partial('sections/service-connect', ['connect' => $page['losses']]); ?>
+<?php endif; ?>
+
 <?php if (!empty($page['stages'])): ?>
     <?php $view->partial('sections/service-stages', ['stages' => $page['stages']]); ?>
 <?php endif; ?>
@@ -60,8 +68,20 @@
     <?php $view->partial('sections/approach', ['approach' => $page['results']]); ?>
 <?php endif; ?>
 
+<?php // Разбор, какая из похожих услуг нужна. Карточки со ссылками —
+      // тот же блок, что выше, только с переходами. Нужен там, где
+      // рядом есть близкие услуги и человек может выбрать не ту. ?>
+<?php if (!empty($page['choice'])): ?>
+    <?php $view->partial('sections/approach', ['approach' => $page['choice']]); ?>
+<?php endif; ?>
+
 <?php if (!empty($page['next'])): ?>
     <?php $view->partial('sections/service-next', ['next' => $page['next']]); ?>
+<?php endif; ?>
+
+<?php // Отсылка к смежной услуге, если человек пришёл не на ту страницу. ?>
+<?php if (!empty($page['aside'])): ?>
+    <?php $view->partial('sections/service-aside', ['aside' => $page['aside']]); ?>
 <?php endif; ?>
 
 <?php // Вопросы и ответы — там, где они у услуги заведены. Стоят перед
