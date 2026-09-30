@@ -21,6 +21,13 @@
     'crumbs' => $seo['breadcrumbs'],
 ]); ?>
 
+<?php // Главная мысль услуги, если она есть. Стоит сразу под шапкой:
+      // такое утверждение задаёт, как читать всё остальное, и растворять
+      // его в перечне карточек нельзя. ?>
+<?php if (!empty($page['principle'])): ?>
+    <?php $view->partial('sections/service-aside', ['aside' => $page['principle']]); ?>
+<?php endif; ?>
+
 <?php if (!empty($page['fit'])): ?>
     <?php $view->partial('sections/service-fit', ['fit' => $page['fit']]); ?>
 <?php endif; ?>
@@ -43,6 +50,11 @@
       // часть, а этапы только объясняют порядок работы. ?>
 <?php if (!empty($page['losses'])): ?>
     <?php $view->partial('sections/service-connect', ['connect' => $page['losses']]); ?>
+<?php endif; ?>
+
+<?php // Разбор с исходами: что с найденным делать. Карточки, как и всюду. ?>
+<?php if (!empty($page['plan'])): ?>
+    <?php $view->partial('sections/approach', ['approach' => $page['plan']]); ?>
 <?php endif; ?>
 
 <?php if (!empty($page['stages'])): ?>
