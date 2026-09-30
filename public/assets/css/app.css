@@ -423,6 +423,11 @@ strong { font-weight: 700; }
   align-items: center;
   gap: var(--s-5);
   height: var(--header-h);
+
+  /* Точка отсчёта для выпадающей панели. Считать её края от шапки
+     целиком нельзя: на широком экране панель вылезла бы за колонку
+     содержимого и не совпала с ним по краям. */
+  position: relative;
 }
 
 .logo {
@@ -465,6 +470,174 @@ strong { font-weight: 700; }
 
 .nav__link:hover,
 .nav__link[aria-current='page'] { color: #fff; }
+
+/* ВЫПАДАЮЩАЯ ПАНЕЛЬ
+   ------------------------------------------------------------------
+   Обёртка растянута на всю высоту шапки, а не по высоте надписи.
+   Благодаря этому панель начинается вплотную к нижнему краю шапки:
+   щель хотя бы в точку — и курсор на пути к пункту «проваливается»
+   мимо, панель закрывается на полпути.
+
+   position: static здесь намеренно: панель широкая и должна считать
+   свои края от шапки, а не от надписи «Услуги», которая стоит где-то
+   в середине ряда. Шапке для этого задан position: relative. */
+.nav__item {
+  position: static;
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+}
+
+.nav__link--has-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: stretch;
+}
+
+.nav__chev { transition: transform var(--transition); }
+
+.submenu {
+  position: absolute;
+  top: 100%;
+
+  /* Края панели совпадают с краями содержимого: слева по логотипу,
+     справа по кнопке заявки. Отступ повторяет поля колонки — без него
+     панель вылезла бы в поля и выглядела съехавшей. */
+  left: var(--gutter);
+  right: var(--gutter);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 40px rgba(7, 23, 57, 0.18);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+
+  /* Задержка стоит только на закрытии. Открывается панель сразу,
+     а исчезает через четверть секунды после того, как курсор ушёл, —
+     иначе она захлопывается от малейшего дрожания руки по дороге
+     к нужному пункту. Задержку даёт transition-delay в этом правиле;
+     в правиле ниже она обнуляется, поэтому открытие мгновенное. */
+  transition:
+    opacity var(--transition) 0.15s,
+    transform var(--transition) 0.15s,
+    visibility var(--transition) 0.15s;
+}
+
+/* Узкий вид: пока услуг немного, одна колонка по ширине содержимого,
+   а не во всю шапку — растянутая на 1200 точек полоса с пятью
+   пунктами выглядит пустой. */
+.submenu:not(.submenu--wide) {
+  left: auto;
+  right: auto;
+  min-width: 288px;
+}
+
+/* Раскрытие.
+   :focus-within нужен не меньше :hover — по нему панель открывается
+   при переходе клавишей Tab. Без него до вложенных ссылок с клавиатуры
+   не добраться вовсе. */
+.nav__item:hover .submenu,
+.nav__item:focus-within .submenu,
+.nav__item .submenu[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+
+/* Закрыто принудительно — клавишей Esc.
+   Стоит после правила раскрытия намеренно: вес у них одинаковый,
+   и спор решает порядок. Без этого правила Esc вернул бы фокус
+   на «Услуги», :focus-within сработал бы снова, и панель открылась
+   бы обратно — то есть Esc не работал бы вовсе. */
+.nav__item[data-closed='true'] .submenu {
+  opacity: 0;
+  visibility: hidden;
+  transition-delay: 0s;
+}
+
+.nav__item:hover .nav__chev,
+.nav__item:focus-within .nav__chev { transform: rotate(180deg); }
+
+.nav__item[data-closed='true'] .nav__chev { transform: none; }
+
+.nav__item:hover .nav__link--has-sub,
+.nav__item:focus-within .nav__link--has-sub { color: #fff; }
+
+/* Наведение — только там, где мышь настоящая.
+   На ноутбуке с сенсорным экраном касание засчитывается как наведение,
+   и панель залипает открытой до касания в стороне. */
+@media (hover: none) {
+  .nav__item:hover .submenu {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .nav__item:focus-within .submenu,
+  .nav__item .submenu[data-open='true'] {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.submenu__inner {
+  display: grid;
+  gap: var(--s-4) var(--s-6);
+  padding: var(--s-5);
+}
+
+.submenu--wide .submenu__inner {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: var(--s-6);
+}
+
+.submenu:not(.submenu--wide) .submenu__inner { padding: var(--s-2) 0; }
+
+.submenu__head {
+  margin: 0 0 var(--s-1);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.submenu__link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.submenu:not(.submenu--wide) .submenu__link {
+  padding: 0 var(--s-5);
+  white-space: nowrap;
+}
+
+.submenu__link:hover,
+.submenu__link:focus-visible { color: var(--accent-deep); }
+
+.submenu:not(.submenu--wide) .submenu__link:hover,
+.submenu:not(.submenu--wide) .submenu__link:focus-visible { background: var(--paper-alt); }
+
+.submenu__link[aria-current='page'] { color: var(--accent-deep); }
+
+.submenu__foot {
+  padding: var(--s-3) var(--s-5);
+  background: var(--paper-alt);
+  border-top: 1px solid var(--line);
+}
+
+.submenu__all {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--accent-deep);
+}
 
 .header__contacts {
   display: flex;
@@ -554,6 +727,44 @@ strong { font-weight: 700; }
   visibility: visible;
 }
 
+/* Два экрана меню едут горизонтально внутри общей ленты: главный список
+   и услуги. Лента вдвое шире окна, каждый экран занимает половину.
+
+   Сдвигается лента, а не экраны по отдельности: так переход остаётся
+   одним движением, и браузер анимирует одно свойство вместо двух. */
+.mobile-menu__screens {
+  display: flex;
+  width: 200%;
+  transition: transform var(--transition);
+}
+
+.mobile-menu[data-screen='uslugi'] .mobile-menu__screens {
+  transform: translateX(-50%);
+}
+
+.mobile-menu__screen {
+  width: 50%;
+  flex: none;
+}
+
+/* Экран услуг спрятан от чтения с клавиатуры и вслух, пока не открыт:
+   иначе Tab уходит в невидимый список, и курсор пропадает с экрана.
+   Через inert это делается разом и для мыши, и для скринридера, но
+   поддержан он не везде, поэтому дублируем видимостью. */
+.mobile-menu__screen--sub {
+  visibility: hidden;
+}
+
+.mobile-menu[data-screen='uslugi'] .mobile-menu__screen--sub {
+  visibility: visible;
+}
+
+/* Обратный случай: когда открыты услуги, главный список так же уходит
+   из-под клавиатуры. */
+.mobile-menu[data-screen='uslugi'] .mobile-menu__screen:not(.mobile-menu__screen--sub) {
+  visibility: hidden;
+}
+
 .mobile-menu__link {
   display: block;
   padding: var(--s-4) 0;
@@ -562,6 +773,67 @@ strong { font-weight: 700; }
   font-weight: 700;
   color: #fff;
 }
+
+/* Пункт, ведущий на второй экран: уголок вправо прижат к краю. */
+.mobile-menu__link--has-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.mobile-menu__link--has-sub svg {
+  flex: none;
+  color: var(--text-invert-muted);
+}
+
+/* Кнопка возврата. Высота 44 точки — это не про вид, а про палец:
+   меньше этого в кнопку на телефоне попадают не все. */
+.mobile-menu__back {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--text-invert-muted);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mobile-menu__back:hover { color: #fff; }
+
+.mobile-menu__title {
+  display: block;
+  margin: var(--s-1) 0 var(--s-2);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.mobile-menu__head {
+  margin: var(--s-5) 0 0;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.mobile-menu__sub {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  border-bottom: 1px solid var(--line-invert);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.mobile-menu__sub[aria-current='page'] { color: var(--accent); }
 
 .mobile-menu__foot {
   margin-top: var(--s-7);

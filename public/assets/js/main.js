@@ -16,29 +16,105 @@
   var menu = document.getElementById('mobile-menu');
 
   if (burger && menu) {
+    // Второй экран меню — услуги. Закрытие меню всегда возвращает его
+    // на главный список: иначе, открыв меню в следующий раз, посетитель
+    // увидит внутренний экран и не поймёт, где остальные разделы.
+    var setScreen = function (name) {
+      menu.dataset.screen = name;
+
+      var drill = menu.querySelector('[data-menu-drill]');
+
+      if (drill) {
+        drill.setAttribute('aria-expanded', String(name !== 'main'));
+      }
+    };
+
     var setMenu = function (open) {
       burger.setAttribute('aria-expanded', String(open));
       burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
       menu.dataset.open = String(open);
       document.body.dataset.menuOpen = String(open);
+
+      if (!open) {
+        setScreen('main');
+      }
     };
+
+    // Переход на второй экран.
+    //
+    // Пункт «Услуги» остаётся обычной ссылкой на /uslugi — без скрипта
+    // нажатие просто откроет страницу, и меню не сломается. Здесь
+    // переход перехватывается и заменяется сдвигом экрана.
+    menu.querySelectorAll('[data-menu-drill]').forEach(function (link) {
+      link.setAttribute('aria-expanded', 'false');
+
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        setScreen(link.dataset.menuDrill);
+
+        var back = menu.querySelector('[data-menu-back]');
+
+        // Фокус уезжает вместе с экраном: иначе он остался бы
+        // на уехавшей ссылке, и следующий Tab прыгнул бы неизвестно куда.
+        if (back) {
+          back.focus();
+        }
+      });
+    });
+
+    menu.querySelectorAll('[data-menu-back]').forEach(function (back) {
+      back.addEventListener('click', function () {
+        setScreen('main');
+
+        var drill = menu.querySelector('[data-menu-drill]');
+
+        if (drill) {
+          drill.focus();
+        }
+      });
+    });
 
     burger.addEventListener('click', function () {
       setMenu(burger.getAttribute('aria-expanded') !== 'true');
     });
 
     // Переход по ссылке внутри меню закрывает его.
+    //
+    // Кроме пункта, ведущего на второй экран: он тоже ссылка, но никуда
+    // не уводит — меню должно остаться открытым и показать услуги.
+    // Без этой проверки нажатие на «Услуги» закрывало меню целиком.
     menu.addEventListener('click', function (event) {
+      if (event.target.closest('[data-menu-drill]')) {
+        return;
+      }
+
       if (event.target.closest('a')) {
         setMenu(false);
       }
     });
 
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && menu.dataset.open === 'true') {
-        setMenu(false);
-        burger.focus();
+      if (event.key !== 'Escape' || menu.dataset.open !== 'true') {
+        return;
       }
+
+      // На втором экране Esc сначала возвращает назад и только потом,
+      // вторым нажатием, закрывает меню. Закрывать сразу — значит
+      // отменить оба шага одним движением, чего человек не просил.
+      if (menu.dataset.screen !== 'main') {
+        setScreen('main');
+
+        var drill = menu.querySelector('[data-menu-drill]');
+
+        if (drill) {
+          drill.focus();
+        }
+
+        return;
+      }
+
+      setMenu(false);
+      burger.focus();
     });
 
     // При возврате на десктоп меню не должно остаться открытым.
@@ -48,6 +124,91 @@
       }
     });
   }
+
+  /* ------------------------------------------------------------------
+     Выпадающая панель в шапке
+
+     Само раскрытие сделано стилями: :hover для мыши и :focus-within
+     для клавиатуры. Скрипт добавляет к этому три вещи, которых CSS
+     не умеет.
+     ------------------------------------------------------------------ */
+
+  document.querySelectorAll('[data-nav-item]').forEach(function (item) {
+    var link = item.querySelector('[aria-expanded]');
+    var panel = item.querySelector('[data-submenu]');
+
+    if (!link || !panel) {
+      return;
+    }
+
+    // 1. Сообщать состояние вслух. Для зрячего раскрытие очевидно,
+    //    а скринридер знает о нём только из aria-expanded.
+    //
+    //    Пока панель закрыта принудительно (см. пункт 2), открытой
+    //    её не объявляем: иначе сказанное разойдётся с увиденным.
+    var announce = function (open) {
+      link.setAttribute('aria-expanded', String(open && item.dataset.closed !== 'true'));
+    };
+
+    item.addEventListener('mouseenter', function () {
+      delete item.dataset.closed;
+      announce(true);
+    });
+
+    item.addEventListener('mouseleave', function () {
+      delete item.dataset.closed;
+      delete panel.dataset.open;
+      announce(false);
+    });
+
+    item.addEventListener('focusin', function () { announce(true); });
+
+    item.addEventListener('focusout', function (event) {
+      if (!item.contains(event.relatedTarget)) {
+        delete item.dataset.closed;
+        delete panel.dataset.open;
+        announce(false);
+      }
+    });
+
+    // 2. Закрывать по Esc.
+    //
+    //    Здесь есть тонкость, на которой я сначала споткнулся. Закрыть
+    //    панель и вернуть фокус на «Услуги» недостаточно: фокус снова
+    //    оказывается внутри пункта, срабатывает :focus-within — и панель
+    //    открывается обратно. Со стороны выглядит так, будто Esc не
+    //    работает вовсе.
+    //
+    //    Поэтому на пункте ставится пометка «закрыто принудительно»,
+    //    которая перебивает :focus-within. Снимается она сама, когда
+    //    курсор или фокус уходят с пункта и возвращаются.
+    item.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        item.dataset.closed = 'true';
+        delete panel.dataset.open;
+        link.setAttribute('aria-expanded', 'false');
+        link.focus();
+      }
+    });
+
+    // 3. Открывать касанием там, где мыши нет.
+    //
+    //    На планшете и на ноутбуке с сенсорным экраном наведения
+    //    не существует, и панель осталась бы недоступной. Первое
+    //    касание раскрывает её, второе — переходит на страницу услуг.
+    //    На обычном компьютере эта ветка не работает вовсе.
+    link.addEventListener('click', function (event) {
+      if (window.matchMedia('(hover: hover)').matches) {
+        return;
+      }
+
+      if (panel.dataset.open !== 'true') {
+        event.preventDefault();
+        panel.dataset.open = 'true';
+        announce(true);
+      }
+    });
+  });
 
   /* ------------------------------------------------------------------
      Кнопка «Наверх»

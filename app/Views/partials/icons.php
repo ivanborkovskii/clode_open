@@ -79,6 +79,22 @@
             <path d="M5 10l7-7 7 7M12 3v18"/>
         </g>
 
+        <?php // Уголки меню: вниз — что пункт раскрывается, вправо и влево —
+              // переход на второй экран меню на телефоне и возврат с него.
+              // Штрих толще остальных значков: они мелкие, при 1.8 уголок
+              // на тёмном фоне почти не виден. ?>
+        <g id="i-chevron-down" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 9l7 7 7-7"/>
+        </g>
+
+        <g id="i-chevron-right" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 5l7 7-7 7"/>
+        </g>
+
+        <g id="i-chevron-left" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 5l-7 7 7 7"/>
+        </g>
+
         <?php
         // Звезда для оценки статьи. Заливка задаётся в CSS: пустая звезда —
         // это та же фигура с fill: none и обводкой.

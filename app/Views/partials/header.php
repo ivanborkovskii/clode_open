@@ -5,6 +5,7 @@
  * @var array $config
  */
 
+use App\Controllers\ServiceController;
 use App\Core\View;
 
 $company = $config['company'];
@@ -19,8 +20,26 @@ $isActive = static fn (string $href): bool =>
 // Единый источник пунктов меню — используется и в шапке, и в мобильном меню.
 // Показываются все разделы архитектуры. У неразработанных ссылки нет:
 // пункт виден, но не кликается — иначе он вёл бы в «страница не найдена».
+// Вложенные пункты приходят из списка услуг — он один на весь сайт
+// (ServiceController::PAGES). Новая страница услуги появляется в обоих
+// меню сама, править этот файл не нужно.
+//
+// Механизм общий: подменю получит любой пункт, у которого есть 'sub'.
+// Понадобится оно «Решениям» или «Тарифам» — дописать сюда, остального
+// не трогать.
+$services = ServiceController::menu();
+
+// Сколько всего услуг — от этого зависит вид панели.
+//
+// До шести пунктов панель показывается одной колонкой без заголовков
+// групп: раскладывать пять услуг на три колонки — это две колонки
+// по одному пункту, и выглядит перекошенно. С седьмой услуги
+// включаются колонки. Переход происходит сам, править ничего не надо.
+$serviceCount = array_sum(array_map(static fn (array $g): int => count($g['items']), $services));
+$wideMenu     = $serviceCount > 6;
+
 $menu = [
-    ['label' => 'Услуги',     'href' => '/uslugi'],
+    ['label' => 'Услуги',     'href' => '/uslugi', 'sub' => $services],
     ['label' => 'Решения',    'href' => '/resheniya'],
     ['label' => 'Тарифы',     'href' => '/tarify/bitriks24'],
     ['label' => 'Кейсы',      'href' => '/keysy'],
@@ -35,12 +54,56 @@ $menu = [
 
         <nav class="nav" aria-label="Основная навигация">
             <?php foreach ($menu as $item): ?>
-                <?php if ($view->exists($item['href'])): ?>
+                <?php if (!$view->exists($item['href'])): ?>
+                    <span class="nav__link nav__link--soon" title="Раздел в разработке"><?= View::e($item['label']) ?></span>
+                <?php continue; endif; ?>
+
+                <?php if (empty($item['sub'])): ?>
                     <a class="nav__link" href="<?= View::e($item['href']) ?>"
                        <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
-                <?php else: ?>
-                    <span class="nav__link nav__link--soon" title="Раздел в разработке"><?= View::e($item['label']) ?></span>
-                <?php endif; ?>
+                <?php continue; endif; ?>
+
+                <?php
+                // Пункт с подменю. Сам он остаётся обычной ссылкой:
+                // страница «Услуги» проиндексирована, и ссылка на неё
+                // с каждой страницы сайта — главный источник её веса.
+                // Раскрытие висит на наведении и на переходе клавишей,
+                // переход по ссылке им не мешает.
+                //
+                // Обёртка нужна ради :hover и :focus-within: они должны
+                // охватывать и кнопку, и панель, иначе панель исчезнет,
+                // как только курсор сойдёт с надписи.
+                ?>
+                <div class="nav__item" data-nav-item>
+                    <a class="nav__link nav__link--has-sub" href="<?= View::e($item['href']) ?>"
+                       aria-expanded="false" aria-controls="submenu-uslugi"
+                       <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>>
+                        <?= View::e($item['label']) ?>
+                        <svg class="nav__chev" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+                    </a>
+
+                    <div class="submenu<?= $wideMenu ? ' submenu--wide' : '' ?>" id="submenu-uslugi" data-submenu>
+                        <div class="submenu__inner">
+                            <?php foreach ($item['sub'] as $group): ?>
+                                <div class="submenu__group">
+                                    <?php if ($wideMenu): ?>
+                                        <p class="submenu__head"><?= View::e($group['title']) ?></p>
+                                    <?php endif; ?>
+
+                                    <?php foreach ($group['items'] as $sub): ?>
+                                        <a class="submenu__link" href="<?= View::e($sub['href']) ?>"
+                                           <?= $current === $sub['href'] ? 'aria-current="page"' : '' ?>><?= View::e($wideMenu ? $sub['label'] : $sub['full']) ?></a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <?php // Страховка для тех, кто ничего не выбрал: путь на полный список. ?>
+                        <div class="submenu__foot">
+                            <a class="submenu__all" href="<?= View::e($item['href']) ?>">Все услуги одной страницей</a>
+                        </div>
+                    </div>
+                </div>
             <?php endforeach; ?>
         </nav>
 
@@ -82,17 +145,69 @@ $menu = [
     </div>
 </header>
 
-<div class="mobile-menu" id="mobile-menu" data-open="false">
+<?php
+// Меню на телефоне. Два экрана, а не раскрывающийся список.
+//
+// Наведения на телефоне нет, поэтому поведение здесь своё. Раскрывать
+// услуги прямо в списке (аккордеоном) при дюжине пунктов значит
+// вытолкнуть «Кейсы» и «Контакты» далеко за нижний край. Поэтому
+// нажатие уводит на второй экран со стрелкой «Назад» — так устроены
+// меню в приложениях, и объяснять это никому не нужно.
+//
+// Оба экрана лежат в разметке сразу: сдвигаются они стилями, и
+// без скрипта второй экран остаётся доступен обычной ссылкой.
+?>
+<div class="mobile-menu" id="mobile-menu" data-open="false" data-screen="main">
+    <div class="mobile-menu__screens">
+
+    <div class="mobile-menu__screen" data-screen-main>
     <nav aria-label="Мобильная навигация">
         <?php foreach ($menu as $item): ?>
-            <?php if ($view->exists($item['href'])): ?>
+            <?php if (!$view->exists($item['href'])): ?>
+                <span class="mobile-menu__link mobile-menu__link--soon"><?= View::e($item['label']) ?></span>
+            <?php elseif (empty($item['sub'])): ?>
                 <a class="mobile-menu__link" href="<?= View::e($item['href']) ?>"
                    <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>><?= View::e($item['label']) ?></a>
             <?php else: ?>
-                <span class="mobile-menu__link mobile-menu__link--soon"><?= View::e($item['label']) ?></span>
+                <?php
+                // Ссылка, а не кнопка, и это важно. Без скрипта нажатие
+                // откроет страницу «Услуги» — то есть меню остаётся
+                // рабочим. Скрипт перехватывает нажатие и вместо перехода
+                // сдвигает экран.
+                ?>
+                <a class="mobile-menu__link mobile-menu__link--has-sub"
+                   href="<?= View::e($item['href']) ?>"
+                   data-menu-drill="uslugi"
+                   <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>>
+                    <?= View::e($item['label']) ?>
+                    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-right"/></svg>
+                </a>
             <?php endif; ?>
         <?php endforeach; ?>
     </nav>
+    </div>
+
+    <?php // Подпись у этого блока не нужна: внутри стоит <nav> со своей. ?>
+    <div class="mobile-menu__screen mobile-menu__screen--sub" data-screen-sub="uslugi">
+        <button class="mobile-menu__back" type="button" data-menu-back>
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+            Назад
+        </button>
+
+        <a class="mobile-menu__title" href="/uslugi">Все услуги</a>
+
+        <nav aria-label="Услуги">
+            <?php foreach ($services as $group): ?>
+                <p class="mobile-menu__head"><?= View::e($group['title']) ?></p>
+                <?php foreach ($group['items'] as $sub): ?>
+                    <a class="mobile-menu__sub" href="<?= View::e($sub['href']) ?>"
+                       <?= $current === $sub['href'] ? 'aria-current="page"' : '' ?>><?= View::e($sub['label']) ?></a>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
+        </nav>
+    </div>
+
+    </div>
 
     <div class="mobile-menu__foot">
         <a class="mobile-menu__phone" href="tel:<?= View::e($company['phone_href']) ?>">
