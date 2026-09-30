@@ -105,16 +105,14 @@ final class ServiceController extends Controller
      * там служебные поля и тексты для поисковой выдачи. Поэтому наружу
      * отдаётся только то, что нужно меню.
      *
-     * У пункта два имени, и это не прихоть. Под заголовком колонки
-     * «Битрикс24» достаточно слова «Внедрение» — система и так названа
-     * сверху. А в общем списке без заголовков то же слово превращается
-     * в загадку: внедрение чего? Поэтому рядом лежит и полное имя,
-     * и вид меню выбирает подходящее.
+     * Имя для меню берётся короткое: под заголовком колонки «Битрикс24»
+     * достаточно слова «Внедрение», система названа сверху. Полное имя
+     * («Внедрение Битрикс24») остаётся для хлебных крошек.
      *
-     * Пустые колонки не возвращаются: пока услуг по amoCRM одна,
-     * колонка из одного пункта не появится.
+     * Пустые колонки не возвращаются: если услуг по amoCRM не окажется
+     * вовсе, пустого столбца с заголовком не будет.
      *
-     * @return array<string, array{title: string, items: list<array{label: string, full: string, href: string}>}>
+     * @return array<string, array{title: string, items: list<array{label: string, href: string}>}>
      */
     public static function menu(): array
     {
@@ -123,7 +121,6 @@ final class ServiceController extends Controller
         foreach (self::PAGES as $slug => $page) {
             $byGroup[$page['group'] ?? 'obshchie'][] = [
                 'label' => $page['menu'] ?? $page['crumb'],
-                'full'  => $page['crumb'],
                 'href'  => '/uslugi/' . $slug,
             ];
         }

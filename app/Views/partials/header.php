@@ -29,15 +29,6 @@ $isActive = static fn (string $href): bool =>
 // не трогать.
 $services = ServiceController::menu();
 
-// Сколько всего услуг — от этого зависит вид панели.
-//
-// До шести пунктов панель показывается одной колонкой без заголовков
-// групп: раскладывать пять услуг на три колонки — это две колонки
-// по одному пункту, и выглядит перекошенно. С седьмой услуги
-// включаются колонки. Переход происходит сам, править ничего не надо.
-$serviceCount = array_sum(array_map(static fn (array $g): int => count($g['items']), $services));
-$wideMenu     = $serviceCount > 6;
-
 $menu = [
     ['label' => 'Услуги',     'href' => '/uslugi', 'sub' => $services],
     ['label' => 'Решения',    'href' => '/resheniya'],
@@ -82,17 +73,15 @@ $menu = [
                         <svg class="nav__chev" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-down"/></svg>
                     </a>
 
-                    <div class="submenu<?= $wideMenu ? ' submenu--wide' : '' ?>" id="submenu-uslugi" data-submenu>
+                    <div class="submenu" id="submenu-uslugi" data-submenu>
                         <div class="submenu__inner">
                             <?php foreach ($item['sub'] as $group): ?>
                                 <div class="submenu__group">
-                                    <?php if ($wideMenu): ?>
-                                        <p class="submenu__head"><?= View::e($group['title']) ?></p>
-                                    <?php endif; ?>
+                                    <p class="submenu__head"><?= View::e($group['title']) ?></p>
 
                                     <?php foreach ($group['items'] as $sub): ?>
                                         <a class="submenu__link" href="<?= View::e($sub['href']) ?>"
-                                           <?= $current === $sub['href'] ? 'aria-current="page"' : '' ?>><?= View::e($wideMenu ? $sub['label'] : $sub['full']) ?></a>
+                                           <?= $current === $sub['href'] ? 'aria-current="page"' : '' ?>><?= View::e($sub['label']) ?></a>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endforeach; ?>
