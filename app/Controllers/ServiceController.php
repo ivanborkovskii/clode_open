@@ -172,14 +172,55 @@ final class ServiceController extends Controller
         return $menu;
     }
 
+    /**
+     * Услуги для страницы раздела: описанные вручную плюс забытые.
+     *
+     * Состав работ по каждой услуге пишется руками в config/content/services.php:
+     * из PAGES его не вывести, там только адрес и текст для выдачи. Но если
+     * новую услугу туда дописать забыли, страница просто не появится в разделе,
+     * и заметить это можно нескоро.
+     *
+     * Поэтому услуги, которых в списке нет, добавляются сюда сами — с текстом
+     * для выдачи вместо перечня работ. Карточка выходит скромная, но страница
+     * видна и на неё ведёт ссылка. Дописали состав работ руками — карточка
+     * встала на своё место в нужном порядке.
+     *
+     * @param  list<array<string, mixed>> $items
+     * @return list<array<string, mixed>>
+     */
+    private static function withMissing(array $items): array
+    {
+        $described = array_column($items, 'slug');
+
+        foreach (self::PAGES as $slug => $page) {
+            if (in_array($slug, $described, true)) {
+                continue;
+            }
+
+            $items[] = [
+                'slug'      => $slug,
+                'href'      => '/uslugi/' . $slug,
+                'title'     => $page['crumb'],
+                'situation' => $page['description'],
+                'points'    => [],
+            ];
+        }
+
+        return $items;
+    }
+
     public function index(): void
     {
+        $page = $this->content('services');
+        $page['items'] = self::withMissing($page['items']);
+
         $this->html($this->view->render('services', [
             'styles' => ['css/pages.css'],
             'seo' => [
-                'title'       => 'Услуги: внедрение, доработка и сопровождение CRM',
-                'description' => 'Внедрение Битрикс24 и amoCRM, настройка и доработка '
-                    . 'действующей CRM, интеграции с телефонией, сайтом, 1С и Мой склад, '
+                'title'       => 'Услуги: внедрение, аудит и сопровождение CRM',
+                'description' => 'Внедрение Битрикс24 и amoCRM, аудит CRM и разбор '
+                    . 'конкретной системы, настройка и доработка действующей, '
+                    . 'интеграции с телефонией, сайтом, 1С и Мой склад, '
                     . 'ежемесячное сопровождение.',
                 'canonical'   => $this->url('/uslugi'),
                 'breadcrumbs' => [
@@ -196,11 +237,11 @@ final class ServiceController extends Controller
                             'name' => $item['title'],
                             'href' => $item['href'],
                         ],
-                        $this->content('services')['items'],
+                        $page['items'],
                     ),
                 )],
             ],
-            'page' => $this->content('services'),
+            'page' => $page,
             'form' => $this->formFlash(),
         ]));
     }
