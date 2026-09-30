@@ -1014,6 +1014,18 @@
 
 .tarif-table tbody tr:hover { background: var(--paper); }
 
+/* Таблица с текстом в колонках, а не с галочками.
+   Правило выше сжимает колонки значений до 15% и ставит их по центру —
+   для сравнения тарифов это верно, а для таблицы соответствия полей нет:
+   там во всех колонках текст, и его надо читать слева направо. */
+.tarif-table--text td,
+.tarif-table--text thead th:not(:first-child) {
+  width: auto;
+  text-align: left;
+}
+
+.tarif-table--text thead th { white-space: normal; }
+
 .tarif-table__price { font-weight: 700; white-space: nowrap; }
 
 .tarif-table__year {

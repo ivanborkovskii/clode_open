@@ -57,6 +57,30 @@
     <?php $view->partial('sections/approach', ['approach' => $page['plan']]); ?>
 <?php endif; ?>
 
+<?php
+// Дополнительные блоки услуги, в заданном ею порядке.
+//
+// Именованных мест выше хватает большинству страниц, но у иных услуг
+// разделов больше, и заводить под каждый свой ключ в шаблоне — значит
+// растить его без конца. Здесь услуга сама перечисляет блоки: чем
+// рисовать и что показать.
+//
+// Новых секций это не изобретает — только переставляет уже имеющиеся.
+// Список допустимых задан явно: имя секции приходит из файла с текстами,
+// и подставлять его в путь без проверки нельзя.
+$blockViews = [
+    'approach'        => 'approach',
+    'service-connect' => 'connect',
+    'service-aside'   => 'aside',
+    'service-table'   => 'table',
+];
+?>
+<?php foreach ($page['blocks'] ?? [] as $block): ?>
+    <?php if (isset($blockViews[$block['view'] ?? ''])): ?>
+        <?php $view->partial('sections/' . $block['view'], [$blockViews[$block['view']] => $block]); ?>
+    <?php endif; ?>
+<?php endforeach; ?>
+
 <?php if (!empty($page['stages'])): ?>
     <?php $view->partial('sections/service-stages', ['stages' => $page['stages']]); ?>
 <?php endif; ?>
