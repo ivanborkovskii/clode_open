@@ -437,7 +437,7 @@ return [
             . 'по задачам. Если же CRM у вас не Битрикс24 — та же работа есть '
             . 'и в общем виде, без привязки к системе.',
         'links' => [
-            ['href' => '/uslugi/soprovozhdenie-crm',        'label' => 'Сопровождение CRM'],
+            ['href' => '/uslugi/soprovozhdenie-bitrix24',        'label' => 'Сопровождение Битрикс24'],
             ['href' => '/uslugi/nastroyka-i-dorabotka-crm', 'label' => 'Настройка и доработка CRM'],
             ['href' => '/uslugi/migraciya-v-bitrix24',      'label' => 'Перенос данных в Битрикс24'],
         ],

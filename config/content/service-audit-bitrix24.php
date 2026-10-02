@@ -305,7 +305,7 @@ return [
             ['href' => '/uslugi/dorabotka-bitrix24',        'label' => 'Доработка Битрикс24'],
             ['href' => '/uslugi/nastroyka-i-dorabotka-crm', 'label' => 'Настройка и доработка CRM'],
             ['href' => '/uslugi/integracii',                'label' => 'Интеграции'],
-            ['href' => '/uslugi/soprovozhdenie-crm',        'label' => 'Сопровождение CRM'],
+            ['href' => '/uslugi/soprovozhdenie-bitrix24',        'label' => 'Сопровождение Битрикс24'],
             ['href' => '/uslugi/vnedrenie-bitrix24',        'label' => 'Внедрение Битрикс24'],
         ],
     ],

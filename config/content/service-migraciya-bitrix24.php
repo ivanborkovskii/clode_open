@@ -498,7 +498,7 @@ return [
         'links' => [
             ['href' => '/uslugi/nastroyka-i-dorabotka-crm', 'label' => 'Настройка и доработка CRM'],
             ['href' => '/uslugi/audit-crm',                 'label' => 'Аудит CRM'],
-            ['href' => '/uslugi/soprovozhdenie-crm',        'label' => 'Сопровождение CRM'],
+            ['href' => '/uslugi/soprovozhdenie-bitrix24',        'label' => 'Сопровождение Битрикс24'],
         ],
     ],
 

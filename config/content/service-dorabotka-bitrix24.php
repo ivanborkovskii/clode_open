@@ -592,7 +592,7 @@ return [
             . 'разработка интеграции.',
         'links' => [
             ['href' => '/uslugi/razrabotka-integraciy-crm-rest-api', 'label' => 'Разработка интеграций по REST API'],
-            ['href' => '/uslugi/soprovozhdenie-crm',                 'label' => 'Сопровождение CRM'],
+            ['href' => '/uslugi/soprovozhdenie-bitrix24',                 'label' => 'Сопровождение Битрикс24'],
             ['href' => '/uslugi/audit-bitrix24',                     'label' => 'Аудит Битрикс24'],
             ['href' => '/uslugi/ustanovka-korobochnogo-bitrix24',    'label' => 'Установка коробочного Битрикс24'],
         ],
