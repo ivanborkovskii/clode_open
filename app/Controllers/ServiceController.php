@@ -149,7 +149,7 @@ final class ServiceController extends Controller
             'description' => 'Доработка действующей amoCRM: новые воронки '
                 . 'и процессы, автоматизация Digital Pipeline, виджеты, поля, '
                 . 'дашборды и нестандартные сценарии. Частичные работы — '
-                . '2 400 ₽ за час.',
+                . '4 400 ₽ за час.',
         ],
 
         'audit-amocrm' => [
