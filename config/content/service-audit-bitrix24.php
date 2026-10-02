@@ -302,6 +302,7 @@ return [
             . 'не об аудите, а о внедрении.',
         'links' => [
             ['href' => '/uslugi/nastroyka-bitrix24',        'label' => 'Настройка Битрикс24'],
+            ['href' => '/uslugi/dorabotka-bitrix24',        'label' => 'Доработка Битрикс24'],
             ['href' => '/uslugi/nastroyka-i-dorabotka-crm', 'label' => 'Настройка и доработка CRM'],
             ['href' => '/uslugi/integracii',                'label' => 'Интеграции'],
             ['href' => '/uslugi/soprovozhdenie-crm',        'label' => 'Сопровождение CRM'],
