@@ -495,7 +495,7 @@ return [
             ['href' => '/uslugi/nastroyka-i-dorabotka-crm', 'label' => 'Настройка и доработка CRM'],
             ['href' => '/uslugi/integracii',                'label' => 'Интеграции'],
             ['href' => '/uslugi/vnedrenie-amocrm',          'label' => 'Внедрение amoCRM'],
-            ['href' => '/uslugi/soprovozhdenie-crm',        'label' => 'Сопровождение CRM'],
+            ['href' => '/uslugi/soprovozhdenie-amocrm',        'label' => 'Сопровождение amoCRM'],
         ],
     ],
 
