@@ -6,7 +6,12 @@
  * стоимость лицензии проще всего принять за стоимость внедрения,
  * и разбираться с этим потом дороже, чем предупредить здесь.
  *
- * @var array $separate label, title, text, link
+ * Вторая такая же пара — text и link — выводится из extra, если она есть.
+ * Нужна для случая, когда на странице с ценами надо сказать ещё одну
+ * вещь: цены здесь для покупки, а для уже купленной лицензии разговор
+ * другой. Отдельной секции под одну фразу заводить незачем.
+ *
+ * @var array $separate label, title, text, link, extra
  */
 
 use App\Core\View;
@@ -22,6 +27,15 @@ use App\Core\View;
                 <?= View::e($separate['link']['label']) ?>
                 <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
             </a>
+
+            <?php if (!empty($separate['extra'])): ?>
+                <p class="tarif-separate__text"><?= View::e($separate['extra']['text']) ?></p>
+
+                <a class="btn btn--outline" href="<?= View::e($separate['extra']['link']['href']) ?>">
+                    <?= View::e($separate['extra']['link']['label']) ?>
+                    <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 </section>
