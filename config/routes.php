@@ -23,7 +23,11 @@ $router->get('/uslugi/{slug}', 'ServiceController@show', ServiceController::path
 $router->get('/resheniya', 'SolutionController@index');
 $router->get('/resheniya/{slug}', 'SolutionController@show', SolutionController::paths());
 
+// Раздел «Тарифы и лицензии». Адреса разной формы намеренно: подробности
+// в комментарии к TariffController.
 $router->get('/tarify/bitriks24', 'TariffController@bitrix');
+$router->get('/tarify/tarify-amocrm', 'TariffController@amocrm');
+$router->get('/tarify/prodlenie-licenzii-bitrix24', 'TariffController@prodlenie');
 
 $router->get('/keysy', 'CaseController@index');
 $router->get('/keysy/{slug}', 'CaseController@show', CaseController::paths());

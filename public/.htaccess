@@ -173,9 +173,16 @@
     RewriteRule ^uslugi/vnedrenie/?$ https://ivanborkovsky.ru/uslugi [L,R=301]
 
     # Тарифы Битрикс24 — на страницу тарифов: там те же лицензии и цены.
-    # По amoCRM такой страницы нет, поэтому её тарифы ведут на услугу.
+    #
+    # Правила для tarify-amocrm здесь нет намеренно: этот адрес теперь
+    # настоящая страница сайта. Раньше он уводил на внедрение amoCRM —
+    # просто потому, что страницы тарифов amoCRM ещё не было.
     RewriteRule ^tarify/tarify-bitrix24(\.php)?/?$ https://ivanborkovsky.ru/tarify/bitriks24 [L,R=301]
-    RewriteRule ^tarify/tarify-amocrm(\.php)?/?$ https://ivanborkovsky.ru/uslugi/vnedrenie-amocrm [L,R=301]
+
+    # Продление лицензии недолго жило в разделе услуг. Проиндексироваться
+    # оно не успело, но правило оставлено на случай, если адрес где-то
+    # записан: лишняя переадресация дешевле «страницы не найдено».
+    RewriteRule ^uslugi/prodlenie-licenzii-bitrix24(\.php)?/?$ https://ivanborkovsky.ru/tarify/prodlenie-licenzii-bitrix24 [L,R=301]
 
     # База знаний — на статьи. Сопоставить статью со статьёй нельзя:
     # это другие тексты с другими адресами. Поэтому и отдельная статья,

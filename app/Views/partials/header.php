@@ -6,6 +6,7 @@
  */
 
 use App\Controllers\ServiceController;
+use App\Controllers\TariffController;
 use App\Core\View;
 
 $company = $config['company'];
@@ -29,15 +30,33 @@ $isActive = static fn (string $href): bool =>
 // не трогать.
 $services = ServiceController::menu();
 
+// Раздел тарифов: три страницы под три разных вопроса. Группа одна,
+// её заголовок и называет раздел целиком — в самой шапке на это имя
+// места нет: «Тарифы и лицензии» рядом с остальными пунктами переносится
+// на две строки и ломает ряд.
+$tarify = [
+    ['title' => 'Тарифы и лицензии', 'items' => array_map(
+        static fn (array $tab): array => ['label' => $tab['label'], 'href' => $tab['href']],
+        TariffController::tabs(''),
+    )],
+];
+
+// key — имя подменю: из него собираются id панели на компьютере
+// и имя второго экрана на телефоне. Без него два подменю получили бы
+// одинаковые id, и разметка стала бы неправильной.
 $menu = [
-    ['label' => 'Услуги',     'href' => '/uslugi', 'sub' => $services],
+    ['key' => 'uslugi', 'label' => 'Услуги',  'href' => '/uslugi',  'sub' => $services],
     ['label' => 'Решения',    'href' => '/resheniya'],
-    ['label' => 'Тарифы',     'href' => '/tarify/bitriks24'],
+    ['key' => 'tarify', 'label' => 'Тарифы', 'href' => TariffController::BITRIX, 'sub' => $tarify],
     ['label' => 'Кейсы',      'href' => '/keysy'],
     ['label' => 'Статьи',     'href' => '/stati'],
     ['label' => 'О компании', 'href' => '/o-kompanii'],
     ['label' => 'Контакты',   'href' => '/kontakty'],
 ];
+
+// Подсветка раздела тарифов: адреса трёх его страниц общего начала
+// не имеют, поэтому проверяется принадлежность списку.
+$inTarify = in_array($current, TariffController::paths(), true);
 ?>
 <header class="header">
     <div class="container header__inner">
@@ -65,19 +84,25 @@ $menu = [
                 // охватывать и кнопку, и панель, иначе панель исчезнет,
                 // как только курсор сойдёт с надписи.
                 ?>
-                <div class="nav__item" data-nav-item>
+                <?php // Подменю услуг раскладывается колонками во всю ширину
+                      // шапки, подменю тарифов — короткий список под своим
+                      // пунктом. Отсюда модификатор. ?>
+                <?php $narrow = $item['key'] !== 'uslugi'; ?>
+                <div class="nav__item<?= $narrow ? ' nav__item--narrow' : '' ?>" data-nav-item>
                     <a class="nav__link nav__link--has-sub" href="<?= View::e($item['href']) ?>"
-                       aria-expanded="false" aria-controls="submenu-uslugi"
-                       <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>>
+                       aria-expanded="false" aria-controls="submenu-<?= View::e($item['key']) ?>"
+                       <?= $isActive($item['href']) || ($item['key'] === 'tarify' && $inTarify) ? 'aria-current="page"' : '' ?>>
                         <?= View::e($item['label']) ?>
                         <svg class="nav__chev" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-down"/></svg>
                     </a>
 
-                    <div class="submenu" id="submenu-uslugi" data-submenu>
+                    <div class="submenu<?= $narrow ? ' submenu--narrow' : '' ?>" id="submenu-<?= View::e($item['key']) ?>" data-submenu>
                         <div class="submenu__inner">
                             <?php foreach ($item['sub'] as $group): ?>
                                 <div class="submenu__group">
-                                    <p class="submenu__head"><?= View::e($group['title']) ?></p>
+                                    <?php if ($group['title'] !== ''): ?>
+                                        <p class="submenu__head"><?= View::e($group['title']) ?></p>
+                                    <?php endif; ?>
 
                                     <?php foreach ($group['items'] as $sub): ?>
                                         <a class="submenu__link" href="<?= View::e($sub['href']) ?>"
@@ -87,10 +112,13 @@ $menu = [
                             <?php endforeach; ?>
                         </div>
 
-                        <?php // Страховка для тех, кто ничего не выбрал: путь на полный список. ?>
-                        <div class="submenu__foot">
-                            <a class="submenu__all" href="<?= View::e($item['href']) ?>">Все услуги одной страницей</a>
-                        </div>
+                        <?php // Страховка для тех, кто ничего не выбрал: путь на полный список.
+                              // У тарифов такой страницы нет — там и выбирать-то не из чего. ?>
+                        <?php if ($item['key'] === 'uslugi'): ?>
+                            <div class="submenu__foot">
+                                <a class="submenu__all" href="<?= View::e($item['href']) ?>">Все услуги одной страницей</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -166,8 +194,8 @@ $menu = [
                 ?>
                 <a class="mobile-menu__link mobile-menu__link--has-sub"
                    href="<?= View::e($item['href']) ?>"
-                   data-menu-drill="uslugi"
-                   <?= $isActive($item['href']) ? 'aria-current="page"' : '' ?>>
+                   data-menu-drill="<?= View::e($item['key']) ?>"
+                   <?= $isActive($item['href']) || ($item['key'] === 'tarify' && $inTarify) ? 'aria-current="page"' : '' ?>>
                     <?= View::e($item['label']) ?>
                     <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-right"/></svg>
                 </a>
@@ -176,25 +204,42 @@ $menu = [
     </nav>
     </div>
 
-    <?php // Подпись у этого блока не нужна: внутри стоит <nav> со своей. ?>
-    <div class="mobile-menu__screen mobile-menu__screen--sub" data-screen-sub="uslugi">
-        <button class="mobile-menu__back" type="button" data-menu-back>
-            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-left"/></svg>
-            Назад
-        </button>
+    <?php
+    // Вторые экраны — по одному на каждый пункт с подменю. Раньше он был
+    // один и прямо под услуги; теперь собирается из того же $menu,
+    // и третий появится сам, если понадобится.
+    //
+    // Подпись у блока не нужна: внутри стоит <nav> со своей.
+    ?>
+    <?php foreach ($menu as $item): ?>
+        <?php if (empty($item['sub']) || !$view->exists($item['href'])) { continue; } ?>
 
-        <a class="mobile-menu__title" href="/uslugi">Все услуги</a>
+        <div class="mobile-menu__screen mobile-menu__screen--sub" data-screen-sub="<?= View::e($item['key']) ?>">
+            <button class="mobile-menu__back" type="button" data-menu-back>
+                <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+                Назад
+            </button>
 
-        <nav aria-label="Услуги">
-            <?php foreach ($services as $group): ?>
-                <p class="mobile-menu__head"><?= View::e($group['title']) ?></p>
-                <?php foreach ($group['items'] as $sub): ?>
-                    <a class="mobile-menu__sub" href="<?= View::e($sub['href']) ?>"
-                       <?= $current === $sub['href'] ? 'aria-current="page"' : '' ?>><?= View::e($sub['label']) ?></a>
+            <?php if ($item['key'] === 'uslugi'): ?>
+                <a class="mobile-menu__title" href="/uslugi">Все услуги</a>
+            <?php else: ?>
+                <p class="mobile-menu__title"><?= View::e($item['label']) ?></p>
+            <?php endif; ?>
+
+            <nav aria-label="<?= View::e($item['label']) ?>">
+                <?php foreach ($item['sub'] as $group): ?>
+                    <?php if ($group['title'] !== ''): ?>
+                        <p class="mobile-menu__head"><?= View::e($group['title']) ?></p>
+                    <?php endif; ?>
+
+                    <?php foreach ($group['items'] as $sub): ?>
+                        <a class="mobile-menu__sub" href="<?= View::e($sub['href']) ?>"
+                           <?= $current === $sub['href'] ? 'aria-current="page"' : '' ?>><?= View::e($sub['label']) ?></a>
+                    <?php endforeach; ?>
                 <?php endforeach; ?>
-            <?php endforeach; ?>
-        </nav>
-    </div>
+            </nav>
+        </div>
+    <?php endforeach; ?>
 
     </div>
 

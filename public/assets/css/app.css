@@ -584,6 +584,27 @@ strong { font-weight: 700; }
   gap: var(--s-5) var(--s-6);
   padding: var(--s-6);
 }
+/* Узкая панель — для подменю из нескольких ссылок без колонок.
+   Во всю ширину шапки три пункта смотрелись бы потерянными, поэтому
+   панель встаёт под своим пунктом и занимает ровно столько, сколько
+   нужно её содержимому. Чтобы она держалась пункта, а не всей шапки,
+   её обёртка перестаёт быть «прозрачной» для позиционирования. */
+.nav__item--narrow { position: relative; }
+
+.submenu--narrow {
+  left: 0;
+  right: auto;
+  min-width: 14rem;
+  width: max-content;
+  max-width: 22rem;
+}
+
+.submenu--narrow .submenu__inner {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-2);
+  padding: var(--s-4);
+}
+
 
 .submenu__head {
   margin: 0 0 var(--s-1);
@@ -713,36 +734,47 @@ strong { font-weight: 700; }
 
    Сдвигается лента, а не экраны по отдельности: так переход остаётся
    одним движением, и браузер анимирует одно свойство вместо двух. */
+/* Экранов три: главный список, услуги и тарифы. Лента шире окна ровно
+   во столько же раз, и сдвигается на один экран за шаг.
+
+   --at — номер показанного экрана. Появится четвёртый — поправить
+   --screens и дописать одну строку с его именем, остального
+   не трогать. */
 .mobile-menu__screens {
+  --screens: 3;
+  --at: 0;
+
   display: flex;
-  width: 200%;
+  width: calc(var(--screens) * 100%);
+  transform: translateX(calc(var(--at) * -100% / var(--screens)));
   transition: transform var(--transition);
 }
 
-.mobile-menu[data-screen='uslugi'] .mobile-menu__screens {
-  transform: translateX(-50%);
-}
+.mobile-menu[data-screen='uslugi'] .mobile-menu__screens { --at: 1; }
+.mobile-menu[data-screen='tarify'] .mobile-menu__screens { --at: 2; }
 
 .mobile-menu__screen {
-  width: 50%;
+  width: calc(100% / var(--screens, 3));
   flex: none;
 }
 
-/* Экран услуг спрятан от чтения с клавиатуры и вслух, пока не открыт:
-   иначе Tab уходит в невидимый список, и курсор пропадает с экрана.
-   Через inert это делается разом и для мыши, и для скринридера, но
-   поддержан он не везде, поэтому дублируем видимостью. */
+/* Внутренние экраны спрятаны от чтения с клавиатуры и вслух, пока
+   не открыты: иначе Tab уходит в невидимый список, и курсор пропадает
+   с экрана. Через inert это делается разом и для мыши, и для
+   скринридера, но поддержан он не везде, поэтому дублируем
+   видимостью. */
 .mobile-menu__screen--sub {
   visibility: hidden;
 }
 
-.mobile-menu[data-screen='uslugi'] .mobile-menu__screen--sub {
+.mobile-menu[data-screen='uslugi'] [data-screen-sub='uslugi'],
+.mobile-menu[data-screen='tarify'] [data-screen-sub='tarify'] {
   visibility: visible;
 }
 
-/* Обратный случай: когда открыты услуги, главный список так же уходит
-   из-под клавиатуры. */
-.mobile-menu[data-screen='uslugi'] .mobile-menu__screen:not(.mobile-menu__screen--sub) {
+/* Обратный случай: когда открыт внутренний экран, главный список
+   так же уходит из-под клавиатуры. */
+.mobile-menu:not([data-screen='main']) .mobile-menu__screen:not(.mobile-menu__screen--sub) {
   visibility: hidden;
 }
 

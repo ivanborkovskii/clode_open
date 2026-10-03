@@ -17,6 +17,8 @@
     'crumbs' => $seo['breadcrumbs'],
 ]); ?>
 
+<?php $view->partial('partials/tarif-tabs', ['tabs' => $tabs]); ?>
+
 <?php $view->partial('sections/tarif-plans', [
     'plans' => $page['plans'],
     'note'  => $page['note'],

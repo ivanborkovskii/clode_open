@@ -14,12 +14,19 @@
  * @var array $page
  * @var array $seo
  * @var array $form
+ * @var array $tabs Вкладки раздела тарифов — только у страниц этого раздела
  */
 ?>
 <?php $view->partial('sections/page-hero', [
     'hero'   => $page['hero'],
     'crumbs' => $seo['breadcrumbs'],
 ]); ?>
+
+<?php // Полоса вкладок раздела «Тарифы и лицензии». Страницы услуг её
+      // не передают, и у них ничего не меняется. ?>
+<?php if (!empty($tabs)): ?>
+    <?php $view->partial('partials/tarif-tabs', ['tabs' => $tabs]); ?>
+<?php endif; ?>
 
 <?php // Главная мысль услуги, если она есть. Стоит сразу под шапкой:
       // такое утверждение задаёт, как читать всё остальное, и растворять
@@ -73,6 +80,7 @@ $blockViews = [
     'service-connect' => 'connect',
     'service-aside'   => 'aside',
     'service-table'   => 'table',
+    'service-calc'    => 'calc',
 ];
 ?>
 <?php foreach ($page['blocks'] ?? [] as $block): ?>

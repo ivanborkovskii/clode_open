@@ -22,11 +22,17 @@
     var setScreen = function (name) {
       menu.dataset.screen = name;
 
-      var drill = menu.querySelector('[data-menu-drill]');
+      // Раскрытым считается только тот пункт, на экран которого ушли.
+      // Пунктов с подменю может быть несколько — «Услуги» и «Тарифы».
+      menu.querySelectorAll('[data-menu-drill]').forEach(function (link) {
+        link.setAttribute('aria-expanded', String(link.dataset.menuDrill === name));
+      });
+    };
 
-      if (drill) {
-        drill.setAttribute('aria-expanded', String(name !== 'main'));
-      }
+    // Ссылка, которая ведёт на экран с таким именем. Нужна, чтобы вернуть
+    // на неё фокус при возврате назад: иначе он всегда уезжал на первую.
+    var drillFor = function (name) {
+      return menu.querySelector('[data-menu-drill="' + name + '"]');
     };
 
     var setMenu = function (open) {
@@ -64,9 +70,9 @@
 
     menu.querySelectorAll('[data-menu-back]').forEach(function (back) {
       back.addEventListener('click', function () {
-        setScreen('main');
+        var drill = drillFor(menu.dataset.screen);
 
-        var drill = menu.querySelector('[data-menu-drill]');
+        setScreen('main');
 
         if (drill) {
           drill.focus();
@@ -102,12 +108,12 @@
       // вторым нажатием, закрывает меню. Закрывать сразу — значит
       // отменить оба шага одним движением, чего человек не просил.
       if (menu.dataset.screen !== 'main') {
+        var back = drillFor(menu.dataset.screen);
+
         setScreen('main');
 
-        var drill = menu.querySelector('[data-menu-drill]');
-
-        if (drill) {
-          drill.focus();
+        if (back) {
+          back.focus();
         }
 
         return;
@@ -764,4 +770,82 @@
       form.replaceWith(success);
     }
   }
+  /* ------------------------------------------------------------------
+     Калькулятор стоимости лицензии
+     ------------------------------------------------------------------ */
+
+  // Блок осмыслен и без скрипта: сервер посчитал его по значениям
+  // по умолчанию. Здесь цифры просто начинают меняться на лету.
+  document.querySelectorAll('[data-calc]').forEach(function (calc) {
+    var rates;
+
+    try {
+      rates = JSON.parse(calc.dataset.calcRates);
+    } catch (error) {
+      return;
+    }
+
+    var usersInput = calc.querySelector('[data-calc-users]');
+    var planInput = calc.querySelector('[data-calc-plan]');
+    var termInput = calc.querySelector('[data-calc-term]');
+
+    var totalOut = calc.querySelector('[data-calc-total]');
+    var rateOut = calc.querySelector('[data-calc-rate]');
+    var countOut = calc.querySelector('[data-calc-count]');
+    var monthsOut = calc.querySelector('[data-calc-months]');
+
+    if (!usersInput || !planInput || !termInput || !totalOut) {
+      return;
+    }
+
+    // Пробел здесь неразрывный — тот же, что ставит сервер: иначе сумма
+    // переносится по разрядам, а знак рубля уезжает на другую строку.
+    var money = function (value) {
+      return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0\u20bd';
+    };
+
+    var update = function () {
+      var users = Math.round(Number(usersInput.value));
+      var min = Number(usersInput.min) || 1;
+      var max = Number(usersInput.max) || 500;
+
+      // Чужие значения в поле бывают всякие: пустое, ноль, буквы,
+      // тысяча пользователей. Считаем по тому, что поле вообще
+      // допускает, а само поле не трогаем, пока человек печатает.
+      if (!isFinite(users) || users < min) {
+        users = min;
+      }
+
+      if (users > max) {
+        users = max;
+      }
+
+      var term = Number(termInput.value);
+      var plan = rates[Number(planInput.value)];
+      var rate = plan ? plan[term] : null;
+
+      if (!rate) {
+        return;
+      }
+
+      totalOut.textContent = money(rate * users * term);
+
+      if (rateOut) {
+        rateOut.textContent = money(rate);
+      }
+
+      if (countOut) {
+        countOut.textContent = String(users);
+      }
+
+      if (monthsOut) {
+        monthsOut.textContent = termInput.options[termInput.selectedIndex].text.trim();
+      }
+    };
+
+    [usersInput, planInput, termInput].forEach(function (field) {
+      field.addEventListener('input', update);
+      field.addEventListener('change', update);
+    });
+  });
 })();

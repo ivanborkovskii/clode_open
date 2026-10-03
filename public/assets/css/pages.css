@@ -257,6 +257,20 @@
   gap: clamp(1.5rem, 3vw, 3rem) clamp(2rem, 4vw, 4.5rem);
 }
 
+/* Три карточки в ряд — для троек, которые нельзя разбить на пары:
+   линейка из трёх тарифов, три вопроса. В две колонки третья осталась бы
+   одна во втором ряду. На планшете и телефоне раскладка та же, что
+   у обычной сетки. */
+.approach-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Промежуточного шага в две колонки у тройки нет намеренно: третья
+   карточка снова осталась бы одна во втором ряду. Сразу в одну. */
+@media (max-width: 1023px) {
+  .approach-grid--three { grid-template-columns: minmax(0, 1fr); }
+}
+
 .approach-item {
   padding-top: var(--s-5);
   border-top: 2px solid var(--ink-900);
@@ -1071,4 +1085,138 @@
   /* Таблице нужна минимальная ширина, иначе колонки сжимаются
      до нечитаемых: пусть лучше прокручивается вбок. */
   .tarif-table { min-width: 34rem; }
+}
+
+/* --------------------------------------------------------------------------
+   Вкладки раздела «Тарифы и лицензии»
+
+   Полоса под шапкой страницы: три адреса раздела, текущий выделен.
+   Своей секции не образует — это панель переключения, и воздух секции
+   оторвал бы её от заголовка, к которому она относится.
+   -------------------------------------------------------------------------- */
+
+.tarif-tabs {
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+/* Прокрутка принадлежит полосе, а не странице: на узком экране три
+   вкладки в строку не помещаются, и уезжать вбок должна только она. */
+.tarif-tabs__row {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--s-3) 0;
+}
+
+.tarif-tabs__row::-webkit-scrollbar { display: none; }
+
+.tarif-tabs__tab {
+  flex: none;
+  padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tarif-tabs__tab:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.tarif-tabs__tab--on {
+  color: var(--text-invert);
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+}
+
+/* --------------------------------------------------------------------------
+   Калькулятор стоимости лицензии
+   -------------------------------------------------------------------------- */
+
+.calc__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+
+.calc__fields {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.calc__field { margin: 0; }
+
+.calc__label {
+  display: block;
+  margin-bottom: var(--s-2);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.calc__input {
+  width: 100%;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-body);
+}
+
+.calc__input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.calc__result {
+  padding: clamp(1.5rem, 1.2rem + 2vw, 2.5rem);
+  background: var(--paper-alt);
+  border-left: 3px solid var(--accent);
+}
+
+.calc__total {
+  margin: var(--s-2) 0 var(--s-5);
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.calc__breakdown {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s-3);
+}
+
+.calc__breakdown li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--line);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.calc__breakdown li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.calc__breakdown b { color: var(--text); white-space: nowrap; }
+
+.calc__note { margin-top: var(--s-6); }
+
+@media (max-width: 767px) {
+  .calc__grid { grid-template-columns: minmax(0, 1fr); }
 }

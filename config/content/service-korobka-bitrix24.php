@@ -678,7 +678,7 @@ return [
         'links' => [
             ['href' => '/uslugi/audit-bitrix24', 'label' => 'Аудит Битрикс24'],
             [
-                'href'  => '/uslugi/prodlenie-licenzii-bitrix24',
+                'href'  => '/tarify/prodlenie-licenzii-bitrix24',
                 'label' => 'Продление лицензии Битрикс24',
             ],
         ],

@@ -62,6 +62,8 @@ final class SitemapController extends Controller
         '/privacy'                         => 'legal',
         '/soglasie'                        => 'legal',
         TariffController::BITRIX           => 'tarify-bitrix24',
+        TariffController::AMOCRM            => 'tarify-amocrm',
+        TariffController::PRODLENIE        => 'service-prodlenie-bitrix24',
     ];
 
     /** Индекс карт: /sitemap.xml */
@@ -120,7 +122,9 @@ final class SitemapController extends Controller
             '/soglasie'   => '0.3',
         ];
         // Адреса разделов берутся из самих контроллеров — список в одном месте.
-        $paths[TariffController::BITRIX] = '0.8';
+        foreach (TariffController::paths() as $tarif) {
+            $paths[$tarif] = '0.8';
+        }
         $paths['/resheniya'] = '0.9';
         $paths['/keysy']     = '0.9';
         $paths['/stati']     = '0.9';

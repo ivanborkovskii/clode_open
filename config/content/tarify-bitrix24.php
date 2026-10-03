@@ -142,7 +142,7 @@ return [
                 . 'стоит заметно дороже.',
             'link' => [
                 'label' => 'Продление лицензии Битрикс24',
-                'href'  => '/uslugi/prodlenie-licenzii-bitrix24',
+                'href'  => '/tarify/prodlenie-licenzii-bitrix24',
             ],
         ],
     ],

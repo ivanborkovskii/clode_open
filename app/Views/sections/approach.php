@@ -11,10 +11,16 @@
  * Выводится, только если та страница уже разработана, — как и везде
  * на сайте, чтобы ссылка не вела в «страница не найдена».
  *
- * @var array $approach label, title, lead, items
+ * Карточки идут в две колонки. Если их ровно три — например, три тарифа
+ * или три вопроса, — ставится cols => 3: иначе третья остаётся одна
+ * во втором ряду. Для этого в блоке задаётся cols.
+ *
+ * @var array $approach label, title, lead, items, cols
  */
 
 use App\Core\View;
+
+$cols = ($approach['cols'] ?? 2) === 3 ? ' approach-grid--three' : '';
 ?>
 <section class="section section--alt approach-block">
     <div class="container">
@@ -24,7 +30,7 @@ use App\Core\View;
             <p class="section-head__lead"><?= View::e($approach['lead']) ?></p>
         </div>
 
-        <div class="approach-grid">
+        <div class="approach-grid<?= $cols ?>">
             <?php foreach ($approach['items'] as $item): ?>
                 <div class="approach-item">
                     <h3><?= View::e($item['title']) ?></h3>
