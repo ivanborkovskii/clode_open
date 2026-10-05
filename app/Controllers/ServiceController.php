@@ -392,7 +392,7 @@ final class ServiceController extends Controller
             'crumb'       => 'Интеграция CRM с сайтом',
             'group'       => 'obshchie',
             'parent'      => 'integracii',
-            'title'       => 'Интеграция CRM с сайтом — заявки в Битрикс24 и amoCRM',
+            'title'       => 'Подключение сайта к CRM — стоимость и сроки',
             'description' => 'Заявки с сайта попадают в CRM с UTM-метками и нужными '
                 . 'полями, в правильную воронку. Tilda, WordPress '
                 . 'и самописные сайты. Простая форма от 4 400 ₽.',
@@ -403,7 +403,7 @@ final class ServiceController extends Controller
             'crumb'       => 'Интеграция Битрикс24 с мессенджерами',
             'group'       => 'obshchie',
             'parent'      => 'integracii',
-            'title'       => 'Интеграция Битрикс24 с WhatsApp и мессенджерами',
+            'title'       => 'Интеграция Битрикс24 с WhatsApp — цена подключения',
             'description' => 'Подключим WhatsApp, Telegram и другие каналы '
                 . 'к Битрикс24: переписка в карточке клиента, распределение '
                 . 'на ответственного, история остаётся в CRM. От 4 400 ₽.',
@@ -414,7 +414,7 @@ final class ServiceController extends Controller
             'crumb'       => 'Интеграция amoCRM с мессенджерами',
             'group'       => 'obshchie',
             'parent'      => 'integracii',
-            'title'       => 'Интеграция amoCRM с WhatsApp и мессенджерами',
+            'title'       => 'Интеграция amoCRM с WhatsApp — цена подключения',
             'description' => 'Подключение WhatsApp, Telegram и других каналов '
                 . 'к amoCRM: диалог привязывается к сделке, переписка остаётся '
                 . 'в карточке при смене менеджера. От 4 400 ₽.',
