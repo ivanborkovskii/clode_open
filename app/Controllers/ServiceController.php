@@ -35,6 +35,11 @@ final class ServiceController extends Controller
      *                 Необязательный: без него в меню идёт crumb;
      *   group       — колонка выпадающей панели: bitrix24, amocrm
      *                 или obshchie. Услуги без группы попадают в общие;
+     *   parent      — адрес услуги-родителя, если страница дочерняя.
+     *                 Такие страницы не попадают ни в выпадающее меню,
+     *                 ни в раздел «Услуги» карточками: туда ведёт
+     *                 родитель, а он уже раскладывает их каталогом.
+     *                 В хлебных крошках появляется четвёртый уровень;
      *   title, description — то, что видно в поисковой выдаче.
      */
     private const PAGES = [
@@ -310,15 +315,131 @@ final class ServiceController extends Controller
                 . 'и запуск.',
         ],
 
+        // Кластер интеграций. Десять дочерних страниц под конкретные
+        // связки: у каждой свой запрос, своя цена и свои сроки, а общая
+        // страница остаётся каталогом под широкое «интеграции CRM».
+        //
+        // Все они parent => integracii: в меню и в разделе услуг
+        // не показываются, путь к ним — через каталог.
+        'integraciya-bitrix24-1c' => [
+            'content'     => 'integraciya-bitrix24-1c',
+            'crumb'       => 'Интеграция Битрикс24 и 1С',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция Битрикс24 и 1С — стоимость настройки обмена',
+            'description' => 'Интеграция Битрикс24 и 1С через штатный Коннектор '
+                . 'и индивидуальные решения. Клиенты, заказы, товары, счета '
+                . 'и оплаты. Стоимость работ от 45 000 ₽.',
+        ],
+
+        'integraciya-amocrm-1c' => [
+            'content'     => 'integraciya-amocrm-1c',
+            'crumb'       => 'Интеграция amoCRM и 1С',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция amoCRM и 1С — цена обмена данными',
+            'description' => 'Настроим обмен amoCRM и 1С: клиенты, сделки, заказы, '
+                . 'счета и оплаты. Готовое приложение, доработка по API '
+                . 'или индивидуальная интеграция. Работы от 45 000 ₽.',
+        ],
+
+        'integraciya-bitrix24-moysklad' => [
+            'content'     => 'integraciya-bitrix24-moysklad',
+            'crumb'       => 'Интеграция Битрикс24 и МойСклад',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция Битрикс24 и МойСклад — цена и сроки',
+            'description' => 'Синхронизация Битрикс24 и МойСклад: товары, остатки, '
+                . 'заказы, клиенты и оплаты. Через приложение Маркетплейса '
+                . 'от 40 000 ₽, индивидуальная разработка от 250 000 ₽.',
+        ],
+
+        'integraciya-amocrm-moysklad' => [
+            'content'     => 'integraciya-amocrm-moysklad',
+            'crumb'       => 'Интеграция amoCRM и МойСклад',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция amoCRM и МойСклад — стоимость синхронизации',
+            'description' => 'Двусторонняя синхронизация amoCRM и МойСклад: товары, '
+                . 'остатки, заказы и оплаты. Готовое решение от 45 000 ₽, '
+                . 'индивидуальная интеграция от 250 000 ₽.',
+        ],
+
+        'integraciya-bitrix24-telefonii' => [
+            'content'     => 'integraciya-bitrix24-telefonii',
+            'crumb'       => 'Интеграция Битрикс24 с телефонией',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция Битрикс24 с телефонией — цена подключения',
+            'description' => 'Подключим телефонию к Битрикс24: звонки в карточке, '
+                . 'записи разговоров, распределение на ответственного '
+                . 'и аналитика. Настройка от 15 000 ₽, срок 7–30 дней.',
+        ],
+
+        'integraciya-amocrm-telefonii' => [
+            'content'     => 'integraciya-amocrm-telefonii',
+            'crumb'       => 'Интеграция amoCRM с телефонией',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция телефонии с amoCRM — стоимость подключения',
+            'description' => 'Подключение телефонии к amoCRM: звонки привязываются '
+                . 'к сделке, записи хранятся в карточке, работает аналитика '
+                . 'по менеджерам. Настройка от 15 000 ₽, срок от 7 дней.',
+        ],
+
+        'integraciya-crm-s-saytom' => [
+            'content'     => 'integraciya-crm-s-saytom',
+            'crumb'       => 'Интеграция CRM с сайтом',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция CRM с сайтом — заявки в Битрикс24 и amoCRM',
+            'description' => 'Заявки с сайта попадают в CRM с UTM-метками и нужными '
+                . 'полями, в правильную воронку. Tilda, WordPress '
+                . 'и самописные сайты. Простая форма от 4 400 ₽.',
+        ],
+
+        'integraciya-bitrix24-messendzhery' => [
+            'content'     => 'integraciya-bitrix24-messendzhery',
+            'crumb'       => 'Интеграция Битрикс24 с мессенджерами',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция Битрикс24 с WhatsApp и мессенджерами',
+            'description' => 'Подключим WhatsApp, Telegram и другие каналы '
+                . 'к Битрикс24: переписка в карточке клиента, распределение '
+                . 'на ответственного, история остаётся в CRM. От 4 400 ₽.',
+        ],
+
+        'integraciya-amocrm-messendzhery' => [
+            'content'     => 'integraciya-amocrm-messendzhery',
+            'crumb'       => 'Интеграция amoCRM с мессенджерами',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Интеграция amoCRM с WhatsApp и мессенджерами',
+            'description' => 'Подключение WhatsApp, Telegram и других каналов '
+                . 'к amoCRM: диалог привязывается к сделке, переписка остаётся '
+                . 'в карточке при смене менеджера. От 4 400 ₽.',
+        ],
+
+        'nastroyka-skvoznoy-analitiki-roistat' => [
+            'content'     => 'nastroyka-skvoznoy-analitiki-roistat',
+            'crumb'       => 'Сквозная аналитика Roistat',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Настройка сквозной аналитики Roistat — цена и этапы',
+            'description' => 'Свяжем рекламу, заявки и продажи: Roistat, Битрикс24 '
+                . 'или amoCRM, UTM, коллтрекинг и передача выручки. '
+                . 'Настройка и интеграция от 70 000 ₽.',
+        ],
+
         'integracii' => [
             'content'     => 'service-integracii',
             'crumb'       => 'Интеграции',
             'group'       => 'obshchie',
-            'title'       => 'Интеграции CRM с телефонией, мессенджерами, 1С и сайтом',
-            'description' => 'Подключаем к CRM телефонию, мессенджеры и соцсети, заявки '
-                . 'с сайта и почту, 1С и Мой склад через готовые приложения, Честный знак, '
-                . 'сквозную аналитику Roistat, отчёты в Google Таблицах и любые системы '
-                . 'с открытым REST API.',
+            'title'       => 'Интеграции CRM — 1С, МойСклад, телефония и сайт',
+            'description' => 'Каталог интеграций CRM с ценами: 1С и МойСклад '
+                . 'от 40 000 ₽, телефония от 15 000 ₽, мессенджеры '
+                . 'и заявки с сайта от 4 400 ₽, сквозная аналитика '
+                . 'Roistat от 70 000 ₽.',
         ],
         'soprovozhdenie-crm' => [
             'content'     => 'service-soprovozhdenie',
@@ -362,6 +483,12 @@ final class ServiceController extends Controller
         $byGroup = [];
 
         foreach (self::PAGES as $slug => $page) {
+            // Десяток страниц одного кластера в колонке меню — это стена
+            // текста, в которой не найти ни одной. В меню стоит родитель.
+            if (isset($page['parent'])) {
+                continue;
+            }
+
             $byGroup[$page['group'] ?? 'obshchie'][] = [
                 'label' => $page['menu'] ?? $page['crumb'],
                 'href'  => '/uslugi/' . $slug,
@@ -400,7 +527,10 @@ final class ServiceController extends Controller
         $described = array_column($items, 'slug');
 
         foreach (self::PAGES as $slug => $page) {
-            if (in_array($slug, $described, true)) {
+            // Дочерние страницы в разделе услуг карточками не показываются:
+            // иначе каталог интеграций разъехался бы по общему списку
+            // и утопил в себе остальные услуги.
+            if (in_array($slug, $described, true) || isset($page['parent'])) {
                 continue;
             }
 
@@ -471,6 +601,23 @@ final class ServiceController extends Controller
         // Узел добавляется отдельной строкой, а не через сложение массивов:
         // у обоих узлов ключ 0, и при сложении второй молча пропадает.
         // На статьях это уже случалось — здесь сразу сделано правильно.
+        // Хлебные крошки. У дочерней страницы между разделом и ею самой
+        // встаёт родитель: «Услуги → Интеграции → Интеграция amoCRM
+        // и МойСклад». Так виден весь путь, а не только последний шаг.
+        $crumbs = [
+            ['label' => 'Главная', 'href' => '/'],
+            ['label' => 'Услуги',  'href' => '/uslugi'],
+        ];
+
+        if (isset($meta['parent'], self::PAGES[$meta['parent']])) {
+            $crumbs[] = [
+                'label' => self::PAGES[$meta['parent']]['crumb'],
+                'href'  => '/uslugi/' . $meta['parent'],
+            ];
+        }
+
+        $crumbs[] = ['label' => $meta['crumb'], 'href' => '/uslugi/' . $slug];
+
         $jsonld = [[
             '@type' => 'Service',
             '@id'   => $this->url('/uslugi/' . $slug) . '#service',
@@ -494,11 +641,7 @@ final class ServiceController extends Controller
                 'title'       => $meta['title'],
                 'description' => $meta['description'],
                 'canonical'   => $this->url('/uslugi/' . $slug),
-                'breadcrumbs' => [
-                    ['label' => 'Главная',        'href' => '/'],
-                    ['label' => 'Услуги',         'href' => '/uslugi'],
-                    ['label' => $meta['crumb'],   'href' => '/uslugi/' . $slug],
-                ],
+                'breadcrumbs' => $crumbs,
                 // Услуга как услуга, а не просто страница: поисковик видит,
                 // что именно оказывается и кем. Плюс вопросы, если есть.
                 'jsonld' => $jsonld,
