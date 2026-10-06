@@ -84,6 +84,7 @@ final class TariffController extends Controller
                     $this->url(self::BITRIX),
                     'Битрикс24',
                     $page['plans']['items'],
+                    $this->url('/assets/img/hero/b24-sdelki.webp'),
                 )],
             ],
             'page' => $page,
@@ -106,6 +107,7 @@ final class TariffController extends Controller
             $this->url(self::AMOCRM),
             'amoCRM',
             $page['plans'],
+            $this->url('/assets/img/hero/amo-voronka.webp'),
         )];
 
         if (!empty($page['faq']['items'])) {

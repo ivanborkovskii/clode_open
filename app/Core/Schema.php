@@ -222,24 +222,6 @@ final class Schema
     }
 
     /**
-     * Тарифы как товары с ценой.
-     *
-     * Нужна на странице тарифов: без разметки поисковик видит только
-     * набор чисел в вёрстке и не понимает, что это цены и к чему они
-     * относятся.
-     *
-     * Товар здесь чужой — лицензия Битрикс24, поэтому у каждого тарифа
-     * указан производитель, а продавец не указан вовсе: цену назначает
-     * Битрикс24, а не мы.
-     *
-     * Цена за месяц идёт двумя полями сразу. price понимают все
-     * поисковики, но в нём нельзя сказать «в месяц» — за это отвечает
-     * priceSpecification. Без него 2 490 ₽ читались бы как цена навсегда.
-     *
-     * @param  array<int, array{name:string, users:string, month:int, year:int}> $plans
-     * @return array<string, mixed>
-     */
-    /**
      * Вопросы и ответы страницы.
      *
      * Отдельный узел графа со своим адресом (#faq), а не подмена типа
@@ -278,13 +260,39 @@ final class Schema
         ];
     }
 
-    public static function products(string $url, string $brand, array $plans): array
+    /**
+     * Тарифы как товары с ценой.
+     *
+     * Нужна на странице тарифов: без разметки поисковик видит только
+     * набор чисел в вёрстке и не понимает, что это цены и к чему они
+     * относятся.
+     *
+     * Товар здесь чужой — лицензия Битрикс24 или amoCRM, поэтому у каждого
+     * тарифа указан производитель, а продавец не указан вовсе: цену
+     * назначает вендор, а не мы.
+     *
+     * Цена за месяц идёт двумя полями сразу. price понимают все
+     * поисковики, но в нём нельзя сказать «в месяц» — за это отвечает
+     * priceSpecification. Без него 2 490 ₽ читались бы как цена навсегда.
+     *
+     * КАРТИНКА ОБЯЗАТЕЛЬНА. Google разбирает разметку с ценой как
+     * предложение магазина, а там image — обязательное поле: без него
+     * Search Console отдаёт ошибку «отсутствует поле image», и тариф
+     * не попадает в расширенные результаты. Картинка одна на все тарифы
+     * системы: тарифы отличаются набором возможностей, а не внешним
+     * видом, и снимок экрана показывает ровно то, что покупают.
+     *
+     * @param  array<int, array{name:string, users:string, month:int}> $plans
+     * @param  string $image Полный адрес снимка системы
+     * @return array<string, mixed>
+     */
+    public static function products(string $url, string $brand, array $plans, string $image): array
     {
         return [
             '@type' => 'ItemList',
             '@id'   => $url . '#tarify',
             'itemListElement' => array_map(
-                static function (int $i, array $plan) use ($url, $brand): array {
+                static function (int $i, array $plan) use ($url, $brand, $image): array {
                     $price = (string) $plan['month'];
 
                     return [
@@ -294,6 +302,7 @@ final class Schema
                             '@type'       => 'Product',
                             'name'        => $brand . ' ' . $plan['name'],
                             'description' => $plan['users'],
+                            'image'       => $image,
                             'brand'       => ['@type' => 'Brand', 'name' => $brand],
                             'offers' => [
                                 '@type'         => 'Offer',
