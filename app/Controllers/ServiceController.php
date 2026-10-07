@@ -470,6 +470,54 @@ final class ServiceController extends Controller
                 . 'срок от 30 дней.',
         ],
 
+        'vnedrenie-crm-dlya-optovoy-torgovli' => [
+            'content'     => 'vnedrenie-crm-dlya-optovoy-torgovli',
+            'crumb'       => 'Оптовая торговля',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для оптовой торговли — от 75 000 ₽',
+            'description' => 'Внедрение CRM для оптовой компании: повторные '
+                . 'заказы, персональные цены, остатки и резервы, отсрочка '
+                . 'и дебиторка, обмен с 1С и МойСклад. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-b2b-prodazh' => [
+            'content'     => 'vnedrenie-crm-dlya-b2b-prodazh',
+            'crumb'       => 'B2B-продажи',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для B2B-продаж — от 75 000 ₽',
+            'description' => 'Внедрение CRM для сложных продаж: несколько '
+                . 'участников решения, длинный цикл, согласования '
+                . 'и конкурсные процедуры, прогноз и причины отказов. '
+                . 'От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-internet-magazina' => [
+            'content'     => 'vnedrenie-crm-dlya-internet-magazina',
+            'crumb'       => 'Интернет-магазин',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для интернет-магазина — от 75 000 ₽',
+            'description' => 'Внедрение CRM для интернет-магазина: заказы '
+                . 'из всех источников, карточка покупателя без дублей, '
+                . 'брошенные корзины, возвраты и повторные покупки. '
+                . 'От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-logisticheskoy-kompanii' => [
+            'content'     => 'vnedrenie-crm-dlya-logisticheskoy-kompanii',
+            'crumb'       => 'Логистика',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для логистической компании — от 75 000 ₽',
+            'description' => 'Внедрение CRM для перевозчика: запрос ставки '
+                . 'и скорость ответа, воронка до возврата закрывающих '
+                . 'и оплаты, история ставок по направлениям. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
         'vnedrenie-crm-dlya-turagentstva' => [
             'content'     => 'vnedrenie-crm-dlya-turagentstva',
             'crumb'       => 'Турагентство',
@@ -480,6 +528,41 @@ final class ServiceController extends Controller
                 . 'и бронирования, напоминания о задатке, доплате и вылете, '
                 . 'мессенджеры и телефония, возврат туриста к сезону. '
                 . 'От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-gostinicy' => [
+            'content'     => 'vnedrenie-crm-dlya-gostinicy',
+            'crumb'       => 'Гостиница',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для гостиницы — от 75 000 ₽',
+            'description' => 'Внедрение CRM для гостиницы: обращения из всех '
+                . 'каналов, брони и предоплаты, корпоративные заказчики '
+                . 'и мероприятия, причины отказов и возврат гостей. '
+                . 'От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-reklamnogo-agentstva' => [
+            'content'     => 'vnedrenie-crm-dlya-reklamnogo-agentstva',
+            'crumb'       => 'Рекламное агентство',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для рекламного агентства — от 75 000 ₽',
+            'description' => 'Внедрение CRM для агентства: заявка, бриф, смета '
+                . 'и договор, проекты со сроками этапов, загрузка команды '
+                . 'и продление клиентов. От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-arendnogo-biznesa' => [
+            'content'     => 'vnedrenie-crm-dlya-arendnogo-biznesa',
+            'crumb'       => 'Арендный бизнес',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для арендного бизнеса — от 75 000 ₽',
+            'description' => 'Внедрение CRM для аренды: объекты и занятость, '
+                . 'договоры и сроки, регулярные платежи и задолженности, '
+                . 'заявки арендаторов и продление. От 75 000 ₽, '
+                . 'срок от 30 дней.',
         ],
     ];
 

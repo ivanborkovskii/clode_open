@@ -454,6 +454,10 @@ return [
                 'label' => 'Разработка интеграций по REST API',
             ],
             [
+                'href'  => '/uslugi/vnedrenie-crm-dlya-gostinicy',
+                'label' => 'Внедрение CRM для гостиницы',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-crm-po-otraslyam',
                 'label' => 'Внедрение CRM по отраслям',
             ],
