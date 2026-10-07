@@ -131,4 +131,20 @@ final class SolutionController extends Controller
             array_keys(self::PAGES),
         );
     }
+
+    /**
+     * Файлы текстов страниц — карте сайта для даты изменения.
+     *
+     * @return array<string, string>
+     */
+    public static function contentFiles(): array
+    {
+        $files = [];
+
+        foreach (self::PAGES as $slug => $page) {
+            $files['/resheniya/' . $slug] = $page['content'];
+        }
+
+        return $files;
+    }
 }

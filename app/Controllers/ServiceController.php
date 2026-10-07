@@ -659,4 +659,25 @@ final class ServiceController extends Controller
             array_keys(self::PAGES),
         );
     }
+
+    /**
+     * Какой страницей какой файл текстов управляет.
+     *
+     * Нужно карте сайта: дата изменения страницы — это время её файла
+     * с текстами. Список берётся отсюда, а не ведётся в карте отдельно:
+     * второй список рано или поздно отстаёт от этого, и у новых страниц
+     * тихо пропадает дата.
+     *
+     * @return array<string, string>
+     */
+    public static function contentFiles(): array
+    {
+        $files = [];
+
+        foreach (self::PAGES as $slug => $page) {
+            $files['/uslugi/' . $slug] = $page['content'];
+        }
+
+        return $files;
+    }
 }

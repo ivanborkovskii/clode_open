@@ -24,46 +24,28 @@ use PDOException;
 final class SitemapController extends Controller
 {
     /**
-     * Какой страницей какой файл текстов управляет.
+     * Файлы текстов страниц, у которых нет своего реестра: главная,
+     * списки разделов и отдельно стоящие страницы.
      *
-     * Дата изменения страницы берётся из времени этого файла: тексты
-     * страниц лежат в config/content, и при выкладке обновления файл
-     * заменяется — значит его время и есть время, когда страница
-     * поменялась.
-     *
-     * Страница без файла в этом списке уйдёт в карту без даты.
+     * Страницы услуг, решений и разборов сюда не вписаны намеренно —
+     * их список лежит в самих контроллерах и берётся оттуда (contentFiles).
+     * Раньше он дублировался здесь, и новые страницы уходили в карту
+     * без даты, пока кто-нибудь не вспомнит дописать их во второй список.
      */
     private const CONTENT = [
-        '/'                                => 'home',
-        '/uslugi'                          => 'services',
-        '/uslugi/vnedrenie-bitrix24'       => 'service-bitrix24',
-        '/uslugi/audit-bitrix24'           => 'service-audit-bitrix24',
-        '/uslugi/migraciya-v-bitrix24'     => 'service-migraciya-bitrix24',
-        '/uslugi/audit-crm'                => 'service-audit-crm',
-        '/uslugi/audit-amocrm'             => 'service-audit-amocrm',
-        '/uslugi/vnedrenie-amocrm'         => 'service-amocrm',
-        '/uslugi/nastroyka-i-dorabotka-crm' => 'service-dorabotka',
-        '/uslugi/integracii'               => 'service-integracii',
-        '/uslugi/soprovozhdenie-crm'       => 'service-soprovozhdenie',
-        '/resheniya'                       => 'solutions',
-        '/resheniya/prodazhi'              => 'solution-prodazhi',
-        '/resheniya/kommunikacii'          => 'solution-kommunikacii',
-        '/resheniya/analitika'             => 'solution-analitika',
-        '/resheniya/upravlenie-sotrudnikami' => 'solution-sotrudniki',
-        '/keysy'                           => 'cases',
-        '/keysy/gradus-klimata'            => 'case-gradus-klimata',
-        '/keysy/neoray'                    => 'case-neoray',
-        '/keysy/mid'                       => 'case-mid',
-        '/keysy/arsenalsnab'               => 'case-arsenalsnab',
-        '/keysy/obrazovatelnyy-centr'      => 'case-obrazovatelnyy-centr',
-        '/stati'                           => 'articles',
-        '/o-kompanii'                      => 'about',
-        '/kontakty'                        => 'contacts',
-        '/privacy'                         => 'legal',
-        '/soglasie'                        => 'legal',
-        TariffController::BITRIX           => 'tarify-bitrix24',
-        TariffController::AMOCRM            => 'tarify-amocrm',
-        TariffController::PRODLENIE        => 'service-prodlenie-bitrix24',
+        '/'           => 'home',
+        '/uslugi'     => 'services',
+        '/resheniya'  => 'solutions',
+        '/keysy'      => 'cases',
+        '/stati'      => 'articles',
+        '/o-kompanii' => 'about',
+        '/kontakty'   => 'contacts',
+        '/privacy'    => 'legal',
+        '/soglasie'   => 'legal',
+
+        TariffController::BITRIX    => 'tarify-bitrix24',
+        TariffController::AMOCRM    => 'tarify-amocrm',
+        TariffController::PRODLENIE => 'service-prodlenie-bitrix24',
     ];
 
     /** Индекс карт: /sitemap.xml */
@@ -137,12 +119,20 @@ final class SitemapController extends Controller
             $paths[$path] = '0.8';
         }
 
+        // Какой страницей какой файл текстов управляет. Отдельно стоящие
+        // страницы перечислены здесь, остальные приходят из реестров
+        // своих разделов — один список на оба применения.
+        $content = self::CONTENT
+            + ServiceController::contentFiles()
+            + SolutionController::contentFiles()
+            + CaseController::contentFiles();
+
         $urls = [];
 
         foreach ($paths as $path => $priority) {
             $urls[] = [
                 'loc'      => $this->config['base_url'] . $path,
-                'lastmod'  => $this->pageDate($path),
+                'lastmod'  => $this->pageDate($content[$path] ?? ''),
                 'priority' => $priority,
             ];
         }
@@ -190,11 +180,16 @@ final class SitemapController extends Controller
         return $urls;
     }
 
-    /** Дата изменения постоянной страницы — по времени файла с её текстами. */
-    private function pageDate(string $path): string
+    /**
+     * Дата изменения постоянной страницы — по времени файла с её текстами.
+     *
+     * Тексты лежат в config/content, и при выкладке обновления файл
+     * заменяется: его время и есть время, когда страница поменялась.
+     * Файл в обновление не попал — время прежнее, и карта об этой
+     * странице ничего нового не говорит. Так и нужно.
+     */
+    private function pageDate(string $name): string
     {
-        $name = self::CONTENT[$path] ?? '';
-
         if ($name === '') {
             return '';
         }

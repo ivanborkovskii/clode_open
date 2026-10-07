@@ -144,4 +144,20 @@ final class CaseController extends Controller
             array_keys(self::PAGES),
         );
     }
+
+    /**
+     * Файлы текстов разборов — карте сайта для даты изменения.
+     *
+     * @return array<string, string>
+     */
+    public static function contentFiles(): array
+    {
+        $files = [];
+
+        foreach (self::PAGES as $slug => $page) {
+            $files['/keysy/' . $slug] = $page['content'];
+        }
+
+        return $files;
+    }
 }
