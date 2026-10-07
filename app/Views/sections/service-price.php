@@ -6,7 +6,12 @@
  * и понятна, и прятать её в текст нет причин. У остальных услуг работа
  * считается по объёму, поэтому блока там нет — «от» для них не выдумываем.
  *
- * @var array $price title, value, unit, items, note
+ * Срок — вторая цифра того же блока, необязательная. Нужна услугам,
+ * которые продаются проектом: там «сколько стоит» и «сколько займёт» —
+ * один и тот же вопрос, и разносить их по странице незачем. Цифра срока
+ * мельче цены: цена остаётся главной.
+ *
+ * @var array $price title, value, unit, items, note, term
  */
 
 use App\Core\View;
@@ -18,6 +23,12 @@ use App\Core\View;
                 <p class="label">Стоимость</p>
                 <p class="price-block__value"><?= View::e($price['value']) ?></p>
                 <p class="price-block__unit"><?= View::e($price['unit']) ?></p>
+
+                <?php if (!empty($price['term'])): ?>
+                    <p class="label price-block__term-label">Срок</p>
+                    <p class="price-block__value price-block__value--term"><?= View::e($price['term']['value']) ?></p>
+                    <p class="price-block__unit"><?= View::e($price['term']['unit']) ?></p>
+                <?php endif; ?>
             </div>
 
             <div class="price-block__body">

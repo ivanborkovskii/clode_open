@@ -558,6 +558,12 @@
   color: var(--text-muted);
 }
 
+/* Срок — вторая цифра того же столбца. Мельче цены: главным
+   остаётся вопрос «сколько стоит». */
+.price-block__term-label { margin-top: var(--s-5); }
+
+.price-block__value--term { font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem); }
+
 .price-block__body h2 {
   margin-bottom: var(--s-5);
   font-size: var(--fs-h3);
