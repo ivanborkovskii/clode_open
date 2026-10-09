@@ -205,7 +205,7 @@ final class ServiceController extends Controller
             'description' => 'Доработка действующей amoCRM: новые воронки '
                 . 'и процессы, автоматизация Digital Pipeline, виджеты, поля, '
                 . 'дашборды и нестандартные сценарии. Частичные работы — '
-                . '4 400 ₽ за час.',
+                . 'от 4 400 ₽ за час.',
         ],
 
         // Переезд — разовое перемещение накопленной базы в amoCRM.
@@ -562,6 +562,42 @@ final class ServiceController extends Controller
             'description' => 'Внедрение CRM для аренды: объекты и занятость, '
                 . 'договоры и сроки, регулярные платежи и задолженности, '
                 . 'заявки арендаторов и продление. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-uchebnogo-centra' => [
+            'content'     => 'vnedrenie-crm-dlya-uchebnogo-centra',
+            'crumb'       => 'Учебный центр',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для учебного центра — от 75 000 ₽',
+            'description' => 'Внедрение CRM для учебного центра: воронка '
+                . 'набора, переписки и записи звонков в карточке ученика, '
+                . 'группы и потоки, возврат выпускников. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-avtoservisa' => [
+            'content'     => 'vnedrenie-crm-dlya-avtoservisa',
+            'crumb'       => 'Автосервис',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для автосервиса — от 75 000 ₽',
+            'description' => 'Внедрение CRM для автосервиса: запись и загрузка '
+                . 'постов, карточка машины с историей ремонтов, '
+                . 'согласование допработ, напоминания о ТО. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-agentstva-nedvizhimosti' => [
+            'content'     => 'vnedrenie-crm-dlya-agentstva-nedvizhimosti',
+            'crumb'       => 'Агентство недвижимости',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для агентства недвижимости — от 75 000 ₽',
+            'description' => 'Внедрение CRM для агентства недвижимости: база '
+                . 'объектов и запросов, подбор по соответствию, показы '
+                . 'и отчёт собственнику, сроки договоров. От 75 000 ₽, '
                 . 'срок от 30 дней.',
         ],
     ];

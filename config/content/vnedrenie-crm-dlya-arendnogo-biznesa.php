@@ -450,6 +450,10 @@ return [
                 'label' => 'Внедрение CRM для гостиницы',
             ],
             [
+                'href'  => '/uslugi/vnedrenie-crm-dlya-agentstva-nedvizhimosti',
+                'label' => 'Внедрение CRM для агентства недвижимости',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-crm-po-otraslyam',
                 'label' => 'Внедрение CRM по отраслям',
             ],
