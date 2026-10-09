@@ -465,9 +465,9 @@ final class ServiceController extends Controller
             'group'       => 'obshchie',
             'title'       => 'Внедрение CRM по отраслям — от 75 000 ₽',
             'description' => 'Внедрение Битрикс24 и amoCRM под процессы '
-                . 'конкретной сферы: опт, B2B, интернет-магазин, логистика, '
-                . 'туризм, гостиницы, реклама, аренда. От 75 000 ₽, '
-                . 'срок от 30 дней.',
+                . 'конкретной сферы: торговля и поставки, услуги и обучение, '
+                . 'запись и клиники, недвижимость, стройка и производство. '
+                . 'От 75 000 ₽, срок от 30 дней.',
         ],
 
         'vnedrenie-crm-dlya-optovoy-torgovli' => [
@@ -635,6 +635,54 @@ final class ServiceController extends Controller
                 . 'объектов и запросов, подбор по соответствию, показы '
                 . 'и отчёт собственнику, сроки договоров. От 75 000 ₽, '
                 . 'срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-medicinskoy-kliniki' => [
+            'content'     => 'vnedrenie-crm-dlya-medicinskoy-kliniki',
+            'crumb'       => 'Медицинская клиника',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для медицинской клиники — от 75 000 ₽',
+            'description' => 'Внедрение CRM для клиники: первичные обращения, '
+                . 'запись и напоминания, повторные визиты по назначению '
+                . 'врача, связь с медицинской системой. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-stroitelnoy-kompanii' => [
+            'content'     => 'vnedrenie-crm-dlya-stroitelnoy-kompanii',
+            'crumb'       => 'Строительная компания',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для строительной компании — от 75 000 ₽',
+            'description' => 'Внедрение CRM для строительной компании: заявки '
+                . 'и договоры, карточка объекта, этапы работ и сроки, '
+                . 'задачи подрядчикам, оплаты по принятым работам. '
+                . 'От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-proizvodstva' => [
+            'content'     => 'vnedrenie-crm-dlya-proizvodstva',
+            'crumb'       => 'Производство',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для производства — от 75 000 ₽',
+            'description' => 'Внедрение CRM на производстве: запрос '
+                . 'и расчёт, состав заказа полями, согласование '
+                . 'спецификации, передача в цех и отгрузка, обмен '
+                . 'с 1С. От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-mebelnogo-proizvodstva' => [
+            'content'     => 'vnedrenie-crm-dlya-mebelnogo-proizvodstva',
+            'crumb'       => 'Мебельное производство',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для мебельного производства — от 75 000 ₽',
+            'description' => 'Внедрение CRM для мебельного производства: '
+                . 'обращения и замеры, версии проекта и согласование, '
+                . 'предоплаты, календарь доставок и монтажей. '
+                . 'От 75 000 ₽, срок от 30 дней.',
         ],
     ];
 

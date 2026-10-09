@@ -405,6 +405,10 @@ return [
                 'label' => 'Внедрение CRM для фитнес-центра',
             ],
             [
+                'href'  => '/uslugi/vnedrenie-crm-dlya-medicinskoy-kliniki',
+                'label' => 'Внедрение CRM для медицинской клиники',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-crm-po-otraslyam',
                 'label' => 'Внедрение CRM по отраслям',
             ],
