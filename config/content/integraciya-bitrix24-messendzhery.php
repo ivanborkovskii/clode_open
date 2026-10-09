@@ -503,6 +503,7 @@ return [
         'links' => [
             ['href' => '/uslugi/integraciya-bitrix24-telefonii',    'label' => 'Телефония для Битрикс24'],
             ['href' => '/uslugi/integraciya-amocrm-messendzhery',   'label' => 'Мессенджеры для amoCRM'],
+            ['href' => '/uslugi/integraciya-bitrix24-avito',        'label' => 'Подключение Авито к Битрикс24'],
         ],
     ],
 

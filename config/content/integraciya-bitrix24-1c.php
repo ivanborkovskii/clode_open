@@ -554,6 +554,7 @@ return [
             . 'смотреть надо индивидуальную разработку по REST API.',
         'links' => [
             ['href' => '/uslugi/integraciya-bitrix24-moysklad', 'label' => 'Битрикс24 и МойСклад'],
+            ['href' => '/uslugi/integraciya-bitrix24-edo',      'label' => 'Битрикс24 и ЭДО'],
             ['href' => '/uslugi/integracii',                    'label' => 'Все интеграции CRM'],
         ],
     ],
