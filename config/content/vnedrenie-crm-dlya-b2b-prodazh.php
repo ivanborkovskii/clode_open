@@ -480,6 +480,10 @@ return [
                 'label' => 'Внедрение CRM для рекламного агентства',
             ],
             [
+                'href'  => '/uslugi/vnedrenie-crm-dlya-yuridicheskoy-kompanii',
+                'label' => 'Внедрение CRM для юридической компании',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-crm-po-otraslyam',
                 'label' => 'Внедрение CRM по отраслям',
             ],

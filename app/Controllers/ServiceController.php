@@ -589,6 +589,42 @@ final class ServiceController extends Controller
                 . 'срок от 30 дней.',
         ],
 
+        'vnedrenie-crm-dlya-yuridicheskoy-kompanii' => [
+            'content'     => 'vnedrenie-crm-dlya-yuridicheskoy-kompanii',
+            'crumb'       => 'Юридическая компания',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для юридической компании — от 75 000 ₽',
+            'description' => 'Внедрение CRM для юридической компании: карточка '
+                . 'дела, календарь заседаний и процессуальных сроков, '
+                . 'шаблоны документов, учёт часов и права доступа. '
+                . 'От 75 000 ₽, срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-salona-krasoty' => [
+            'content'     => 'vnedrenie-crm-dlya-salona-krasoty',
+            'crumb'       => 'Салон красоты',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для салона красоты — от 75 000 ₽',
+            'description' => 'Внедрение CRM для салона красоты: запись '
+                . 'к мастеру, история процедур и составов, возврат '
+                . 'по циклу, переписка внутри салона. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
+        'vnedrenie-crm-dlya-fitnes-centra' => [
+            'content'     => 'vnedrenie-crm-dlya-fitnes-centra',
+            'crumb'       => 'Фитнес-центр',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для фитнес-центра — от 75 000 ₽',
+            'description' => 'Внедрение CRM для фитнес-клуба: продажа карт, '
+                . 'сроки и заморозки, работа с посещаемостью, '
+                . 'персональные тренировки и продление. От 75 000 ₽, '
+                . 'срок от 30 дней.',
+        ],
+
         'vnedrenie-crm-dlya-agentstva-nedvizhimosti' => [
             'content'     => 'vnedrenie-crm-dlya-agentstva-nedvizhimosti',
             'crumb'       => 'Агентство недвижимости',
