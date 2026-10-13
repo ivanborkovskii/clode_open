@@ -87,8 +87,21 @@ final class LeadController extends Controller
      */
     private function save(array $data, bool $suspicious = false): bool
     {
-        $logged = $this->log($data, $suspicious);
-        $mailed = $this->mail($data, $suspicious);
+        // Порядок обратный прежнему: сначала письмо, потом запись в файл.
+        // Нужно это ради одной строки в журнале — результата отправки.
+        // Раньше, чтобы понять, ушло ли письмо по конкретной заявке,
+        // приходилось сличать время в двух разных файлах.
+        //
+        // Гарантия сохранности при этом не потеряна: запись идёт
+        // из finally и выполнится, даже если отправка оборвётся
+        // исключением.
+        $mailed = false;
+
+        try {
+            $mailed = $this->mail($data, $suspicious);
+        } finally {
+            $logged = $this->log($data, $suspicious, $mailed);
+        }
 
         return $logged || $mailed;
     }
@@ -99,7 +112,7 @@ final class LeadController extends Controller
      *
      * @param array<string, string> $data
      */
-    private function log(array $data, bool $suspicious = false): bool
+    private function log(array $data, bool $suspicious = false, bool $mailed = false): bool
     {
         $dir = dirname(__DIR__, 2) . '/storage/logs';
 
@@ -107,7 +120,11 @@ final class LeadController extends Controller
             return false;
         }
 
-        $entry = $data + ['time' => date('c')];
+        // Поле mail отвечает на главный вопрос при разборе жалобы
+        // «заявки не приходят»: письмо вообще не ушло или ушло,
+        // но не доехало. Это две разные неисправности и два разных
+        // места, куда смотреть.
+        $entry = $data + ['time' => date('c'), 'mail' => $mailed];
 
         if ($suspicious) {
             $entry['spam'] = true;
@@ -165,6 +182,12 @@ final class LeadController extends Controller
         // отношения не имеет. Письмо уходит в спам или отбивается
         // молча. Здесь в конверт ставится тот же адрес, что и в From,
         // и проверка сходится.
+        // Последнюю ошибку запоминаем до отправки: @ перед mail() гасит
+        // вывод, но саму ошибку PHP всё равно сохраняет. Сравнив «до»
+        // и «после», мы отличаем свежую жалобу почтовой подсистемы
+        // от чужой, оставшейся с более раннего места в коде.
+        $before = error_get_last();
+
         $sent = @mail(
             $to,
             '=?UTF-8?B?' . base64_encode($subject) . '?=',
@@ -181,11 +204,37 @@ final class LeadController extends Controller
         // storage/logs/errors.log видно и сам факт, и адреса, между
         // которыми письмо не прошло.
         if (!$sent) {
+            // Раньше запись говорила только о самом факте отказа,
+            // и разбираться приходилось наугад. Теперь к нему
+            // добавлены две вещи.
+            //
+            // Первая — жалоба PHP, если она была. Появляется она
+            // не всегда: отказ самой почтовой программы PHP обычно
+            // не считает своей ошибкой и выводит её текст в журнал
+            // веб-сервера. Зато при испорченных заголовках
+            // или запрещённой функции сообщение будет здесь.
+            //
+            // Вторая — путь к почтовой программе из настроек PHP.
+            // На общем хостинге он и оказывается ответом чаще всего:
+            // пустое значение или чужой путь означают, что отправлять
+            // письма этому сайту попросту нечем.
+            $after  = error_get_last();
+            $reason = ($after !== null && $after !== $before)
+                ? ' Жалоба PHP: ' . $after['message'] . '.'
+                : ' PHP ошибки не сообщил — текст отказа смотреть'
+                    . ' в журнале веб-сервера.';
+
+            $sendmail = (string) ini_get('sendmail_path');
+
             ErrorLog::save(
                 dirname(__DIR__, 2) . '/storage/logs',
                 'mail',
-                'Письмо с заявкой не отправлено: ' . $from . ' -> ' . $to
-                    . '. Проверить, существует ли ящик отправителя на хостинге.',
+                'Письмо с заявкой не отправлено: ' . $from . ' -> ' . $to . '.'
+                    . $reason
+                    . ' Почтовая программа: '
+                    . ($sendmail !== '' ? $sendmail : 'не задана в настройках PHP')
+                    . '. Проверить, существует ли ящик отправителя на хостинге'
+                    . ' и разрешена ли отправка почты из PHP.',
                 __FILE__,
                 __LINE__,
             );
