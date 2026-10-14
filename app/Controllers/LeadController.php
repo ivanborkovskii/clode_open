@@ -18,6 +18,9 @@ use App\Core\Validator;
 
 final class LeadController extends Controller
 {
+    /** Адрес API Телеграма. Токен бота дописывается к нему при отправке. */
+    private const TG_API = 'https://api.telegram.org/bot';
+
     public function store(): void
     {
         $isAjax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch';
@@ -89,8 +92,12 @@ final class LeadController extends Controller
     {
         $logged = $this->log($data, $suspicious);
         $mailed = $this->mail($data, $suspicious);
+        $told   = $this->telegram($data, $suspicious);
 
-        return $logged || $mailed;
+        // Телеграм — равноправный способ доставки: если почта отказала,
+        // а сообщение в чат ушло, заявка не потеряна, и показывать
+        // человеку ошибку не за что.
+        return $logged || $mailed || $told === true;
     }
 
     /**
@@ -192,6 +199,103 @@ final class LeadController extends Controller
         }
 
         return $sent;
+    }
+
+    /**
+     * Дублирует заявку в Телеграм.
+     *
+     * Возвращает null, когда канал не настроен: это не отказ, а молчание
+     * выключенной возможности, и в журнал ошибок оно попадать не должно.
+     * true — сообщение доставлено, false — отправка не удалась.
+     *
+     * Зачем вообще: письмо может уйти в спам или задержаться на час,
+     * а в телефон сообщение приходит сразу. Для заявки, где важна
+     * скорость ответа, это и есть главный канал, а почта — архив.
+     *
+     * @param array<string, string> $data
+     */
+    private function telegram(array $data, bool $suspicious = false): ?bool
+    {
+        $token = (string) ($this->config['leads']['tg_token'] ?? '');
+        $chat  = (string) ($this->config['leads']['tg_chat'] ?? '');
+
+        if ($token === '' || $chat === '') {
+            return null;
+        }
+
+        if (!extension_loaded('curl')) {
+            ErrorLog::save(
+                dirname(__DIR__, 2) . '/storage/logs',
+                'telegram',
+                'Заявка не ушла в Телеграм: на сервере нет расширения cURL.',
+                __FILE__,
+                __LINE__,
+            );
+
+            return false;
+        }
+
+        // Разметка HTML, поэтому всё, что ввёл человек, экранируется.
+        // Иначе угловая скобка в имени оборвёт разметку, и Телеграм
+        // откажется принимать сообщение целиком.
+        $safe = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+
+        // Телефон в моноширинном начертании: по нажатию копируется
+        // целиком, а не выделяется руками по цифре.
+        $text = ($suspicious ? "⚠️ <b>Возможно спам</b>\n\n" : '')
+            . "<b>Заявка с сайта</b>\n\n"
+            . 'Имя: ' . $safe($data['name']) . "\n"
+            . 'Телефон: <code>' . $safe($data['phone']) . "</code>\n"
+            . 'Почта: ' . ($data['email'] !== '' ? $safe($data['email']) : '—') . "\n"
+            . 'Задача: ' . ($data['message'] !== '' ? $safe($data['message']) : '—');
+
+        $ch = curl_init(self::TG_API . $token . '/sendMessage');
+
+        // Сроки ожидания короткие и обязательные. Отправка идёт внутри
+        // запроса, который ждёт человек у формы: если Телеграм окажется
+        // недоступен, без них страница провисела бы до таймаута PHP.
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query([
+                'chat_id'                  => $chat,
+                'text'                     => $text,
+                'parse_mode'               => 'HTML',
+                'disable_web_page_preview' => true,
+            ]),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT        => 7,
+        ]);
+
+        $body  = curl_exec($ch);
+        $code  = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        $answer = is_string($body) ? json_decode($body, true) : null;
+        $ok     = is_array($answer) && ($answer['ok'] ?? false) === true;
+
+        if (!$ok) {
+            // Токен в журнал не попадает: это пароль бота, а журнал
+            // читают через файловый менеджер хостинга.
+            //
+            // Описание от Телеграма, наоборот, нужно: «chat not found»
+            // и «bot was blocked by the user» — две разные ошибки
+            // настройки, и лечатся они по-разному.
+            ErrorLog::save(
+                dirname(__DIR__, 2) . '/storage/logs',
+                'telegram',
+                'Заявка не ушла в Телеграм. Чат: ' . $chat
+                    . '. Ответ: ' . ($code !== 0 ? 'HTTP ' . $code : 'нет связи')
+                    . '. ' . (is_array($answer) && isset($answer['description'])
+                        ? (string) $answer['description']
+                        : ($error !== '' ? $error : 'без пояснений')),
+                __FILE__,
+                __LINE__,
+            );
+        }
+
+        return $ok;
     }
 
     /**
