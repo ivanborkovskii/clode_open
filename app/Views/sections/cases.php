@@ -38,7 +38,15 @@ $caseLevel = !empty($cases['title']) ? 'h3' : 'h2';
         <div class="cases">
             <?php foreach ($cases['items'] as $case): ?>
                 <?php // Разбор кейса может быть ещё не готов — тогда ссылки нет. ?>
-                <?php $ready = $view->exists($case['href']); ?>
+                <?php
+                $ready = $view->exists($case['href']);
+
+                // С версией статики — по той же причине, что и в галерее
+                // кейса: имя файла остаётся прежним, а кадр под ним
+                // может смениться при пересборке.
+                $full  = $view->asset('img/cases/' . $case['slug'] . '-1.webp');
+                $small = $view->asset('img/cases/' . $case['slug'] . '-1-sm.webp');
+                ?>
 
                 <article class="case">
                     <?php if ($ready): ?>
@@ -46,9 +54,9 @@ $caseLevel = !empty($cases['title']) ? 'h3' : 'h2';
                     <?php else: ?>
                     <div class="case__shot">
                     <?php endif; ?>
-                        <img src="/assets/img/cases/<?= View::e($case['slug']) ?>-1.webp"
-                             srcset="/assets/img/cases/<?= View::e($case['slug']) ?>-1-sm.webp 600w,
-                                     /assets/img/cases/<?= View::e($case['slug']) ?>-1.webp 1200w"
+                        <img src="<?= View::e($full) ?>"
+                             srcset="<?= View::e($small) ?> 600w,
+                                     <?= View::e($full) ?> 1200w"
                              sizes="(max-width: 1023px) 92vw, 52vw"
                              alt="<?= View::e($case['alt']) ?>"
                              width="1200" height="675" loading="lazy" decoding="async">
