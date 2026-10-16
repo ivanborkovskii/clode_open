@@ -19,6 +19,14 @@
 
 <?php $view->partial('sections/case-facts',  ['facts' => $page['facts']]); ?>
 <?php $view->partial('sections/service-stages', ['stages' => $page['stages']]); ?>
+
+<?php // Таблица «что настроили → что это дало». Нужна там, где направлений
+      // работ несколько и списком связь между ними теряется. У кейсов
+      // попроще её нет — тогда блок просто не выводится. ?>
+<?php if (!empty($page['table'])): ?>
+    <?php $view->partial('sections/service-table', ['table' => $page['table']]); ?>
+<?php endif; ?>
+
 <?php $view->partial('sections/case-result', ['result' => $page['result']]); ?>
 
 <?php if (!empty($page['gallery']['shots'])): ?>
