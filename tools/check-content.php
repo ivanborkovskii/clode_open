@@ -67,7 +67,13 @@ foreach (glob($root . '/config/content/*.php') as $file) {
     if (!empty($page['gallery']['shots'])) {
         $slug = str_replace(['case-', '.php'], '', $name);
 
-        $files = glob($root . "/public/assets/img/cases/{$slug}-[0-9].webp");
+        // Маска с двумя шагами: сначала однозначные номера, потом двузначные.
+        // Одной маской [0-9]* не обойтись — под неё попадают и уменьшенные
+        // копии вида slug-1-sm.webp, а их в галерее быть не должно.
+        $files = array_merge(
+            glob($root . "/public/assets/img/cases/{$slug}-[0-9].webp"),
+            glob($root . "/public/assets/img/cases/{$slug}-[0-9][0-9].webp"),
+        );
         $onDisk = array_map(
             static fn (string $f): int => (int) preg_replace('~.*-(\d+)\.webp$~', '$1', $f),
             $files,
