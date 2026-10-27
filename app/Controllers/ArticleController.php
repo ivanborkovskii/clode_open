@@ -170,7 +170,14 @@ final class ArticleController extends Controller
             'scripts' => ['js/articles.js'],
             'seo'     => $seo,
             'page'    => [
-                'hero'       => $this->listingHero($content, $category, $selected, $query),
+                'hero'       => $this->listingHero(
+                    $content,
+                    $category,
+                    $selected,
+                    $query,
+                    $page,
+                    (int) $result['pages'],
+                ),
                 'search'     => ['action' => $base, 'value' => $query],
                 // Кнопки отбора считаются от нынешней выборки: у каждой
                 // видно, сколько статей останется, а те, после которых
@@ -721,34 +728,54 @@ final class ArticleController extends Controller
      * @param  array<int, array<string, mixed>> $tags
      * @return array<string, string>
      */
-    private function listingHero(array $content, ?array $category, array $tags, string $query): array
-    {
+    private function listingHero(
+        array $content,
+        ?array $category,
+        array $tags,
+        string $query,
+        int $page,
+        int $pages,
+    ): array {
         if ($query !== '') {
-            return [
+            $hero = [
                 'title' => 'Поиск по статьям',
                 'lead'  => 'Результаты по запросу «' . $query . '».',
                 'text'  => '',
             ];
-        }
-
-        if ($category !== null) {
-            return [
+        } elseif ($category !== null) {
+            $hero = [
                 'title' => $category['name'],
                 'lead'  => $category['description'],
                 'text'  => $tags === [] ? '' : 'Отобраны статьи с темами: '
                     . implode(', ', array_column($tags, 'name')) . '.',
             ];
-        }
-
-        if ($tags !== []) {
-            return [
+        } elseif ($tags !== []) {
+            $hero = [
                 'title' => $content['hero']['title'],
                 'lead'  => 'Статьи с темами: ' . implode(', ', array_column($tags, 'name')) . '.',
                 'text'  => '',
             ];
+        } else {
+            $hero = $content['hero'];
         }
 
-        return $content['hero'];
+        // Номер страницы в заголовке — по той же причине, по которой он
+        // давно стоит в теге title и в описании: вторая страница списка
+        // не копия первой, а самостоятельная страница.
+        //
+        // Человеку, пришедшему из поиска сразу на вторую страницу, заголовок
+        // подтверждает, где он оказался. Проверяющим сервисам он снимает
+        // замечание о совпадающих H1 — само по себе оно безобидное,
+        // но всплывает в каждом отчёте.
+        //
+        // Условие то же, что у title: номер дописывается только настоящей
+        // странице. У адреса с номером, которого нет, заголовок остаётся
+        // прежним — такая страница и так отвечает «не найдено».
+        if ($page > 1 && $page <= max(1, $pages)) {
+            $hero['title'] .= ' — страница ' . $page;
+        }
+
+        return $hero;
     }
 
     /**
