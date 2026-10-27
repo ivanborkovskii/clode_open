@@ -35,8 +35,14 @@ $router->get('/keysy/{slug}', 'CaseController@show', CaseController::paths());
 // Раздел «Статьи». Адрес /stati/kategoriya/{slug} длиннее, чем /stati/{slug},
 // и параметр в шаблоне не захватывает слэш — поэтому страница категории
 // не попадает в обработчик статьи.
+//
+// Номер страницы списка стоит в самом адресе: /stati/stranica/2. Прежний
+// вид «/stati?stranica=2» работает и переводит сюда, чтобы ссылки,
+// которые уже где-то проставлены, не упирались в пустоту.
 $router->get('/stati', 'ArticleController@index');
+$router->get('/stati/stranica/{page}', 'ArticleController@index');
 $router->get('/stati/kategoriya/{slug}', 'ArticleController@category');
+$router->get('/stati/kategoriya/{slug}/stranica/{page}', 'ArticleController@category');
 $router->get('/stati/{slug}', 'ArticleController@show');
 $router->get('/api/poisk-statey', 'ArticleController@suggest');
 $router->post('/stati/{slug}/kommentariy', 'ArticleController@comment');

@@ -51,12 +51,12 @@ final class ArticleController extends Controller
      */
     private const MAX_TAGS = 3;
 
-    public function index(): void
+    public function index(string $page = ''): void
     {
-        $this->listing(null);
+        $this->listing(null, $page);
     }
 
-    public function category(string $slug): void
+    public function category(string $slug, string $page = ''): void
     {
         $category = (new TaxonomyRepository($this->db()))->category($slug);
 
@@ -65,15 +65,16 @@ final class ArticleController extends Controller
             return;
         }
 
-        $this->listing($category);
+        $this->listing($category, $page);
     }
 
     /**
      * Общий вывод списка: с категорией в адресе и без неё.
      *
      * @param array<string, mixed>|null $category
+     * @param string $pageParam Номер страницы из адреса; пусто — первая
      */
-    private function listing(?array $category): void
+    private function listing(?array $category, string $pageParam = ''): void
     {
         $taxonomy = new TaxonomyRepository($this->db());
         $articles = new ArticleRepository($this->db());
@@ -87,8 +88,28 @@ final class ArticleController extends Controller
         $active    = array_column($selected, 'slug');
 
         $query = trim((string) ($_GET['q'] ?? ''));
-        $page  = max(1, (int) ($_GET['stranica'] ?? 1));
         $base  = $category === null ? '/stati' : '/stati/kategoriya/' . $category['slug'];
+
+        // НОМЕР СТРАНИЦЫ.
+        //
+        // Нынешний вид — отдельный кусок адреса: /stati/stranica/2.
+        // Прежний — параметр: /stati?stranica=2. Параметр по-прежнему
+        // принимается и переводит на нынешний адрес: по нему уже могут
+        // быть ссылки, и в поиске он мог осесть.
+        //
+        // В адресе допустимо только обычное число без ведущих нулей.
+        // «/stati/stranica/01» и «/stati/stranica/dva» страницами не бывают:
+        // иначе у одного и того же списка появляется сколько угодно адресов.
+        if ($pageParam !== '' && preg_match('~^[1-9]\d*$~', $pageParam) !== 1) {
+            $this->notFound();
+
+            return;
+        }
+
+        $fromQuery = isset($_GET['stranica']);
+        $page      = $fromQuery
+            ? max(1, (int) $_GET['stranica'])
+            : ($pageParam === '' ? 1 : (int) $pageParam);
 
         // ОДИН НАБОР ТЕМ — ОДИН АДРЕС.
         //
@@ -103,7 +124,15 @@ final class ArticleController extends Controller
         // с канонической, и правило больше не срабатывает.
         $canonical = implode(',', $active);
 
-        if ((string) ($_GET['tegi'] ?? '') !== $canonical) {
+        // Сюда же сведены и прежний адрес с параметром «?stranica=»,
+        // и «/stati/stranica/1»: первая страница живёт по адресу раздела
+        // без всяких добавок. Кольца не будет — после перехода адрес
+        // совпадает с каноническим, и правило больше не срабатывает.
+        $moved = $fromQuery
+            || ($pageParam !== '' && $page === 1)
+            || (string) ($_GET['tegi'] ?? '') !== $canonical;
+
+        if ($moved) {
             $this->redirect($this->link($base, $active, $query, $page), 301);
 
             return;
@@ -570,8 +599,11 @@ final class ArticleController extends Controller
             $params['q'] = $query;
         }
 
+        // Номер страницы — часть адреса, а не параметр. Отбор по темам
+        // и поиск параметрами и остаются: это не разные страницы раздела,
+        // а выборки из него, и в индекс они не идут.
         if ($page > 1) {
-            $params['stranica'] = $page;
+            $base .= '/stranica/' . $page;
         }
 
         if ($params === []) {
