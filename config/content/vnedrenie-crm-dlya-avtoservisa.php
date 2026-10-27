@@ -434,6 +434,10 @@ return [
                 'label' => 'Подключение телефонии к Битрикс24',
             ],
             [
+                'href'  => '/uslugi/vnedrenie-crm-dlya-servisnogo-centra',
+                'label' => 'CRM для сервисного центра',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-crm-dlya-uchebnogo-centra',
                 'label' => 'Внедрение CRM для учебного центра',
             ],

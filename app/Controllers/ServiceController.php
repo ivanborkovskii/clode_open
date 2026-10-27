@@ -657,6 +657,18 @@ final class ServiceController extends Controller
                 . 'срок от 30 дней.',
         ],
 
+        'vnedrenie-crm-dlya-servisnogo-centra' => [
+            'content'     => 'vnedrenie-crm-dlya-servisnogo-centra',
+            'crumb'       => 'Сервисный центр',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'CRM для сервисного центра — внедрение от 75 000 ₽',
+            'description' => 'CRM для сервисного центра и ремонтной мастерской: '
+                . 'путь заказа от приёмки до выдачи, загрузка мастеров, '
+                . 'сроки и просрочки, карточка техники, документы и оплаты. '
+                . 'От 75 000 ₽, срок от 30 дней.',
+        ],
+
         'vnedrenie-crm-dlya-yuridicheskoy-kompanii' => [
             'content'     => 'vnedrenie-crm-dlya-yuridicheskoy-kompanii',
             'crumb'       => 'Юридическая компания',
