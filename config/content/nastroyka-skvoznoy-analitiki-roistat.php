@@ -564,6 +564,10 @@ return [
             . 'иначе отчёты будут считать по дырявым данным.',
         'links' => [
             ['href' => '/uslugi/integraciya-crm-s-saytom', 'label' => 'Интеграция CRM с сайтом'],
+            [
+                'href'  => '/uslugi/nastroyka-skvoznoy-analitiki-bitrix24',
+                'label' => 'Сквозная аналитика на стороне Битрикс24',
+            ],
             ['href' => '/uslugi/integracii',               'label' => 'Все интеграции CRM'],
         ],
     ],

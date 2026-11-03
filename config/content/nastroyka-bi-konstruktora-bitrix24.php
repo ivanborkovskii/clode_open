@@ -426,6 +426,10 @@ return [
                 'label' => 'Аудит Битрикс24',
             ],
             [
+                'href'  => '/uslugi/nastroyka-skvoznoy-analitiki-bitrix24',
+                'label' => 'Сквозная аналитика Битрикс24',
+            ],
+            [
                 'href'  => '/uslugi/integraciya-crm-yandeks-metrika',
                 'label' => 'Передача конверсий из CRM в рекламу',
             ],

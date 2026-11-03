@@ -488,6 +488,18 @@ final class ServiceController extends Controller
                 . 'От 4 400 ₽.',
         ],
 
+        'nastroyka-skvoznoy-analitiki-bitrix24' => [
+            'content'     => 'nastroyka-skvoznoy-analitiki-bitrix24',
+            'crumb'       => 'Сквозная аналитика Битрикс24',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Настройка сквозной аналитики Битрикс24 под ключ',
+            'description' => 'Свяжем рекламные расходы, заявки и продажи '
+                . 'в Битрикс24 и подберём инструмент под нужную глубину: '
+                . 'штатный раздел, BI Конструктор, Yandex DataLens '
+                . 'или Roistat.',
+        ],
+
         'nastroyka-skvoznoy-analitiki-roistat' => [
             'content'     => 'nastroyka-skvoznoy-analitiki-roistat',
             'crumb'       => 'Сквозная аналитика Roistat',
