@@ -440,6 +440,7 @@ return [
             ['href' => '/uslugi/soprovozhdenie-bitrix24',        'label' => 'Сопровождение Битрикс24'],
             ['href' => '/uslugi/nastroyka-i-dorabotka-crm', 'label' => 'Настройка и доработка CRM'],
             ['href' => '/uslugi/migraciya-v-bitrix24',      'label' => 'Перенос данных в Битрикс24'],
+            ['href' => '/uslugi/nastroyka-kedo-bitrix24',   'label' => 'Настройка КЭДО Битрикс24'],
         ],
     ],
 

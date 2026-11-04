@@ -388,6 +388,10 @@ return [
                 'label' => 'Доработка Битрикс24',
             ],
             [
+                'href'  => '/uslugi/nastroyka-kedo-bitrix24',
+                'label' => 'КЭДО — документы для сотрудников',
+            ],
+            [
                 'href'  => '/uslugi/razrabotka-integraciy-crm-rest-api',
                 'label' => 'Разработка интеграций по REST API',
             ],

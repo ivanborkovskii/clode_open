@@ -488,6 +488,18 @@ final class ServiceController extends Controller
                 . 'От 4 400 ₽.',
         ],
 
+        'nastroyka-kedo-bitrix24' => [
+            'content'     => 'nastroyka-kedo-bitrix24',
+            'crumb'       => 'Настройка КЭДО',
+            'group'       => 'obshchie',
+            'parent'      => 'integracii',
+            'title'       => 'Настройка КЭДО Битрикс24 под ключ',
+            'description' => 'Настроим кадровый электронный документооборот '
+                . 'в Битрикс24: шаблоны кадровых документов, маршруты '
+                . 'согласования, подписание через Госключ, права доступа, '
+                . 'автоматизация и связка с 1С.',
+        ],
+
         'nastroyka-skvoznoy-analitiki-bitrix24' => [
             'content'     => 'nastroyka-skvoznoy-analitiki-bitrix24',
             'crumb'       => 'Сквозная аналитика Битрикс24',
