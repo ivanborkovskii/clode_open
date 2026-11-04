@@ -324,6 +324,18 @@ final class ServiceController extends Controller
         //
         // В общей группе, а не в продуктовой: услуга одинаково про
         // Битрикс24 и про amoCRM.
+        'razrabotka-crm-sistemy-na-zakaz' => [
+            'content'     => 'razrabotka-crm-sistemy-na-zakaz',
+            'crumb'       => 'Разработка CRM на заказ',
+            'menu'        => 'Разработка CRM на заказ',
+            'group'       => 'obshchie',
+            'title'       => 'Разработка CRM-системы на заказ под ключ',
+            'description' => 'Разрабатываем CRM под процессы компании: разбор '
+                . 'процессов по схемам, прототипы, минимальная рабочая '
+                . 'версия и полная система. Ориентиры: версия от 2 млн ₽, '
+                . 'система от 4 млн ₽, сопровождение от 100 тыс. ₽ в месяц.',
+        ],
+
         'razrabotka-integraciy-crm-rest-api' => [
             'content'     => 'service-razrabotka-api',
             'crumb'       => 'Разработка интеграций по REST API',
