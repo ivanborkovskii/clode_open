@@ -705,6 +705,22 @@ final class ServiceController extends Controller
                 . 'От 75 000 ₽, срок от 30 дней.',
         ],
 
+        // Цены в заголовке нет намеренно: обмен с биллингом почти всегда
+        // уводит проект оператора связи выше общей границы кластера,
+        // и обещать её в выдаче было бы неверно.
+        'vnedrenie-crm-dlya-operatora-svyazi' => [
+            'content'     => 'vnedrenie-crm-dlya-operatora-svyazi',
+            'crumb'       => 'Оператор связи',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'Внедрение CRM для оператора связи и провайдера',
+            'description' => 'Внедрение CRM для оператора связи: карточка '
+                . 'абонента со всеми услугами, обращения в одном окне, '
+                . 'допуслуги по базе, отток с причинами и обмен '
+                . 'с биллингом. Настройка под действующих абонентов, '
+                . 'а не только под новые подключения.',
+        ],
+
         'vnedrenie-crm-dlya-yuridicheskoy-kompanii' => [
             'content'     => 'vnedrenie-crm-dlya-yuridicheskoy-kompanii',
             'crumb'       => 'Юридическая компания',
