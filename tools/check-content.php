@@ -100,6 +100,38 @@ foreach (glob($root . '/config/content/*.php') as $file) {
         }
     }
 
+    // Снимки экранов на странице услуги. Проверяется то же, что и
+    // у шапки: файл на месте, уменьшенная копия есть, размеры совпадают
+    // с разметкой и у кадра написано описание.
+    foreach ($page['blocks'] ?? [] as $block) {
+        if (($block['view'] ?? '') !== 'service-shots') {
+            continue;
+        }
+
+        foreach ($block['items'] ?? [] as $shot) {
+            $img = $root . '/public/assets/img/uslugi/' . $shot['file'] . '.webp';
+
+            foreach (['', '-sm'] as $suffix) {
+                if (!is_file($root . "/public/assets/img/uslugi/{$shot['file']}{$suffix}.webp")) {
+                    $errors[] = "{$name}: нет файла {$shot['file']}{$suffix}.webp";
+                }
+            }
+
+            if (empty($shot['alt'])) {
+                $errors[] = "{$name}: у снимка {$shot['file']} нет описания alt";
+            }
+
+            if (is_file($img)) {
+                [$w, $h] = getimagesize($img);
+
+                if ($w !== $shot['w'] || $h !== $shot['h']) {
+                    $errors[] = "{$name}: у {$shot['file']} размеры в тексте {$shot['w']}×{$shot['h']}, "
+                        . "а в файле {$w}×{$h}";
+                }
+            }
+        }
+    }
+
     // Кейсы: тот же кадр не должен стоять и в шапке, и ниже.
     foreach ($page['cases']['items'] ?? [] as $case) {
         $shot = $case['slug'] . '-' . ($case['shot'] ?? 1);
