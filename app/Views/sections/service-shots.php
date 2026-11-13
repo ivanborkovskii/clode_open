@@ -28,7 +28,14 @@ use App\Core\View;
             <p class="section-head__lead"><?= View::e($shots['lead']) ?></p>
         </div>
 
-        <ul class="shots">
+        <?php
+        // Сетка подстраивается под число кадров: три в ряд, два в ряд
+        // или один ограниченной ширины. Иначе одиночный снимок занял бы
+        // треть строки, и прочесть на нём ничего бы не удалось.
+        $count = count($shots['items']);
+        $grid  = $count === 1 ? ' shots--solo' : ($count === 2 ? ' shots--pair' : '');
+        ?>
+        <ul class="shots<?= $grid ?>">
             <?php foreach ($shots['items'] as $shot): ?>
                 <?php
                 $base  = 'img/uslugi/' . $shot['file'];
