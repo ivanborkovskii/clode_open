@@ -12,6 +12,12 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
+
+// Часть файлов с текстами зовёт классы сайта (App\Core\Text), поэтому
+// загрузчик нужен и здесь: без него проверка падает на первом же таком
+// файле, хотя сама база данных ей не требуется.
+require $root . '/app/Core/Autoloader.php';
+App\Core\Autoloader::register($root . '/app');
 $errors = [];
 $checked = 0;
 

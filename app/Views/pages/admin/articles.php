@@ -5,6 +5,7 @@
  * @var array  $articles
  * @var string $query
  * @var string $flash
+ * @var array  $search   состояние поискового указателя
  */
 
 use App\Core\Csrf;
@@ -20,6 +21,38 @@ use App\Core\View;
     <?php if ($flash !== ''): ?>
         <p class="aalert"><?= View::e($flash) ?></p>
     <?php endif; ?>
+
+    <?php
+    // Поиск по сайту собран из файлов с текстами, а об их изменении база
+    // узнать не может: страницы меняются выкладкой обновления, мимо неё.
+    // Поэтому указатель пересобирается этой кнопкой — после каждой
+    // выкладки с новыми или изменёнными страницами. Статьи перечитываются
+    // заодно, отдельно их обновлять не нужно.
+    ?>
+    <div class="apanel">
+        <div>
+            <p class="apanel__title">Поиск по сайту</p>
+            <p class="amuted asmall">
+                <?php if (!$search['ready']): ?>
+                    Таблицы поиска в базе нет. Загрузите в неё файл
+                    database/obnovlenie-poisk.sql — до этого поиск
+                    на сайте ничего не находит.
+                <?php elseif ($search['total'] === 0): ?>
+                    Указатель пуст — поиск на сайте ничего не находит.
+                    Нажмите «Обновить поиск».
+                <?php else: ?>
+                    В указателе <?= (int) $search['total'] ?>
+                    <?= View::e(Text::plural((int) $search['total'], 'страница', 'страницы', 'страниц')) ?>,
+                    обновлён <?= View::e(Text::date($search['updated'])) ?>.
+                <?php endif; ?>
+            </p>
+        </div>
+
+        <form method="post" action="/admin/poisk">
+            <input type="hidden" name="_token" value="<?= View::e(Csrf::token()) ?>">
+            <button class="abtn" type="submit">Обновить поиск</button>
+        </form>
+    </div>
 
     <form class="asearch-row" method="get" action="/admin">
         <input type="search" name="q" value="<?= View::e($query) ?>"

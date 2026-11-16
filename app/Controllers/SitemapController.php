@@ -48,6 +48,24 @@ final class SitemapController extends Controller
         TariffController::PRODLENIE => 'service-prodlenie-bitrix24',
     ];
 
+    /**
+     * Какой страницей какой файл текстов управляет — по всему сайту.
+     *
+     * Нужно двоим: карте сайта (дата изменения страницы — это время
+     * её файла) и поиску (текст страницы берётся из того же файла).
+     * Список один на оба применения: второй рано или поздно отстал бы
+     * от первого, и новые страницы молча выпадали бы из поиска.
+     *
+     * @return array<string, string>
+     */
+    public static function contentMap(): array
+    {
+        return self::CONTENT
+            + ServiceController::contentFiles()
+            + SolutionController::contentFiles()
+            + CaseController::contentFiles();
+    }
+
     /** Индекс карт: /sitemap.xml */
     public function index(): void
     {
@@ -119,15 +137,8 @@ final class SitemapController extends Controller
             $paths[$path] = '0.8';
         }
 
-        // Какой страницей какой файл текстов управляет. Отдельно стоящие
-        // страницы перечислены здесь, остальные приходят из реестров
-        // своих разделов — один список на оба применения.
-        $content = self::CONTENT
-            + ServiceController::contentFiles()
-            + SolutionController::contentFiles()
-            + CaseController::contentFiles();
-
-        $urls = [];
+        $content = self::contentMap();
+        $urls    = [];
 
         foreach ($paths as $path => $priority) {
             $urls[] = [

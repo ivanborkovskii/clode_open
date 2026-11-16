@@ -17,11 +17,13 @@ namespace App\Controllers;
 
 use App\Core\Csrf;
 use App\Core\Session;
+use App\Core\SiteIndex;
 use App\Core\Text;
 use App\Core\Upload;
 use App\Models\AdminRepository;
 use App\Models\ArticleRepository;
 use App\Models\CommentRepository;
+use App\Models\SearchRepository;
 use App\Models\TaxonomyRepository;
 use PDOException;
 
@@ -111,6 +113,7 @@ final class AdminController extends Controller
             'kommentariy'  => $this->moderate(),
             'temy'         => $method === 'POST' ? $this->saveTag() : $this->tags(),
             'kartinka'     => $this->uploadImage(),
+            'poisk'        => $this->rebuildSearch(),
             'parol'        => $this->password($method),
             'proverka'     => $this->selfCheck(),
             default        => $this->notFound(),
@@ -282,7 +285,65 @@ final class AdminController extends Controller
             'articles' => (new ArticleRepository($this->db()))->adminListing($query),
             'query'    => $query,
             'flash'    => $this->flash(),
+            'search'   => $this->searchState(),
         ]);
+    }
+
+    /* --------------------------------------------------------------------
+       Поиск по сайту
+       -------------------------------------------------------------------- */
+
+    /**
+     * Состояние поискового указателя для списка статей.
+     *
+     * Если таблицы ещё нет, это не ошибка админки, а незагруженное
+     * обновление базы — так и говорим, вместо того чтобы падать.
+     *
+     * @return array{ready:bool, total:int, updated:string}
+     */
+    private function searchState(): array
+    {
+        try {
+            $stats = (new SearchRepository($this->db()))->stats();
+        } catch (PDOException) {
+            return ['ready' => false, 'total' => 0, 'updated' => ''];
+        }
+
+        return ['ready' => true, ...$stats];
+    }
+
+    /**
+     * Пересборка поискового указателя.
+     *
+     * Тексты страниц лежат в файлах, и об их изменении база узнать
+     * не может — поэтому указатель собирается по кнопке. Нажимать её
+     * нужно после каждой выкладки обновления с новыми или изменёнными
+     * страницами; статьи при этом перечитываются заодно.
+     */
+    private function rebuildSearch(): void
+    {
+        if (!Csrf::check($_POST['_token'] ?? null)) {
+            $this->back('/admin', 'Форма устарела, попробуйте ещё раз');
+            return;
+        }
+
+        try {
+            $pages = SiteIndex::pages(
+                dirname(__DIR__, 2) . '/config/content',
+                SitemapController::contentMap(),
+                ServiceController::searchSections(),
+            );
+
+            $total = (new SearchRepository($this->db()))->rebuild($pages);
+        } catch (PDOException) {
+            $this->back('/admin', 'Поиск обновить не удалось: нет таблицы search_index. '
+                . 'Загрузите в базу файл database/obnovlenie-poisk.sql.');
+
+            return;
+        }
+
+        $this->back('/admin', 'Поиск обновлён: в указателе ' . $total . ' '
+            . Text::plural($total, 'страница', 'страницы', 'страниц'));
     }
 
     private function editArticle(): void

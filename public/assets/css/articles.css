@@ -1,12 +1,13 @@
 /* ==========================================================================
    РАЗДЕЛ «СТАТЬИ»
-   Поиск с подсказками, фильтры, список карточек, страница статьи,
-   оценка, комментарии и подборка похожих.
+   Фильтры, список карточек, страница статьи, оценка, комментарии
+   и подборка похожих. Сама строка поиска с подсказками лежит
+   в app.css: такая же стоит в шапке на всех страницах сайта.
    Подключается только на страницах раздела.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. Поиск
+   1. Фильтры
    -------------------------------------------------------------------------- */
 
 /* Отступ сверху обычный: без него строка поиска упиралась в тёмную шапку
@@ -16,127 +17,6 @@
 /* Список идёт сразу за фильтрами: полный отступ между ними разрывал бы
    панель отбора и её результат на два несвязанных экрана. */
 .article-filters + .section { padding-top: clamp(1.5rem, 1rem + 1vw, 2.25rem); }
-
-.asearch {
-  position: relative;
-  max-width: 46rem;
-}
-
-.asearch__label {
-  display: block;
-  margin-bottom: var(--s-2);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-}
-
-.asearch__row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--s-3);
-}
-
-.asearch__input {
-  width: 100%;
-  min-height: 54px;
-  padding: var(--s-3) var(--s-4);
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 1rem;
-  transition: border-color var(--transition), box-shadow var(--transition);
-}
-
-.asearch__input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(30, 150, 240, 0.18);
-}
-
-/* Крестик очистки в поле типа search рисуют по-своему все браузеры.
-   Убираем, чтобы он не спорил с рамкой поля. */
-.asearch__input::-webkit-search-cancel-button { appearance: none; }
-
-.asearch__submit { white-space: nowrap; }
-
-.asearch__hint {
-  margin: var(--s-2) 0 0;
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-}
-
-/* Выпадающие подсказки. Перекрывают начало списка статей, поэтому лежат
-   выше по слою и на непрозрачном фоне. */
-.asearch__drop {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% - 1.35rem);
-  left: 0;
-  right: 0;
-  max-height: 60vh;
-  overflow-y: auto;
-  padding: var(--s-2);
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 18px 40px rgba(7, 23, 57, 0.16);
-}
-
-.asearch__drop[hidden] { display: none; }
-
-.asearch__item {
-  display: block;
-  padding: var(--s-3);
-  border-radius: var(--radius-sm);
-  color: inherit;
-  text-decoration: none;
-}
-
-.asearch__item:hover,
-.asearch__item:focus-visible,
-.asearch__item.is-current {
-  background: var(--paper-alt);
-  outline: none;
-}
-
-.asearch__item-title {
-  display: block;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-/* Совпадение с запросом. Только насыщенность и цвет: подсветка фоном
-   в списке из восьми строк превращается в мельтешение. */
-.asearch__item-title b,
-.asearch__item-text b {
-  color: var(--accent-deep);
-  font-weight: 700;
-}
-
-.asearch__item-text {
-  display: block;
-  margin-top: var(--s-1);
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-}
-
-.asearch__item-cat {
-  display: block;
-  margin-top: var(--s-1);
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-}
-
-.asearch__empty {
-  padding: var(--s-3);
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-}
-
-/* --------------------------------------------------------------------------
-   2. Фильтры
-   -------------------------------------------------------------------------- */
 
 .afilter { margin-top: var(--s-6); }
 
@@ -1034,10 +914,6 @@
    -------------------------------------------------------------------------- */
 
 @media (max-width: 767px) {
-  .asearch__row {
-    grid-template-columns: 1fr;
-  }
-
   .articles {
     grid-template-columns: 1fr;
   }

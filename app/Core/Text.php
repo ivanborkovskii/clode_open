@@ -414,6 +414,45 @@ final class Text
     }
 
     /**
+     * Готовый к выводу кусок текста с выделенными совпадениями.
+     *
+     * Возвращает разметку, поэтому экранирует сам: в шаблоне результат
+     * выводится как есть, и единственные теги в нём — те, что поставлены
+     * здесь. Экранируется каждый кусок по отдельности, а не строка
+     * целиком: так совпадение не может попасть внутрь «&quot;»
+     * и разорвать его пополам.
+     *
+     * @param array<int, string> $words
+     */
+    public static function mark(string $text, array $words): string
+    {
+        if ($words === []) {
+            return View::e($text);
+        }
+
+        $pattern = '~(' . implode('|', array_map(
+            static fn (string $word): string => preg_quote($word, '~'),
+            $words,
+        )) . ')~iu';
+
+        $parts = preg_split($pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        if ($parts === false) {
+            return View::e($text);
+        }
+
+        $html = '';
+
+        // Части с нечётным номером — то, что попало в скобки шаблона,
+        // то есть сами совпадения.
+        foreach ($parts as $i => $part) {
+            $html .= $i % 2 === 1 ? '<b>' . View::e($part) . '</b>' : View::e($part);
+        }
+
+        return $html;
+    }
+
+    /**
      * Число со словом в нужной форме: 1 оценка, 2 оценки, 5 оценок.
      *
      * Правило русского языка, а не «оценок(и)» в скобках: на странице

@@ -180,6 +180,35 @@ CREATE TABLE IF NOT EXISTS admins (
     UNIQUE KEY admins_login (login)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Поиск по всему сайту: одна таблица на страницы и статьи.
+--
+-- Страницы попадают сюда из файлов config/content, статьи — из таблицы
+-- articles. Дальше поиск не различает, откуда что пришло, и отвечает
+-- на запрос одной выборкой по всему сайту.
+--
+-- Наполняет таблицу кнопка «Обновить поиск» в админке: после импорта
+-- она пуста и поиск ничего не находит.
+CREATE TABLE IF NOT EXISTS search_index (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    -- Адрес страницы на сайте, с ведущим слэшем: /uslugi/vnedrenie-bitrix24.
+    url        VARCHAR(255) NOT NULL,
+    -- Подпись раздела в выдаче: «Услуги · Битрикс24», «Кейсы», «Статьи».
+    section    VARCHAR(80)  NOT NULL DEFAULT '',
+    title      VARCHAR(250) NOT NULL,
+    -- Первая строка под заголовком. Показывается, когда искомое слово
+    -- нашлось в заголовке: кусок текста вокруг него тогда не нужен.
+    excerpt    VARCHAR(600) NOT NULL DEFAULT '',
+    -- Весь текст страницы без разметки — то, по чему идёт поиск.
+    body       MEDIUMTEXT   NOT NULL,
+    -- Чем больше, тем выше страница в выдаче при равном совпадении:
+    -- услуга полезнее статьи, статья полезнее правовой страницы.
+    weight     TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    -- Когда страница попала в указатель.
+    indexed_at DATETIME     NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY search_index_url (url)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Категории и теги из технического задания.
 INSERT INTO categories (slug, name, title, description, position) VALUES
     ('bitrix24', 'Битрикс24',

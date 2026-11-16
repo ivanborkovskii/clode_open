@@ -276,6 +276,25 @@ textarea:focus {
   margin: 0;
 }
 
+/* Полоса с кнопкой «Обновить поиск»: слева состояние указателя,
+   справа кнопка. */
+.apanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-radius);
+}
+
+.apanel p { margin: 0; }
+
+.apanel__title { font-weight: 600; }
+
 .asearch-row {
   display: flex;
   flex-wrap: wrap;

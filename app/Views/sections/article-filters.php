@@ -28,8 +28,12 @@ foreach ($page['tags'] as $tag) {
     <div class="container">
         <?php // Текст «ничего не нашлось» отдаём скрипту: слова хранятся
               // в одном месте — в текстах раздела. ?>
+        <?php // Адрес подсказок записан в разметке: механизм у всех строк
+              // поиска на сайте общий (main.js), а спрашивает эта строка
+              // только статьи — с учётом выбранной категории и тем. ?>
         <form class="asearch" role="search" method="get"
               action="<?= View::e($search['action']) ?>" data-search
+              data-search-url="/api/poisk-statey"
               data-empty="<?= View::e($texts['search']['empty']) ?>">
             <label class="asearch__label" for="article-search">
                 <?= View::e($texts['search']['label']) ?>

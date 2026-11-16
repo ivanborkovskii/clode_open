@@ -57,6 +57,11 @@ $menu = [
 // Подсветка раздела тарифов: адреса трёх его страниц общего начала
 // не имеют, поэтому проверяется принадлежность списку.
 $inTarify = in_array($current, TariffController::paths(), true);
+
+// Слова для строки поиска берутся оттуда же, откуда их берёт страница
+// /poisk: один набор на оба места. Файл только возвращает массив,
+// ничего не выполняя.
+$searchTexts = (require dirname(__DIR__, 3) . '/config/content/search.php')['search'];
 ?>
 <header class="header">
     <div class="container header__inner">
@@ -125,6 +130,20 @@ $inTarify = in_array($current, TariffController::paths(), true);
         </nav>
 
         <div class="header__contacts">
+            <?php
+            // Лупа — ссылка, а не кнопка, и это важно: без скрипта она
+            // просто открывает страницу поиска. Скрипт перехватывает
+            // нажатие и вместо перехода раскрывает строку под шапкой.
+            //
+            // Стоит внутри блока контактов, а не отдельным столбцом ряда:
+            // отдельным она добавила бы ещё один межколоночный отступ,
+            // и меню перестало бы помещаться в строку.
+            ?>
+            <a class="hsearch-btn" href="/poisk" aria-label="<?= View::e($searchTexts['button']) ?>"
+               data-search-toggle>
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg>
+            </a>
+
             <a class="header__phone" href="tel:<?= View::e($company['phone_href']) ?>">
                 <?= View::e($company['phone']) ?>
             </a>
@@ -163,6 +182,37 @@ $inTarify = in_array($current, TariffController::paths(), true);
 </header>
 
 <?php
+// Строка поиска под шапкой. В разметке она есть всегда, но спрятана:
+// показывает её скрипт по нажатию на лупу. Без скрипта лупа остаётся
+// обычной ссылкой на /poisk, и эта строка не показывается никогда.
+?>
+<div class="hsearch" id="site-search-bar" hidden>
+    <div class="container hsearch__inner">
+        <form class="asearch" role="search" method="get" action="/poisk"
+              data-search data-search-url="/api/poisk"
+              data-empty="<?= View::e($searchTexts['empty']) ?>">
+            <div class="asearch__row hsearch__row">
+                <input class="asearch__input" type="text" id="header-search" name="q"
+                       placeholder="<?= View::e($searchTexts['placeholder']) ?>"
+                       aria-label="<?= View::e($searchTexts['label']) ?>"
+                       autocomplete="off" data-search-input enterkeyhint="search"
+                       role="combobox" aria-autocomplete="list"
+                       aria-controls="header-suggest" aria-expanded="false">
+
+                <button class="btn btn--primary asearch__submit" type="submit">
+                    <?= View::e($searchTexts['submit']) ?>
+                </button>
+
+                <button class="hsearch__close" type="button" data-search-close>Закрыть</button>
+            </div>
+
+            <div class="asearch__drop" id="header-suggest" role="listbox"
+                 data-search-drop hidden></div>
+        </form>
+    </div>
+</div>
+
+<?php
 // Меню на телефоне. Два экрана, а не раскрывающийся список.
 //
 // Наведения на телефоне нет, поэтому поведение здесь своё. Раскрывать
@@ -178,6 +228,22 @@ $inTarify = in_array($current, TariffController::paths(), true);
     <div class="mobile-menu__screens">
 
     <div class="mobile-menu__screen" data-screen-main>
+    <?php
+    // На телефоне лупа в ряду шапки не помещается — логотип, кнопка
+    // заявки и кнопка меню занимают его целиком. Поэтому поиск стоит
+    // первой строкой самого меню. Это обычная форма: она работает
+    // и без скрипта, подсказки при наборе здесь не нужны.
+    ?>
+    <form class="mobile-menu__search" role="search" method="get" action="/poisk">
+        <input type="text" name="q" enterkeyhint="search"
+               placeholder="<?= View::e($searchTexts['placeholder']) ?>"
+               aria-label="<?= View::e($searchTexts['label']) ?>">
+
+        <button type="submit" aria-label="<?= View::e($searchTexts['submit']) ?>">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg>
+        </button>
+    </form>
+
     <nav aria-label="Мобильная навигация">
         <?php foreach ($menu as $item): ?>
             <?php if (!$view->exists($item['href'])): ?>

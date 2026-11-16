@@ -1,6 +1,7 @@
 /* ==========================================================================
    ВНУТРЕННИЕ СТРАНИЦЫ
-   Шапка раздела, хлебные крошки, перечень услуг, блок принципов.
+   Шапка раздела, хлебные крошки, перечень услуг, блок принципов,
+   выдача поиска.
    Подключается поверх app.css на страницах разделов.
    ========================================================================== */
 
@@ -1238,3 +1239,70 @@
 @media (max-width: 767px) {
   .calc__grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* --------------------------------------------------------------------------
+   Выдача поиска по сайту
+   -------------------------------------------------------------------------- */
+
+/* Список найденного. Без карточек и рамок: в выдаче важно быстро
+   пробежать глазами заголовки, а рамка вокруг каждого ответа замедляет
+   чтение и превращает список в сетку. */
+.sres {
+  display: grid;
+  gap: var(--s-5);
+  margin-top: var(--s-7);
+}
+
+.sres__item {
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.sres__item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.sres__kind {
+  display: block;
+  margin-bottom: var(--s-2);
+  color: var(--accent-deep);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sres__title {
+  margin: 0 0 var(--s-2);
+  font-size: 1.3rem;
+  line-height: 1.3;
+}
+
+.sres__title a { color: inherit; }
+.sres__title a:hover { color: var(--accent-deep); }
+
+.sres__text {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* Совпадение с запросом. Только насыщенность и цвет, как в подсказках:
+   подсветка фоном в длинном списке превращается в мельтешение. */
+.sres__text b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.sres__url {
+  margin: var(--s-2) 0 0;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  /* Длинный адрес не должен распирать колонку на телефоне. */
+  overflow-wrap: anywhere;
+}
+
+/* Строка перед списком разделов, когда не нашлось ничего. */
+.sres__note { margin: var(--s-6) 0 0; color: var(--text-muted); }
+.sres__note + .sres { margin-top: var(--s-5); }

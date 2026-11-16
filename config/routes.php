@@ -42,6 +42,12 @@ $router->get('/api/poisk-statey', 'ArticleController@suggest');
 $router->post('/stati/{slug}/kommentariy', 'ArticleController@comment');
 $router->post('/stati/{slug}/ocenka', 'ArticleController@rate');
 
+// Поиск по всему сайту: страница выдачи и подсказки при наборе.
+// Страница закрыта от индексации — и в robots.txt, и мета-признаком
+// на самой странице.
+$router->get('/poisk', 'SearchController@index');
+$router->get('/api/poisk', 'SearchController@suggest');
+
 $router->get('/o-kompanii', 'PageController@about');
 $router->get('/kontakty', 'PageController@contacts');
 

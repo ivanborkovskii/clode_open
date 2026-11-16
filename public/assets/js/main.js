@@ -217,6 +217,313 @@
   });
 
   /* ------------------------------------------------------------------
+     Поиск в шапке
+
+     Лупа в разметке — обычная ссылка на /poisk, а строка поиска под
+     шапкой спрятана атрибутом hidden. Пока скрипта нет, так всё
+     и остаётся: нажатие открывает страницу поиска. Здесь лупа
+     становится переключателем этой строки.
+     ------------------------------------------------------------------ */
+
+  var searchBar = document.getElementById('site-search-bar');
+  var searchToggle = document.querySelector('[data-search-toggle]');
+
+  if (searchBar && searchToggle) {
+    initHeaderSearch(searchBar, searchToggle);
+  }
+
+  function initHeaderSearch(bar, toggle) {
+    var input = bar.querySelector('[data-search-input]');
+    var closeButton = bar.querySelector('[data-search-close]');
+
+    // Признаки проставляем отсюда, а не в разметке: без скрипта они
+    // обещали бы программе чтения с экрана поведение, которого нет.
+    toggle.setAttribute('aria-controls', bar.id);
+    toggle.setAttribute('aria-expanded', 'false');
+
+    var open = function () {
+      bar.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+
+      if (input) {
+        input.focus();
+      }
+    };
+
+    var shut = function (giveFocus) {
+      bar.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+
+      if (giveFocus) {
+        toggle.focus();
+      }
+    };
+
+    toggle.addEventListener('click', function (event) {
+      event.preventDefault();
+
+      if (bar.hidden) {
+        open();
+      } else {
+        shut(false);
+      }
+    });
+
+    if (closeButton) {
+      closeButton.addEventListener('click', function () {
+        shut(true);
+      });
+    }
+
+    // Esc закрывает строку. Если открыт список подсказок, первое нажатие
+    // должно закрыть его, а не всю строку. Обработчик подсказок висит
+    // на самом поле и сработает позже этого — поэтому здесь перехват
+    // идёт на спуске события и видно состояние списка до него.
+    bar.addEventListener('keydown', function (event) {
+      var drop = bar.querySelector('[data-search-drop]');
+
+      if (event.key === 'Escape' && (!drop || drop.hidden)) {
+        shut(true);
+      }
+    }, true);
+
+    // Нажатие мимо строки закрывает её: открытая поверх содержимого,
+    // она иначе остаётся висеть до перезагрузки страницы.
+    document.addEventListener('click', function (event) {
+      if (!bar.hidden && !bar.contains(event.target) && !toggle.contains(event.target)) {
+        shut(false);
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Подсказки поиска при наборе
+
+     Одни и те же на весь сайт: строка в шапке, строка на странице
+     поиска и строка в разделе «Статьи» отличаются только адресом,
+     по которому спрашивают подсказки — он лежит в data-search-url.
+
+     Всё это надстройка: без скрипта каждая строка остаётся обычной
+     формой и ищет по нажатию кнопки.
+     ------------------------------------------------------------------ */
+
+  document.querySelectorAll('[data-search]').forEach(initSearch);
+
+  function initSearch(form) {
+    var input = form.querySelector('[data-search-input]');
+    var drop = form.querySelector('[data-search-drop]');
+    var url = form.dataset.searchUrl;
+
+    if (!input || !drop || !url) {
+      return;
+    }
+
+    var timer = null;
+    var lastQuery = '';
+    var items = [];
+    var current = -1;
+
+    var close = function () {
+      drop.hidden = true;
+      drop.textContent = '';
+      input.setAttribute('aria-expanded', 'false');
+      items = [];
+      current = -1;
+    };
+
+    var setCurrent = function (index) {
+      if (items.length === 0) {
+        return;
+      }
+
+      // Переход за край списка возвращает к другому его концу —
+      // так стрелками можно ходить по кругу, не глядя на границы.
+      current = (index + items.length) % items.length;
+
+      items.forEach(function (item, i) {
+        item.classList.toggle('is-current', i === current);
+      });
+
+      items[current].scrollIntoView({ block: 'nearest' });
+    };
+
+    var render = function (data) {
+      drop.textContent = '';
+      items = [];
+      current = -1;
+
+      if (data.items.length === 0) {
+        var empty = document.createElement('p');
+        empty.className = 'asearch__empty';
+        empty.textContent = form.dataset.empty || 'Ничего не нашлось.';
+        drop.appendChild(empty);
+        drop.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+        return;
+      }
+
+      // Слова для подсветки берём у сервера, если он их прислал:
+      // поиск по сайту отбрасывает окончания, и при «воронка» подсветить
+      // нужно «воронки». Поиск по статьям такого поля не отдаёт —
+      // там подсвечивается набранное.
+      var words = data.words || data.q.split(/\s+/).filter(function (word) {
+        return word.length >= 2;
+      });
+
+      data.items.forEach(function (row) {
+        var link = document.createElement('a');
+        var title = document.createElement('span');
+        var text = document.createElement('span');
+        var category = document.createElement('span');
+
+        link.className = 'asearch__item';
+        link.href = row.href;
+        link.setAttribute('role', 'option');
+
+        title.className = 'asearch__item-title';
+        title.appendChild(highlight(row.title, words));
+
+        text.className = 'asearch__item-text';
+        text.appendChild(highlight(row.excerpt, words));
+
+        category.className = 'asearch__item-cat';
+        category.textContent = row.category;
+
+        link.appendChild(title);
+
+        if (row.excerpt) {
+          link.appendChild(text);
+        }
+
+        link.appendChild(category);
+        drop.appendChild(link);
+        items.push(link);
+      });
+
+      drop.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+    };
+
+    var request = function () {
+      var query = input.value.trim();
+
+      if (query.length < 2) {
+        close();
+        return;
+      }
+
+      if (query === lastQuery) {
+        return;
+      }
+
+      lastQuery = query;
+
+      fetch(url + '?q=' + encodeURIComponent(query), {
+        headers: { 'X-Requested-With': 'fetch' }
+      })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          // Пока шёл запрос, в поле могли дописать ещё букв —
+          // тогда этот ответ уже не про то, что набрано сейчас.
+          if (input.value.trim() === data.q) {
+            render(data);
+          }
+        })
+        .catch(close);
+    };
+
+    input.addEventListener('input', function () {
+      window.clearTimeout(timer);
+      // Запрос не на каждую букву: при быстром наборе это десяток
+      // обращений к серверу вместо одного.
+      timer = window.setTimeout(request, 200);
+    });
+
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        close();
+        return;
+      }
+
+      if (drop.hidden || items.length === 0) {
+        return;
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setCurrent(current + 1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setCurrent(current - 1);
+      } else if (event.key === 'Enter' && current >= 0) {
+        event.preventDefault();
+        items[current].click();
+      }
+    });
+
+    // Клик мимо подсказок закрывает список, но не мешает перейти
+    // по самой подсказке.
+    document.addEventListener('click', function (event) {
+      if (!form.contains(event.target)) {
+        close();
+      }
+    });
+
+    input.addEventListener('focus', function () {
+      if (input.value.trim().length >= 2) {
+        lastQuery = '';
+        request();
+      }
+    });
+  }
+
+  /**
+   * Текст с выделенными совпадениями.
+   * Собирается узлами, а не строкой разметки: в заголовке страницы
+   * могут быть любые символы, и превращать их в HTML незачем.
+   */
+  function highlight(text, words) {
+    var fragment = document.createDocumentFragment();
+
+    if (!text) {
+      return fragment;
+    }
+
+    if (words.length === 0) {
+      fragment.appendChild(document.createTextNode(text));
+      return fragment;
+    }
+
+    var pattern = words
+      .map(function (word) {
+        return word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      })
+      .join('|');
+
+    var parts = text.split(new RegExp('(' + pattern + ')', 'gi'));
+
+    parts.forEach(function (part, index) {
+      if (!part) {
+        return;
+      }
+
+      // Части с нечётным номером — это то, что попало в скобки шаблона,
+      // то есть сами совпадения.
+      if (index % 2 === 1) {
+        var mark = document.createElement('b');
+        mark.textContent = part;
+        fragment.appendChild(mark);
+      } else {
+        fragment.appendChild(document.createTextNode(part));
+      }
+    });
+
+    return fragment;
+  }
+
+  /* ------------------------------------------------------------------
      Плавное раскрытие вопросов
 
      Сам <details> открывается рывком: пока он закрыт, высоты у него нет

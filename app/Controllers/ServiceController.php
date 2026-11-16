@@ -1228,4 +1228,28 @@ final class ServiceController extends Controller
 
         return $files;
     }
+
+    /**
+     * Адрес услуги → подпись раздела в поиске: «Услуги · Битрикс24».
+     *
+     * Система в подписи помогает выбрать из похожих строк выдачи:
+     * «Настройка» по Битрикс24 и по amoCRM — разные страницы.
+     * У услуг вне систем остаётся просто «Услуги»: «Услуги ·
+     * Независимо от системы» в одну строку выдачи не помещается.
+     *
+     * @return array<string, string>
+     */
+    public static function searchSections(): array
+    {
+        $sections = [];
+
+        foreach (self::PAGES as $slug => $page) {
+            $group = $page['group'] ?? '';
+            $name  = $group === 'obshchie' ? '' : (self::GROUPS[$group] ?? '');
+
+            $sections['/uslugi/' . $slug] = $name === '' ? 'Услуги' : 'Услуги · ' . $name;
+        }
+
+        return $sections;
+    }
 }

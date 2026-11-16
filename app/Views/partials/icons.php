@@ -103,6 +103,11 @@
             <path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.8l5.9-.9z"/>
         </g>
 
+        <g id="i-search" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="11" cy="11" r="6.5"/>
+            <path d="m15.8 15.8 4.2 4.2"/>
+        </g>
+
         <g id="i-mail" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
             <path d="M3.5 6h17v12h-17z"/>
             <path d="m3.5 6.5 8.5 6.5 8.5-6.5"/>

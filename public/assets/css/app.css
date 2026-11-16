@@ -1,6 +1,6 @@
 /* ==========================================================================
    ДИЗАЙН-СИСТЕМА
-   Токены, базовая типографика, сетка, шапка, подвал, кнопки, формы.
+   Токены, базовая типографика, сетка, шапка, поиск, подвал, кнопки, формы.
    Подключается на всех страницах сайта.
    ========================================================================== */
 
@@ -421,7 +421,10 @@ strong { font-weight: 700; }
 .header__inner {
   display: flex;
   align-items: center;
-  gap: var(--s-5);
+  /* Отступ между столбцами ряда. Меньше обычного: после появления лупы
+     строка стала плотнее, и с прежним отступом восемь пунктов меню
+     переставали помещаться в одну строку. */
+  gap: var(--s-4);
   height: var(--header-h);
 
   /* Точка отсчёта для выпадающей панели. Считать её края от шапки
@@ -644,9 +647,26 @@ strong { font-weight: 700; }
 .header__contacts {
   display: flex;
   align-items: center;
-  gap: var(--s-5);
+  gap: var(--s-4);
   flex: none;
 }
+
+/* Лупа. Квадрат со стороной 36 — меньше обычных 44, и это осознанно:
+   на экранах, где она видна, работают мышью, а каждая лишняя точка
+   ширины здесь отнимается у меню. На телефоне её нет вовсе — там
+   поиск стоит строкой внутри меню. */
+.hsearch-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  transition: background var(--transition);
+}
+
+.hsearch-btn:hover { background: rgba(255, 255, 255, 0.14); }
 
 .header__phone {
   font-size: var(--fs-sm);
@@ -864,12 +884,14 @@ strong { font-weight: 700; }
   color: var(--text-invert-muted);
 }
 
-/* Порог мобильного меню — 1149, а не 1023. С семью пунктами меню, кнопкой
-   и телефоном строка шапки на узких ноутбуках не помещалась: до правки
-   на 1024 точках она уже выходила за край на четыре точки, а с пунктом
-   «Тарифы» вылезала бы заметно. На таких экранах показывается кнопка
+/* Порог мобильного меню — 1279, а не 1023. Строка шапки шире 1280 точек
+   не бывает: её держит колонка содержимого. А восьми пунктам меню рядом
+   с логотипом, лупой, телефоном и кнопкой заявки нужно ровно столько —
+   при 1279 и уже «О компании» переносилось на две строки и ломало ряд.
+   Порог поднимался дважды: сначала с 1023 до 1149 (когда появились
+   «Тарифы»), теперь до 1279. На таких экранах показывается кнопка
    меню — в нём место есть. */
-@media (max-width: 1149px) {
+@media (max-width: 1279px) {
   .nav,
   .header__contacts { display: none; }
 
@@ -915,6 +937,207 @@ strong { font-weight: 700; }
 
 /* Блокировка прокрутки страницы при открытом меню. */
 body[data-menu-open='true'] { overflow: hidden; }
+
+/* ПОИСК ПО САЙТУ
+   ------------------------------------------------------------------
+   Одни и те же правила работают в трёх местах: строка под шапкой,
+   строка на странице /poisk и строка в разделе «Статьи». Раньше они
+   лежали в articles.css — пока поиск был только там.
+
+   Разметка одна: обёртка .asearch, внутри ряд .asearch__row и скрытый
+   список подсказок .asearch__drop, который заполняет скрипт. */
+
+.asearch {
+  position: relative;
+  max-width: 46rem;
+}
+
+.asearch__label {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.asearch__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-3);
+}
+
+.asearch__input {
+  width: 100%;
+  min-height: 54px;
+  padding: var(--s-3) var(--s-4);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.asearch__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(30, 150, 240, 0.18);
+}
+
+/* Крестик очистки в поле типа search рисуют по-своему все браузеры.
+   Убираем, чтобы он не спорил с рамкой поля. */
+.asearch__input::-webkit-search-cancel-button { appearance: none; }
+
+.asearch__submit { white-space: nowrap; }
+
+.asearch__hint {
+  margin: var(--s-2) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* Выпадающие подсказки. Перекрывают начало списка статей, поэтому лежат
+   выше по слою и на непрозрачном фоне. */
+.asearch__drop {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% - 1.35rem);
+  left: 0;
+  right: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--s-2);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 40px rgba(7, 23, 57, 0.16);
+}
+
+.asearch__drop[hidden] { display: none; }
+
+.asearch__item {
+  display: block;
+  padding: var(--s-3);
+  border-radius: var(--radius-sm);
+  color: inherit;
+  text-decoration: none;
+}
+
+.asearch__item:hover,
+.asearch__item:focus-visible,
+.asearch__item.is-current {
+  background: var(--paper-alt);
+  outline: none;
+}
+
+.asearch__item-title {
+  display: block;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Совпадение с запросом. Только насыщенность и цвет: подсветка фоном
+   в списке из восьми строк превращается в мельтешение. */
+.asearch__item-title b,
+.asearch__item-text b {
+  color: var(--accent-deep);
+  font-weight: 700;
+}
+
+.asearch__item-text {
+  display: block;
+  margin-top: var(--s-1);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.asearch__item-cat {
+  display: block;
+  margin-top: var(--s-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.asearch__empty {
+  padding: var(--s-3);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* Телефон: кнопка «Найти» встаёт под поле — рядом на ней не остаётся
+   читаемой надписи. */
+@media (max-width: 767px) {
+  .asearch__row { grid-template-columns: 1fr; }
+}
+
+/* Строка поиска под шапкой. В разметке есть всегда, показывает её
+   скрипт: атрибут hidden снимается по нажатию на лупу. */
+.hsearch {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.hsearch__inner { padding-block: var(--s-4); }
+
+/* Поле, «Найти» и «Закрыть» в одну строку. */
+.hsearch__row { grid-template-columns: 1fr auto auto; }
+
+.hsearch__close {
+  padding: var(--s-2) var(--s-3);
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.hsearch__close:hover { color: var(--text); }
+
+/* В шапке строке отведена вся ширина колонки: рядом с ней, в отличие
+   от страницы статей, ничего нет. Подсказки висят сразу под полем —
+   подписи под строкой здесь тоже нет. */
+.hsearch .asearch { max-width: none; }
+.hsearch .asearch__drop { top: calc(100% + 8px); }
+
+/* Поиск в меню на телефоне. В ряду шапки лупе места нет — логотип,
+   кнопка заявки и кнопка меню занимают его целиком. */
+.mobile-menu__search {
+  display: flex;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
+}
+
+.mobile-menu__search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  padding-inline: var(--s-4);
+  border: 1px solid var(--line-invert);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font: inherit;
+}
+
+.mobile-menu__search input::placeholder { color: var(--text-invert-muted); }
+
+.mobile-menu__search input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.mobile-menu__search button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
 
 /* --------------------------------------------------------------------------
    7. Формы
