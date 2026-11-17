@@ -771,6 +771,7 @@ return [
             . 'специальность и другие услуги. А если держать такого человека '
             . 'в штате незачем, ту же роль можно передать наружу.',
         'links' => [
+            ['href' => '/uslugi/obuchenie-crm',         'label' => 'Обучение работе в CRM с нуля'],
             ['href' => '/uslugi/soprovozhdenie-amocrm', 'label' => 'Сопровождение amoCRM'],
             ['href' => '/uslugi/dorabotka-amocrm',      'label' => 'Доработка amoCRM'],
         ],

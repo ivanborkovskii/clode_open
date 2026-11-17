@@ -594,6 +594,7 @@ return [
             . 'Разработку, работу по REST API и администрирование сервера сюда '
             . 'не включаем: это другая специальность и другие услуги.',
         'links' => [
+            ['href' => '/uslugi/obuchenie-crm',                  'label' => 'Обучение работе в CRM с нуля'],
             ['href' => '/uslugi/dorabotka-bitrix24',             'label' => 'Доработка Битрикс24'],
             ['href' => '/uslugi/ustanovka-korobochnogo-bitrix24', 'label' => 'Установка коробочного Битрикс24'],
         ],

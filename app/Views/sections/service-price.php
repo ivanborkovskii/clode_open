@@ -11,7 +11,8 @@
  * один и тот же вопрос, и разносить их по странице незачем. Цифра срока
  * мельче цены: цена остаётся главной.
  *
- * @var array $price title, value, unit, items, note, term
+ * @var array $price title, value, unit, items, note,
+ *                   term (value, unit и необязательная label)
  */
 
 use App\Core\View;
@@ -25,7 +26,9 @@ use App\Core\View;
                 <p class="price-block__unit"><?= View::e($price['unit']) ?></p>
 
                 <?php if (!empty($price['term'])): ?>
-                    <p class="label price-block__term-label">Срок</p>
+                    <?php // Подпись у второго значения своя: в одних услугах
+                          // это срок работ, в других — верхняя граница цены. ?>
+                    <p class="label price-block__term-label"><?= View::e($price['term']['label'] ?? 'Срок') ?></p>
                     <p class="price-block__value price-block__value--term"><?= View::e($price['term']['value']) ?></p>
                     <p class="price-block__unit"><?= View::e($price['term']['unit']) ?></p>
                 <?php endif; ?>

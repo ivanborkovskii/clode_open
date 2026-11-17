@@ -34,6 +34,16 @@ use App\Core\View;
         // треть строки, и прочесть на нём ничего бы не удалось.
         $count = count($shots['items']);
         $grid  = $count === 1 ? ' shots--solo' : ($count === 2 ? ' shots--pair' : '');
+
+        // Какой ширины кадр будет на экране — браузер по разметке не знает
+        // и без подсказки берёт файл не того размера. Одиночный кадр занимает
+        // почти всю колонку (до 820 точек), и мелкая копия на 600 растянулась
+        // бы до нечитаемости; три в ряд — наоборот, незачем тянуть большой.
+        $sizes = match ($count) {
+            1       => '(max-width: 767px) 92vw, (max-width: 1023px) 86vw, 820px',
+            2       => '(max-width: 767px) 92vw, 46vw',
+            default => '(max-width: 767px) 92vw, (max-width: 1023px) 46vw, 30vw',
+        };
         ?>
         <ul class="shots<?= $grid ?>">
             <?php foreach ($shots['items'] as $shot): ?>
@@ -50,7 +60,7 @@ use App\Core\View;
                         <img src="<?= View::e($small) ?>"
                              srcset="<?= View::e($small) ?> 600w,
                                      <?= View::e($full) ?> 1200w"
-                             sizes="(max-width: 767px) 92vw, (max-width: 1023px) 46vw, 30vw"
+                             sizes="<?= View::e($sizes) ?>"
                              alt="<?= View::e($shot['alt']) ?>"
                              width="<?= (int) $shot['w'] ?>" height="<?= (int) $shot['h'] ?>"
                              loading="lazy" decoding="async">
