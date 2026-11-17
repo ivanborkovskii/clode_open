@@ -618,10 +618,14 @@ strong { font-weight: 700; }
   color: var(--text-muted);
 }
 
+/* Высота строки — 40 точек, а не обычные для нажатия 44. Панель видна
+   только с 1280 точек, где работают мышью, а не пальцем. Зато в самой
+   длинной колонке помещается тринадцать пунктов: с прежней высотой
+   последний уходил за нижний край экрана высотой 768. */
 .submenu__link {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 40px;
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text);
