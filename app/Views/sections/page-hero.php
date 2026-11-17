@@ -18,8 +18,25 @@
 use App\Core\View;
 
 $shots = $hero['media']['shots'] ?? [];
+
+// Длинное слово в заголовке переносить не на чем: оно вылезает из своей
+// колонки и наезжает на снимок справа, а на телефоне тянет за собой
+// горизонтальную прокрутку всей страницы. «Администрирование» — семнадцать
+// букв и ни одного дефиса. Для таких заголовков кегль меньше, и считается
+// это здесь, а не прописывается руками в текстах: следующий длинный
+// заголовок обслужит себя сам.
+//
+// Дефис считается местом переноса, поэтому «интернет-магазина» длинным
+// словом не считается: браузер разорвёт его сам.
+$longest = 0;
+
+foreach (preg_split('/[\s\-—–]+/u', (string) $hero['title']) as $word) {
+    $longest = max($longest, mb_strlen(trim($word, '«».,:;')));
+}
+
+$classes = ($shots ? ' page-hero--media' : '') . ($longest >= 16 ? ' page-hero--long-title' : '');
 ?>
-<section class="page-hero<?= $shots ? ' page-hero--media' : '' ?>">
+<section class="page-hero<?= $classes ?>">
     <div class="container">
         <?php $view->partial('partials/breadcrumbs', ['crumbs' => $crumbs]); ?>
 
