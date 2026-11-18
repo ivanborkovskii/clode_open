@@ -197,8 +197,12 @@ return [
             . 'посмотрите отраслевой раздел.',
         'links' => [
             [
+                'href'  => '/resheniya/crm-dlya-biznesa',
+                'label' => 'Подбор CRM для бизнеса',
+            ],
+            [
                 'href'  => '/uslugi/audit-crm',
-                'label' => 'Аудит и выбор системы',
+                'label' => 'Аудит CRM',
             ],
             [
                 'href'  => '/uslugi/vnedrenie-crm-po-otraslyam',

@@ -444,6 +444,10 @@ return [
             . 'становится понятен только после разбора.',
         'links' => [
             [
+                'href'  => '/resheniya/crm-dlya-biznesa',
+                'label' => 'Подбор CRM для бизнеса',
+            ],
+            [
                 'href'  => '/uslugi/integracii',
                 'label' => 'Интеграции CRM',
             ],

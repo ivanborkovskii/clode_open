@@ -21,6 +21,18 @@ final class SolutionController extends Controller
      * @var array<string, array{content:string, title:string, description:string, crumb:string}>
      */
     private const PAGES = [
+        // Стоит первой намеренно: остальные четыре отвечают на вопрос
+        // «что CRM даёт по этой задаче», а эта — на предыдущий вопрос,
+        // «какую систему вообще брать». Человек, который ещё не выбрал
+        // продукт, должен увидеть её раньше остальных.
+        'crm-dlya-biznesa' => [
+            'content'     => 'crm-dlya-biznesa',
+            'crumb'       => 'CRM для бизнеса',
+            'title'       => 'CRM для бизнеса — выбор CRM-системы и клиентская база',
+            'description' => 'Подбор CRM для бизнеса: Битрикс24, amoCRM, 1С:CRM, '
+                . 'RetailCRM, ПланФикс, YouGile и Мегаплан. Бесплатная первая '
+                . 'онлайн-встреча. Бизнес-аналитика от 9 000 ₽.',
+        ],
         'prodazhi' => [
             'content'     => 'solution-prodazhi',
             'crumb'       => 'Продажи',
