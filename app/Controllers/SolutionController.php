@@ -30,7 +30,7 @@ final class SolutionController extends Controller
             'crumb'       => 'CRM для бизнеса',
             'title'       => 'CRM для бизнеса — выбор CRM-системы и клиентская база',
             'description' => 'Подбор CRM для бизнеса: Битрикс24, amoCRM, 1С:CRM, '
-                . 'RetailCRM, ПланФикс, YouGile и Мегаплан. Бесплатная первая '
+                . 'RetailCRM, ПланФикс, YCLIENTS и Мегаплан. Бесплатная первая '
                 . 'онлайн-встреча. Бизнес-аналитика от 9 000 ₽.',
         ],
         'prodazhi' => [
