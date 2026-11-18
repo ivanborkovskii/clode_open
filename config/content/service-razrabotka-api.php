@@ -664,6 +664,10 @@ return [
             . 'следующий шаг и нужна ли вообще разработка.',
         'links' => [
             [
+                'href'  => '/uslugi/nastroyka-vebhukov-bitrix24',
+                'label' => 'Если задачу закрывает вебхук Битрикс24',
+            ],
+            [
                 'href'  => '/uslugi/razrabotka-crm-sistemy-na-zakaz',
                 'label' => 'Если нужна не интеграция, а своя система',
             ],

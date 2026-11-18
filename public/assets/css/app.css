@@ -250,6 +250,11 @@ strong { font-weight: 700; }
   line-height: 1.5;
   color: var(--text-muted);
   text-wrap: pretty;
+  /* В лиде иногда стоит адрес или имя метода — слово без пробелов
+     длиннее экрана телефона. Переносить его не на чем, и оно тянет
+     за собой горизонтальную прокрутку всей страницы. Разрешаем
+     разрыв: обычные слова это правило не трогает. */
+  overflow-wrap: break-word;
 }
 
 .section--dark .section-head__lead { color: var(--text-invert-muted); }
