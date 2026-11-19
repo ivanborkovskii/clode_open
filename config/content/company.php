@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 return [
     'facts' => [
-        ['value' => '70+',  'label' => 'внедрений CRM'],
+        ['value' => '80+',  'label' => 'внедрений CRM'],
         ['value' => '3 года', 'label' => 'специализации на CRM'],
         ['value' => '13 лет', 'label' => 'в собственном бизнесе'],
         ['value' => '16',    'label' => 'сфер бизнеса пройдено лично'],

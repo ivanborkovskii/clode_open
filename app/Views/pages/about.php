@@ -18,6 +18,14 @@
 
 <?php $view->partial('sections/facts',    ['facts' => $page['facts']]); ?>
 <?php $view->partial('sections/expert',   ['expert' => $page['expert']]); ?>
+
+<?php // Переход к разбору критериев выбора подрядчика. Стоит здесь
+      // намеренно: сразу после партнёрских статусов, которыми обычно
+      // и пытаются проверять интегратора. ?>
+<?php if (!empty($page['choose'])): ?>
+    <?php $view->partial('sections/service-aside', ['aside' => $page['choose']]); ?>
+<?php endif; ?>
+
 <?php $view->partial('sections/process',  ['process' => $page['process']]); ?>
 <?php $view->partial('sections/approach', ['approach' => $page['tech']]); ?>
 <?php $view->partial('sections/contact',  ['form' => $page['form'], 'state' => $form]); ?>

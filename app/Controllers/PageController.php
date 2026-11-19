@@ -20,7 +20,7 @@ final class PageController extends Controller
                 'title'       => 'О компании: кто внедряет CRM и как строится работа',
                 'description' => 'Внедрением занимается владелец компании лично: '
                     . '13 лет собственного бизнеса, 3 года на внедрении CRM, более '
-                    . '70 проектов. Партнёрские статусы Битрикс24, amoCRM и Wazzup.',
+                    . '80 проектов. Партнёрские статусы Битрикс24, amoCRM и Wazzup.',
                 'canonical'   => $this->url('/o-kompanii'),
                 'breadcrumbs' => [
                     ['label' => 'Главная',    'href' => '/'],
