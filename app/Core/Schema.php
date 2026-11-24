@@ -99,10 +99,14 @@ final class Schema
         // Мессенджеры сюда же: ссылка в личные сообщения — такая же
         // страница компании в другом месте. Отдельно их в social
         // не вписывают, чтобы один адрес не жил в конфиге дважды.
+        //
+        // Оба списка устроены одинаково: name, icon, href. Берём из них
+        // только адреса.
+        $social     = array_column($company['social'] ?? [], 'href');
         $messengers = array_column($company['messengers'] ?? [], 'href');
 
         $sameAs = array_values(array_unique(
-            array_filter(array_merge($company['social'] ?? [], $messengers))
+            array_filter(array_merge($social, $messengers))
         ));
 
         if ($sameAs !== []) {

@@ -63,5 +63,16 @@ $link = [
             'title'    => $ways['messengers'] ?? '',
             'modifier' => 'messengers--wide',
         ]); ?>
+
+        <?php // Сообщество в соцсети. Единственное место на сайте, где эта
+              // ссылка стоит в тексте: она нужна поисковику, чтобы связать
+              // сайт и сообщество в одну компанию, а не для переходов.
+              // Поэтому и стоит последней, под способами связи. ?>
+        <?php $view->partial('partials/messengers', [
+            'items'    => $company['social'] ?? [],
+            'aria'     => 'Сообщество',
+            'title'    => $ways['social'] ?? '',
+            'modifier' => 'messengers--next',
+        ]); ?>
     </div>
 </section>
