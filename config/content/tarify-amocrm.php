@@ -655,6 +655,7 @@ return [
             . 'между системами, его лицензии считаются иначе — пакетом '
             . 'на число пользователей.',
         'links' => [
+            ['href' => '/tarify/stoimost-crm',    'label' => 'Сколько стоит CRM-система целиком'],
             ['href' => '/tarify/bitriks24',       'label' => 'Тарифы Битрикс24'],
             ['href' => '/uslugi/audit-amocrm',    'label' => 'Аудит amoCRM'],
         ],

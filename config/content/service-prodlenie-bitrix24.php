@@ -766,6 +766,7 @@ return [
             . 'внедрение, и оно оплачивается отдельно от лицензии.',
         'links' => [
             ['href' => '/tarify/bitriks24',          'label' => 'Тарифы Битрикс24'],
+            ['href' => '/tarify/stoimost-crm',       'label' => 'Сколько стоит CRM-система целиком'],
             ['href' => '/uslugi/vnedrenie-bitrix24', 'label' => 'Внедрение Битрикс24'],
         ],
     ],

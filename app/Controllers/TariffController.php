@@ -32,6 +32,7 @@ final class TariffController extends Controller
     public const BITRIX    = '/tarify/bitriks24';
     public const AMOCRM    = '/tarify/tarify-amocrm';
     public const PRODLENIE = '/tarify/prodlenie-licenzii-bitrix24';
+    public const STOIMOST  = '/tarify/stoimost-crm';
 
     /**
      * Вкладки раздела. Текущая отмечена active и выводится не ссылкой.
@@ -44,6 +45,7 @@ final class TariffController extends Controller
     public static function tabs(string $current): array
     {
         $tabs = [
+            ['label' => 'Стоимость CRM',       'href' => self::STOIMOST],
             ['label' => 'Тарифы Битрикс24',    'href' => self::BITRIX],
             ['label' => 'Тарифы amoCRM',       'href' => self::AMOCRM],
             ['label' => 'Продление Битрикс24', 'href' => self::PRODLENIE],
@@ -59,7 +61,55 @@ final class TariffController extends Controller
     /** Адреса раздела — для карты сайта и для меню. */
     public static function paths(): array
     {
-        return [self::BITRIX, self::AMOCRM, self::PRODLENIE];
+        return [self::STOIMOST, self::BITRIX, self::AMOCRM, self::PRODLENIE];
+    }
+
+    /**
+     * Общая стоимость CRM — четвёртый интент раздела.
+     *
+     * Соседние три страницы отвечают «сколько стоит лицензия вот этого
+     * продукта». Эта — «во что обойдётся CRM целиком»: лицензия, работы,
+     * сервисы и сопровождение, без привязки к одной системе. Поэтому
+     * она первой вкладкой: с неё удобно уходить к конкретным тарифам,
+     * а не наоборот.
+     */
+    public function stoimost(): void
+    {
+        $page = $this->content('stoimost-crm');
+
+        $jsonld = [[
+            '@type'       => 'Service',
+            '@id'         => $this->url(self::STOIMOST) . '#service',
+            'name'        => 'Расчёт стоимости CRM-системы',
+            'description' => 'Расчёт бюджета CRM: лицензия, первоначальная '
+                . 'настройка, интеграции и сопровождение.',
+            'serviceType' => 'Расчёт стоимости CRM',
+            'provider'    => ['@id' => $this->config['base_url'] . '/#organization'],
+            'url'         => $this->url(self::STOIMOST),
+        ]];
+
+        if (!empty($page['faq']['items'])) {
+            $jsonld[] = Schema::faq($this->url(self::STOIMOST), $page['faq']['items']);
+        }
+
+        $this->html($this->view->render('service', [
+            'styles' => ['css/pages.css'],
+            'tabs'   => self::tabs(self::STOIMOST),
+            'seo' => [
+                'title'       => 'Стоимость CRM-системы — сколько стоит CRM в месяц и год',
+                'description' => 'Сколько стоит CRM для бизнеса: лицензия от 700 ₽ '
+                    . 'в месяц, настройка, интеграции и сопровождение. Примеры '
+                    . 'бюджета на 1, 5, 10 и 20 сотрудников и калькулятор.',
+                'canonical'   => $this->url(self::STOIMOST),
+                'breadcrumbs' => [
+                    ['label' => 'Главная',        'href' => '/'],
+                    ['label' => 'Стоимость CRM',  'href' => self::STOIMOST],
+                ],
+                'jsonld' => $jsonld,
+            ],
+            'page' => $page,
+            'form' => $this->formFlash(),
+        ]));
     }
 
     public function bitrix(): void

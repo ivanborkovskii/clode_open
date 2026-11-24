@@ -1155,4 +1155,101 @@
       field.addEventListener('change', update);
     });
   });
+
+  /* ------------------------------------------------------------------
+     Калькулятор бюджета CRM
+     ------------------------------------------------------------------ */
+
+  // Отличие от калькулятора лицензии: здесь складывается весь бюджет —
+  // лицензия, разовые работы, подписки и сопровождение. Правил всего
+  // четыре, и они те же, что посчитал сервер в разметке.
+  document.querySelectorAll('[data-budget]').forEach(function (block) {
+    var field = function (name) {
+      return block.querySelector('[data-budget-' + name + ']');
+    };
+
+    var users = field('users');
+    var model = field('model');
+    var price = field('price');
+    var term = field('term');
+    var setup = field('setup');
+    var extra = field('extra');
+    var services = field('services');
+    var support = field('support');
+
+    var totalOut = field('total');
+    var licenseOut = field('license');
+    var onceOut = field('once');
+    var monthlyOut = field('monthly');
+    var nextOut = field('next');
+
+    if (!users || !model || !price || !term || !totalOut) {
+      return;
+    }
+
+    // Тот же неразрывный пробел, что ставит сервер: иначе сумма
+    // переносится по разрядам, а знак рубля уезжает на другую строку.
+    var money = function (value) {
+      return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+    };
+
+    // Поля бывают пустыми, отрицательными и с буквами — пока человек
+    // печатает, это нормально. Берём то, что поле вообще допускает,
+    // и само поле не трогаем.
+    var num = function (input) {
+      if (!input) {
+        return 0;
+      }
+
+      var value = Number(input.value);
+      var min = Number(input.min) || 0;
+      var max = Number(input.max);
+
+      if (!isFinite(value) || value < min) {
+        value = min;
+      }
+
+      if (max && value > max) {
+        value = max;
+      }
+
+      return value;
+    };
+
+    var update = function () {
+      var months = num(term) || 1;
+      var perMonth = model.value === 'team' ? num(price) : num(price) * num(users);
+
+      var license = perMonth * months;
+      var once = num(setup) + num(extra);
+      var monthly = (num(services) + num(support)) * months;
+
+      totalOut.textContent = money(license + once + monthly);
+
+      if (licenseOut) {
+        licenseOut.textContent = money(license);
+      }
+
+      if (onceOut) {
+        onceOut.textContent = money(once);
+      }
+
+      if (monthlyOut) {
+        monthlyOut.textContent = money(monthly);
+      }
+
+      if (nextOut) {
+        nextOut.textContent = money(license + monthly);
+      }
+    };
+
+    [users, model, price, term, setup, extra, services, support].forEach(function (input) {
+      if (!input) {
+        return;
+      }
+
+      input.addEventListener('input', update);
+      input.addEventListener('change', update);
+    });
+  });
 })();

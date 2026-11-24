@@ -782,6 +782,10 @@ return [
             . 'вообще углублённая аналитика: иногда не нужна.',
         'links' => [
             [
+                'href'  => '/tarify/stoimost-crm',
+                'label' => 'Сколько стоит CRM-система',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-crm-po-otraslyam',
                 'label' => 'Внедрение CRM по отраслям',
             ],

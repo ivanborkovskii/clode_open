@@ -643,6 +643,10 @@ return [
             . 'с отраслевой страницы.',
         'links' => [
             [
+                'href'  => '/tarify/stoimost-crm',
+                'label' => 'Сколько стоит CRM-система',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-bitrix24',
                 'label' => 'Внедрение Битрикс24',
             ],

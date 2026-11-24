@@ -1132,7 +1132,7 @@
   background: var(--paper);
 }
 
-/* Прокрутка принадлежит полосе, а не странице: на узком экране три
+/* Прокрутка принадлежит полосе, а не странице: на узком экране четыре
    вкладки в строку не помещаются, и уезжать вбок должна только она. */
 .tarif-tabs__row {
   display: flex;
@@ -1249,8 +1249,16 @@
 
 .calc__note { margin-top: var(--s-6); }
 
+/* В калькуляторе бюджета полей вдвое больше, чем в лицензионном:
+   одной колонкой они растянулись бы на полтора экрана. */
+.calc__fields--pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
 @media (max-width: 767px) {
   .calc__grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 479px) {
+  .calc__fields--pair { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* --------------------------------------------------------------------------
