@@ -19,6 +19,12 @@
 <?php $view->partial('sections/facts',    ['facts' => $page['facts']]); ?>
 <?php $view->partial('sections/expert',   ['expert' => $page['expert']]); ?>
 
+<?php // Отзывы идут сразу после рассказа о том, кто ведёт проекты:
+      // там читатель и задаётся вопросом, можно ли верить написанному. ?>
+<?php if (!empty($page['reviews'])): ?>
+    <?php $view->partial('sections/reviews', ['reviews' => $page['reviews']]); ?>
+<?php endif; ?>
+
 <?php // Переход к разбору критериев выбора подрядчика. Стоит здесь
       // намеренно: сразу после партнёрских статусов, которыми обычно
       // и пытаются проверять интегратора. ?>

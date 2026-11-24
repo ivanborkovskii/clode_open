@@ -1327,3 +1327,74 @@
 /* Строка перед списком разделов, когда не нашлось ничего. */
 .sres__note { margin: var(--s-6) 0 0; color: var(--text-muted); }
 .sres__note + .sres { margin-top: var(--s-5); }
+
+/* Отзывы на «О компании».
+
+   Отзывов на сайте нет — есть оценка профиля на стороне и ссылка на него.
+   Поэтому блок устроен как одна карточка, а не как лента цитат: слева
+   цифра со звёздами, справа объяснение и кнопка. */
+.reviews__card {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: var(--s-7);
+  align-items: center;
+  padding: var(--s-6);
+  background: var(--paper-alt);
+  border-radius: var(--radius);
+}
+
+.reviews__score { text-align: center; }
+
+.reviews__value {
+  margin: 0;
+  font-size: clamp(2.75rem, 2rem + 3vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.reviews__stars {
+  display: flex;
+  justify-content: center;
+  gap: var(--s-1);
+  margin-top: var(--s-3);
+}
+
+/* Та же пара цветов, что и у оценки статьи: закрашенная звезда
+   и погашенная. Держать для них две разные палитры незачем. */
+.reviews__star { display: inline-flex; color: #b8bfd0; }
+.reviews__star svg { fill: none; }
+.reviews__star.is-on { color: #f0a41e; }
+.reviews__star.is-on svg { fill: currentColor; }
+
+.reviews__count {
+  margin: var(--s-3) 0 0;
+  font-weight: 700;
+}
+
+/* Дата среза — отдельной строкой и тише: это оговорка к цифре,
+   а не сама цифра. */
+.reviews__count span {
+  display: block;
+  margin-top: var(--s-1);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+}
+
+.reviews__body p {
+  margin: 0 0 var(--s-5);
+  line-height: 1.65;
+}
+
+/* На телефоне колонки складываются в одну: в 260 точек цифра со звёздами
+   ещё помещается, а текст рядом с ней — уже нет. */
+@media (max-width: 767px) {
+  .reviews__card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-6);
+    text-align: center;
+  }
+
+  .reviews__body p { text-align: left; }
+}

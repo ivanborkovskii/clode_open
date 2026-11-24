@@ -16,6 +16,10 @@
  * Ссылка необязательна. Если она есть, но та страница ещё не сделана,
  * блок всё равно выводится — пропадает только ссылка.
  *
+ * Ссылка может вести и наружу. Проверять существование чужой страницы
+ * нечем, поэтому внешний адрес выводится как есть — и, в отличие от
+ * внутреннего, открывается в новой вкладке.
+ *
  * Своей вёрстки не имеет — берёт оформление блока «что дальше»: тот же
  * отступ, та же акцентная полоса слева.
  *
@@ -24,7 +28,9 @@
 
 use App\Core\View;
 
-$hasLink = !empty($aside['href']) && $view->exists($aside['href']);
+$href     = $aside['href'] ?? '';
+$external = str_starts_with($href, 'http');
+$hasLink  = $href !== '' && ($external || $view->exists($href));
 ?>
 <?php if ($hasLink || !empty($aside['title'])): ?>
 <section class="section section--tight next-step">
@@ -37,7 +43,8 @@ $hasLink = !empty($aside['href']) && $view->exists($aside['href']);
             <p><?= View::e($aside['text']) ?></p>
 
             <?php if ($hasLink): ?>
-                <a class="link-arrow" href="<?= View::e($aside['href']) ?>">
+                <a class="link-arrow" href="<?= View::e($href) ?>"
+                   <?= $external ? 'target="_blank" rel="noopener"' : '' ?>>
                     <?= View::e($aside['label']) ?>
                     <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
                 </a>
