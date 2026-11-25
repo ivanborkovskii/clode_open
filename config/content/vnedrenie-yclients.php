@@ -396,6 +396,10 @@ return [
                 'label' => 'Внедрение CRM для фитнес-центра',
             ],
             [
+                'href'  => '/uslugi/crm-dlya-detskih-centrov',
+                'label' => 'CRM для детских центров',
+            ],
+            [
                 'href'  => '/uslugi/vnedrenie-crm-dlya-servisnogo-centra',
                 'label' => 'CRM для сервисного центра',
             ],

@@ -830,6 +830,22 @@ final class ServiceController extends Controller
                 . 'срок от 30 дней.',
         ],
 
+        // Адрес намеренно без слова «внедрение»: страница отвечает
+        // на запрос «CRM для детского центра», а не «внедрение CRM
+        // для детского центра». Родитель тот же, что у соседей
+        // по отрасли, — каталог отраслевого внедрения.
+        'crm-dlya-detskih-centrov' => [
+            'content'     => 'crm-dlya-detskih-centrov',
+            'crumb'       => 'Детские центры',
+            'group'       => 'obshchie',
+            'parent'      => 'vnedrenie-crm-po-otraslyam',
+            'title'       => 'CRM для детского центра — онлайн-запись и повторные продажи',
+            'description' => 'Подбор и внедрение CRM для детских центров. '
+                . 'Онлайн-запись, расписание занятий, база детей '
+                . 'и родителей, абонементы и повторные продажи. '
+                . 'Настройка от 30 000 ₽.',
+        ],
+
         'vnedrenie-crm-dlya-avtoservisa' => [
             'content'     => 'vnedrenie-crm-dlya-avtoservisa',
             'crumb'       => 'Автосервис',
