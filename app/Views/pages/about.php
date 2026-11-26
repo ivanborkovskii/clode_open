@@ -25,11 +25,11 @@
     <?php $view->partial('sections/reviews', ['reviews' => $page['reviews']]); ?>
 <?php endif; ?>
 
-<?php // Переход к разбору критериев выбора подрядчика. Стоит здесь
-      // намеренно: сразу после партнёрских статусов, которыми обычно
-      // и пытаются проверять интегратора. ?>
+<?php // Переход к разборам критериев выбора подрядчика — по Битрикс24
+      // и по amoCRM. Стоит здесь намеренно: сразу после партнёрских
+      // статусов, которыми обычно и пытаются проверять интегратора. ?>
 <?php if (!empty($page['choose'])): ?>
-    <?php $view->partial('sections/service-aside', ['aside' => $page['choose']]); ?>
+    <?php $view->partial('sections/approach', ['approach' => $page['choose']]); ?>
 <?php endif; ?>
 
 <?php $view->partial('sections/process',  ['process' => $page['process']]); ?>
