@@ -6,12 +6,13 @@
  * стоимость лицензии проще всего принять за стоимость внедрения,
  * и разбираться с этим потом дороже, чем предупредить здесь.
  *
- * Вторая такая же пара — text и link — выводится из extra, если она есть.
- * Нужна для случая, когда на странице с ценами надо сказать ещё одну
- * вещь: цены здесь для покупки, а для уже купленной лицензии разговор
- * другой. Отдельной секции под одну фразу заводить незачем.
+ * Дальше идут такие же пары — text и link — из extra, если они есть.
+ * Нужны для случая, когда на странице с ценами надо сказать ещё одну
+ * вещь: цены здесь для покупки облачного тарифа, а для уже купленной
+ * лицензии и для коробочной версии разговор другой. Отдельной секции
+ * под одну фразу заводить незачем.
  *
- * @var array $separate label, title, text, link, extra
+ * @var array $separate label, title, text, link, extra — список пар
  */
 
 use App\Core\View;
@@ -28,14 +29,14 @@ use App\Core\View;
                 <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
             </a>
 
-            <?php if (!empty($separate['extra'])): ?>
-                <p class="tarif-separate__text"><?= View::e($separate['extra']['text']) ?></p>
+            <?php foreach ($separate['extra'] ?? [] as $extra): ?>
+                <p class="tarif-separate__text"><?= View::e($extra['text']) ?></p>
 
-                <a class="btn btn--outline" href="<?= View::e($separate['extra']['link']['href']) ?>">
-                    <?= View::e($separate['extra']['link']['label']) ?>
+                <a class="btn btn--outline" href="<?= View::e($extra['link']['href']) ?>">
+                    <?= View::e($extra['link']['label']) ?>
                     <svg width="18" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg>
                 </a>
-            <?php endif; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>

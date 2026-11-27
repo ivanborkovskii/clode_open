@@ -1253,3 +1253,30 @@
     });
   });
 })();
+
+/* Кнопка в карточке лицензии подставляет её название в заявку.
+
+   Без скрипта кнопка — обычная ссылка на форму: человек доезжает
+   до неё и пишет сам. Со скриптом поле «Задача» заполняется за него,
+   и нам не приходится переспрашивать, какую именно редакцию он имел
+   в виду. Уже написанное не затираем: если человек что-то успел
+   набрать, его текст важнее нашей подстановки. */
+(function () {
+  'use strict';
+
+  var buttons = document.querySelectorAll('[data-licenziya]');
+
+  if (!buttons.length) {
+    return;
+  }
+
+  buttons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var field = document.getElementById('f-message');
+
+      if (field && field.value.trim() === '') {
+        field.value = button.getAttribute('data-licenziya');
+      }
+    });
+  });
+})();

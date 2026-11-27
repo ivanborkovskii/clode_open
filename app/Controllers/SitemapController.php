@@ -43,7 +43,9 @@ final class SitemapController extends Controller
         '/privacy'    => 'legal',
         '/soglasie'   => 'legal',
 
+        TariffController::STOIMOST  => 'stoimost-crm',
         TariffController::BITRIX    => 'tarify-bitrix24',
+        TariffController::KOROBKA   => 'korobochnyy-bitrix24',
         TariffController::AMOCRM    => 'tarify-amocrm',
         TariffController::PRODLENIE => 'service-prodlenie-bitrix24',
     ];

@@ -1,8 +1,10 @@
 <?php
 /**
- * Раздел «Тарифы и лицензии»: три страницы под три разных вопроса.
+ * Раздел «Тарифы и лицензии»: страница на каждый отдельный вопрос о цене.
  *
- *   /tarify/bitriks24                  — какой Битрикс24 купить;
+ *   /tarify/stoimost-crm               — во что обойдётся CRM целиком;
+ *   /tarify/bitriks24                  — какой облачный Битрикс24 купить;
+ *   /tarify/korobochnyy-bitrix24       — какую коробочную лицензию купить;
  *   /tarify/tarify-amocrm              — какой тариф amoCRM купить;
  *   /tarify/prodlenie-licenzii-bitrix24 — сколько стоит продлить купленный.
  *
@@ -16,8 +18,12 @@
  * продления выбран в этом же разделе: страница новая и нигде
  * не проиндексирована, так что ограничений у неё нет.
  *
- * Три страницы связаны вкладками (partials/tarif-tabs). Содержимое при
- * этом не смешивается: один раздел сайта — три самостоятельных интента.
+ * Страницы связаны вкладками (partials/tarif-tabs). Содержимое при этом
+ * не смешивается: один раздел сайта — несколько самостоятельных интентов.
+ *
+ * Облако и коробка разведены намеренно. Это разные покупки с разными
+ * ценами, разным порядком оформления и разными последствиями, и сводить
+ * их на одну страницу значит обе сделать хуже.
  */
 
 declare(strict_types=1);
@@ -33,6 +39,7 @@ final class TariffController extends Controller
     public const AMOCRM    = '/tarify/tarify-amocrm';
     public const PRODLENIE = '/tarify/prodlenie-licenzii-bitrix24';
     public const STOIMOST  = '/tarify/stoimost-crm';
+    public const KOROBKA   = '/tarify/korobochnyy-bitrix24';
 
     /**
      * Вкладки раздела. Текущая отмечена active и выводится не ссылкой.
@@ -45,10 +52,11 @@ final class TariffController extends Controller
     public static function tabs(string $current): array
     {
         $tabs = [
-            ['label' => 'Стоимость CRM',       'href' => self::STOIMOST],
-            ['label' => 'Тарифы Битрикс24',    'href' => self::BITRIX],
-            ['label' => 'Тарифы amoCRM',       'href' => self::AMOCRM],
-            ['label' => 'Продление Битрикс24', 'href' => self::PRODLENIE],
+            ['label' => 'Стоимость CRM',                'href' => self::STOIMOST],
+            ['label' => 'Тарифы Битрикс24',             'href' => self::BITRIX],
+            ['label' => 'Коробочные лицензии Битрикс24', 'href' => self::KOROBKA],
+            ['label' => 'Тарифы amoCRM',                'href' => self::AMOCRM],
+            ['label' => 'Продление Битрикс24',          'href' => self::PRODLENIE],
         ];
 
         foreach ($tabs as &$tab) {
@@ -61,7 +69,7 @@ final class TariffController extends Controller
     /** Адреса раздела — для карты сайта и для меню. */
     public static function paths(): array
     {
-        return [self::STOIMOST, self::BITRIX, self::AMOCRM, self::PRODLENIE];
+        return [self::STOIMOST, self::BITRIX, self::KOROBKA, self::AMOCRM, self::PRODLENIE];
     }
 
     /**
@@ -176,6 +184,101 @@ final class TariffController extends Controller
                 'breadcrumbs' => [
                     ['label' => 'Главная',       'href' => '/'],
                     ['label' => 'Тарифы amoCRM', 'href' => self::AMOCRM],
+                ],
+                'jsonld' => $jsonld,
+            ],
+            'page' => $page,
+            'form' => $this->formFlash(),
+        ]));
+    }
+
+    /**
+     * Коробочные лицензии Битрикс24 — первичная покупка.
+     *
+     * Соседние страницы раздела отвечают на другие вопросы: /tarify/bitriks24
+     * про облачные тарифы, продление — про уже купленную лицензию. Здесь
+     * один интент: человек покупает коробку впервые и выбирает редакцию.
+     *
+     * Разметка ItemList собирается из блока license-cards, а не из
+     * отдельного массива: иначе цены в разметке и цены на странице
+     * однажды разойдутся. Схема своя, а не Schema::products: там цена
+     * за месяц облачного тарифа, здесь — сумма за лицензию на 12 месяцев.
+     */
+    public function korobka(): void
+    {
+        $page = $this->content('korobochnyy-bitrix24');
+
+        $jsonld = [[
+            '@type'       => 'Service',
+            '@id'         => $this->url(self::KOROBKA) . '#service',
+            'name'        => 'Подбор и покупка коробочной лицензии Битрикс24',
+            'description' => 'Помощь в выборе редакции коробочного Битрикс24, '
+                . 'проверка актуальной стоимости и оформление покупки.',
+            'serviceType' => 'Коробочные лицензии Битрикс24',
+            'provider'    => ['@id' => $this->config['base_url'] . '/#organization'],
+            'url'         => $this->url(self::KOROBKA),
+        ]];
+
+        foreach ($page['blocks'] ?? [] as $block) {
+            if (($block['view'] ?? '') !== 'license-cards') {
+                continue;
+            }
+
+            $jsonld[] = [
+                '@type' => 'ItemList',
+                '@id'   => $this->url(self::KOROBKA) . '#licenzii',
+                'itemListElement' => array_map(
+                    function (int $i, array $card): array {
+                        $price = (string) $card['price'];
+
+                        return [
+                            '@type'    => 'ListItem',
+                            'position' => $i + 1,
+                            'item'     => [
+                                '@type'       => 'Product',
+                                'name'        => 'Битрикс24 ' . $card['name'],
+                                'description' => $card['official'],
+                                'brand'       => ['@type' => 'Brand', 'name' => 'Битрикс24'],
+                                'offers' => [
+                                    '@type'         => 'Offer',
+                                    'url'           => $this->url(self::KOROBKA),
+                                    'price'         => $price,
+                                    'priceCurrency' => 'RUB',
+                                    'availability'  => 'https://schema.org/InStock',
+                                    'priceSpecification' => [
+                                        '@type'         => 'UnitPriceSpecification',
+                                        'price'         => $price,
+                                        'priceCurrency' => 'RUB',
+                                        'unitText'      => 'лицензия на 12 месяцев',
+                                    ],
+                                ],
+                            ],
+                        ];
+                    },
+                    array_keys($block['items']),
+                    array_values($block['items']),
+                ),
+            ];
+
+            break;
+        }
+
+        if (!empty($page['faq']['items'])) {
+            $jsonld[] = Schema::faq($this->url(self::KOROBKA), $page['faq']['items']);
+        }
+
+        $this->html($this->view->render('service', [
+            'styles' => ['css/pages.css'],
+            'tabs'   => self::tabs(self::KOROBKA),
+            'seo' => [
+                'title'       => 'Коробочный Битрикс24 — лицензии, тарифы и цены',
+                'description' => 'Лицензии коробочного Битрикс24 на 27.11.2026: '
+                    . 'Корпоративный портал 50 — 159 000 ₽, 100 — 229 000 ₽, '
+                    . '250 — 349 000 ₽, 500 — 599 000 ₽. Поможем выбрать редакцию.',
+                'canonical'   => $this->url(self::KOROBKA),
+                'breadcrumbs' => [
+                    ['label' => 'Главная',               'href' => '/'],
+                    ['label' => 'Коробочный Битрикс24',  'href' => self::KOROBKA],
                 ],
                 'jsonld' => $jsonld,
             ],

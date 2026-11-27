@@ -83,6 +83,7 @@ $blockViews = [
     'service-calc'    => 'calc',
     'service-budget'  => 'budget',
     'service-shots'   => 'shots',
+    'license-cards'   => 'cards',
 ];
 ?>
 <?php foreach ($page['blocks'] ?? [] as $block): ?>

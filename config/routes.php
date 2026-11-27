@@ -27,6 +27,7 @@ $router->get('/resheniya/{slug}', 'SolutionController@show', SolutionController:
 // в комментарии к TariffController.
 $router->get('/tarify/stoimost-crm', 'TariffController@stoimost');
 $router->get('/tarify/bitriks24', 'TariffController@bitrix');
+$router->get('/tarify/korobochnyy-bitrix24', 'TariffController@korobka');
 $router->get('/tarify/tarify-amocrm', 'TariffController@amocrm');
 $router->get('/tarify/prodlenie-licenzii-bitrix24', 'TariffController@prodlenie');
 
