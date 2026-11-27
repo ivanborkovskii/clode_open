@@ -1280,3 +1280,45 @@
     });
   });
 })();
+
+/* Выбор ступени тарифа Энтерпрайз пересчитывает цену в карточке.
+
+   Цены ступеней уже готовыми строками лежат в самих пунктах списка
+   (data-month и data-year): считать здесь нечего, и ошибиться
+   в округлении или в формате негде. Без скрипта список остаётся
+   списком, в котором рядом с каждой ступенью написана её цена,
+   а полная сетка всё равно стоит таблицей ниже по странице. */
+(function () {
+  'use strict';
+
+  var select = document.querySelector('[data-tarif-scale]');
+
+  if (!select) {
+    return;
+  }
+
+  var card = select.closest('.tarif');
+
+  if (!card) {
+    return;
+  }
+
+  var sum  = card.querySelector('[data-tarif-sum]');
+  var year = card.querySelector('[data-tarif-year]');
+
+  select.addEventListener('change', function () {
+    var step = select.options[select.selectedIndex];
+
+    if (!step) {
+      return;
+    }
+
+    if (sum) {
+      sum.textContent = step.getAttribute('data-month');
+    }
+
+    if (year) {
+      year.textContent = step.getAttribute('data-year');
+    }
+  });
+})();

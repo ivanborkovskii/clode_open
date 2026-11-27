@@ -1018,6 +1018,82 @@
   font-size: var(--fs-sm);
 }
 
+/* --- Тариф во всю ширину ряда ---
+
+   Нужен Энтерпрайзу. У остальных тарифов одна цена, а у него сетка
+   из двенадцати ступеней: переключатель ступени в колонку шириной
+   в четверть ряда не помещается, да и ставить тариф на 10 000
+   пользователей вровень с бесплатным было бы странно.
+
+   Раскладка задана областями, а не автоматическим размещением:
+   слева цена и выбор ступени, справа список возможностей. При
+   автоматическом размещении список встал бы напротив строки
+   пользователей и растянул бы её ряд. */
+.tarif--wide {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+  grid-template-areas:
+    'name  title'
+    'users list'
+    'price list'
+    'year  list'
+    'pick  btn'
+    'note  btn';
+  column-gap: clamp(1.5rem, 4vw, 3rem);
+  align-content: start;
+}
+
+.tarif--wide .tarif__name  { grid-area: name; }
+.tarif--wide .tarif__users { grid-area: users; }
+.tarif--wide .tarif__price { grid-area: price; }
+.tarif--wide .tarif__year  { grid-area: year; }
+.tarif--wide .tarif-pick   { grid-area: pick; }
+.tarif--wide .tarif__note  { grid-area: note; }
+.tarif--wide .tarif__title { grid-area: title; }
+.tarif--wide .tarif__list  { grid-area: list; }
+.tarif--wide .btn          { grid-area: btn; }
+
+/* Строка про оплату за год в широкой карточке занимает одну строку:
+   высоту ей держать не нужно — рядом нет карточек, с которыми она
+   должна стоять вровень. */
+.tarif--wide .tarif__year { min-height: 0; }
+
+/* Заголовок списка стоит в правой колонке, а не под ценой, и линия
+   над ним читалась бы как оборванная черта посреди карточки. */
+.tarif--wide .tarif__title {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Список занимает высокую область — на четыре строки левой колонки.
+   Без этого его пункты растянулись бы по всей её высоте и перестали
+   читаться списком. */
+.tarif--wide .tarif__list {
+  align-content: start;
+  margin-bottom: 0;
+}
+
+/* В ряду из четырёх карточек кнопка на всю ширину уместна, в широкой —
+   нет: получилась бы кнопка в половину экрана. */
+.tarif--wide .btn {
+  margin-top: var(--s-4);
+  width: auto;
+  align-self: start;
+  justify-self: start;
+  padding-inline: var(--s-6);
+}
+
+.tarif-pick { margin-top: var(--s-5); }
+
+.tarif__note {
+  margin-top: var(--s-4);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
 /* --- Таблица сравнения --- */
 
 .tarif-table__scroll {
@@ -1119,6 +1195,28 @@
 @media (max-width: 1149px) {
   .tarifs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tarifs--three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Две колонки внутри широкой карточки живут, пока левой хватает
+   21rem. Ниже — в одну колонку, тем же порядком, что и в разметке. */
+@media (max-width: 859px) {
+  .tarif--wide {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'name' 'users' 'price' 'year' 'pick' 'note' 'title' 'list' 'btn';
+  }
+
+  .tarif--wide .btn { width: 100%; }
+
+  /* В одну колонку заголовок списка снова стоит под ценой, и линия
+     над ним снова на месте — как в обычной карточке. */
+  .tarif--wide .tarif__title {
+    margin-top: var(--s-5);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+
+  .tarif--wide .tarif__list { margin-bottom: var(--s-5); }
 }
 
 @media (max-width: 639px) {
