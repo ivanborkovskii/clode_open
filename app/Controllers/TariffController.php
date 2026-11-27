@@ -52,11 +52,11 @@ final class TariffController extends Controller
     public static function tabs(string $current): array
     {
         $tabs = [
-            ['label' => 'Стоимость CRM',                'href' => self::STOIMOST],
-            ['label' => 'Тарифы Битрикс24',             'href' => self::BITRIX],
+            ['label' => 'Стоимость CRM',                 'href' => self::STOIMOST],
+            ['label' => 'Облачные тарифы Битрикс24',     'href' => self::BITRIX],
             ['label' => 'Коробочные лицензии Битрикс24', 'href' => self::KOROBKA],
-            ['label' => 'Тарифы amoCRM',                'href' => self::AMOCRM],
-            ['label' => 'Продление Битрикс24',          'href' => self::PRODLENIE],
+            ['label' => 'Тарифы amoCRM',                 'href' => self::AMOCRM],
+            ['label' => 'Продление Битрикс24',           'href' => self::PRODLENIE],
         ];
 
         foreach ($tabs as &$tab) {
